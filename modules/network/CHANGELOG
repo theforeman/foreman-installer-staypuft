@@ -1,0 +1,155 @@
+2013-08-18 Michael Arnold <github@razorsedge.org> - 3.2.0
+=========================================================
+
+ Michael Arnold <github@razorsedge.org> (10):
+  * Add contribution instructions to README.md.
+  * Uplift code to pass lint and formatting standards.
+  * Add support for bridge startup delay.
+  * Remove unneeded parameters in bridging code.
+  * Add rspec tests for bridging code.
+  * Set bridge startup delay to the default of 30.
+  * Update README.md with bridging details.
+  * Update README.md to state support for bridging.
+  * Add suport to bridging config for STP and BRIDGING_OPTS.
+  * Update versions for 3.2.0 release.
+ 
+ Alexandru Barbur <alex@barbur.net> (3):
+  * Add support for bridged interfaces using a defined interface type.
+  * Rename the bridged network interface type to drop the d, like django.
+  * Typo in the type definition.
+ 
+ David Cote <dcote@ubuntu.(none)> (2):
+  * Now supporting bridge interface template and a bond interface could be
+    bridged as well
+  * Now supporting bridge interface template and a bond interface could be
+    bridged as well
+ 
+
+2013-07-23 Michael Arnold <github@razorsedge.org> - 3.1.0
+=========================================================
+
+ Michael Arnold <github@razorsedge.org> (7):
+  * Update tests/init.pp to local standards.
+  * Expand Puppet versions tested in Travis-CI.
+  * Rake validate to also check ERB for syntax errors.
+  * Remove git-log-to-changelog from Modulefile.
+  * Fix details of userctl in README.md.
+  * Fix ruby 1.9.3+ undefined method `each' in route.pp.
+  * Update versions for 3.1.0 release.
+ 
+ Josh Smeaton <josh.smeaton@gmail.com> (3):
+  * Implemented USERCTL option for interfaces and aliases
+  * Updated to reflect new userctl option for interface alias
+  * remove trailing comma to support puppet 2.6
+ 
+ Bert Van Vreckem <bert.vanvreckem@gmail.com> (1):
+  * Fixed ERB template deprecation warnings
+ 
+
+2013-05-26 Michael Arnold <github@razorsedge.org> - 3.0.0
+=========================================================
+
+ Michael Arnold <github@razorsedge.org> (21):
+  * Make network::global a parameterized class.
+  * Update documentation.
+  * Update TODO.md.
+  * Fix for Travis-CI failure to load puppet-lint.
+  * Add support for newer OSs without /etc/modprobe.conf.
+  * Make puppet-lint happy about line lengths.
+  * Standardize .gemfile layout.
+  * More fixes to allow bonding module to autoload.
+  * Add rspec tests for bonding module autoload additions.
+  * Refactor to deal with the anchor problem.
+  * Set the bonding_opts param default to miimon=100.
+  * Reformat documentation.
+  * Remove PEERDNS support from network::if::alias.
+  * Support for aliasing ranges of IPs.
+  * Remove the rest of the PEERDNS support from alias.
+  * Added two test files for alias ranges.
+  * Rename network::*::alias to network::alias.
+  * Add CHANGELOG generation during module build.
+  * Rename network::route address parameter to ipaddress.
+  * Forgot to update tests/route.pp ipaddress.
+  * Update versions for 3.0.0 release.
+ 
+
+2013-01-13 Michael Arnold <github@razorsedge.org> - 2.2.0
+=========================================================
+
+ Michael Arnold <github@razorsedge.org> (21):
+  * Fix template error by $peerdns in network_if_base
+  * Make sure that NetworkManager does not manage.
+  * Fix Modulefile to be parsable again.
+  * Massive puppet-lint cleanup.
+  * Fix $macaddress.
+  * Add support for $domain to network::if::alias.
+  * Change $peerdns to boolean.
+  * Add support for $peerdns to network::bond::static.
+  * Added puppetlabs_spec_helper and other boilerplate
+  * Added first set of rspec tests.
+  * Add context 'singular parameters'.
+  * Updated Travis config file.
+  * Added the rest of the rspec tests.
+  * Added Travis buildstatus to README.md.
+  * Reverse $iftemplate assignments in 'if $isalias'
+  * Quote strings in selectors and case statements.
+  * Add data validation and rspec tests.
+  * Update documentation.
+  * Improve Markdown formatting.
+  * Update dependency in Modulefile.
+  * Update versions for 2.2.0 release.
+ 
+ Dave Mangot <dmangot@salesforce.com> (1):
+  * cleaned up to conform to style guide via puppet-lint
+    --no-only_variable_string-check
+ 
+ Joshua Hoblitt <jhoblitt@cpan.org> (1):
+  * Make the macaddress argument to network::if::dynamic and
+    network::if::static optional.  In additional to removing the need in most
+    cases for an extra argument, it also makes it possible to operate on
+    lists of inetfaces.  eg.
+ 
+ Tony Bussieres <tony.bussieres@ticksmith.com> (1):
+  * variable peerdns was not of type string, but boolean
+ 
+
+2012-05-26 Michael Arnold <github@razorsedge.org> - 2.1.0
+=========================================================
+
+ 5Ub-Z3r0 <5ub-z3r0@nikorasu.net> (2):
+  * Update templates/network.erb
+  * Update manifests/global.pp
+ 
+ Jamie Reid <jamie@jre.id.au> (2):
+  * Added support for DOMAIN= line to if::static
+  * Fixed missing line in init.pp
+ 
+ Michael Arnold <github@razorsedge.org> (2):
+  * Added to the TODO list.
+  * Change github account to razorsedge
+ 
+ Nicholas Angelo Crespi <nicholas.crespi@DEV185.hq.moviri.com> (2):
+  * Added support for PEERDNS and DNS1/DNS2
+  * Fixed: detailed puppet-side explanation of what a hostname change will
+    break
+ 
+
+2012-03-18 Michael Arnold <github@razorsedge.org> - 2.0.0
+=========================================================
+
+ Steve Huff <shuff@vecna.org> (4):
+  * Reorganizing files to support module autodiscovery
+  * Moved defines into their own files
+  * d'oh, forgot network::bond::dynamic
+  * and fixed network::bond::static as well
+ 
+ Michael Arnold <github@razorsedge.org> (3):
+  * Fix a few things with the previous merge.
+  * Fixed last remaining network_if_base typo.
+  * Final fixes for Forge 2.0.0 release.
+ 
+
+2011-09-04 Mike Arnold <mike@razorsedge.org> - 1.0.0
+====================================================
+
+
