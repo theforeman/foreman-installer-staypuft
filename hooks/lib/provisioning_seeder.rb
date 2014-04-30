@@ -65,8 +65,8 @@ class ProvisioningSeeder
                                                      'tftp_id' => default_proxy['id']})
 
     name = 'PXELinux global default'
-    @foreman.config_template.show_or_ensure({'id' => name},
-                                            {'template' => template})
+    pxe_template = @foreman.config_template.show_or_ensure({'id' => name},
+                                                           {'template' => template})
 
     @foreman.config_template.build_pxe_default
 
