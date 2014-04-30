@@ -12,7 +12,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.0.2
+Version:    0.0.3
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -57,6 +57,9 @@ cp -R hooks modules %{buildroot}%{_datadir}/foreman-installer
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft.pp
 
 %changelog
+* Wed Apr 30 2014 Marek Hulan <mhulan@redhat.com> 0.0.3-1
+- Fix pxe_template discovery env issue (mhulan@redhat.com)
+
 * Wed Apr 30 2014 Marek Hulan <mhulan@redhat.com> 0.0.2-1
 - Fix seeding and download discovery images (mhulan@redhat.com)
 
