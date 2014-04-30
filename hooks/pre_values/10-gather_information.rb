@@ -41,4 +41,6 @@ if app_value(:provisioning_wizard)
   param('foreman', 'repo').value = 'nightly'
 
   param('puppet', 'server').value = true
+
+  param('foreman_plugin_discovery', 'install_images').value = true
 end

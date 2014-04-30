@@ -37,12 +37,12 @@ class ProvisioningSeeder
     os = find_default_os(foreman_host)
     medium = @foreman.installation_medium.index('search' => "name ~ #{os['name']}").first
 
-    if os['architectures'].nil?
+    if os['architectures'].nil? || os['architectures'].empty?
       @foreman.operating_system.update 'id' => os['id'],
                                        'operatingsystem' => {'architecture_ids' => [foreman_host['architecture_id']]}
     end
 
-    if os['media'].nil?
+    if os['media'].nil? || os['media'].empty?
       @foreman.operating_system.update 'id' => os['id'], 'operatingsystem' => {'medium_ids' => [medium['id']]}
     end
 
@@ -65,13 +65,13 @@ class ProvisioningSeeder
                                                      'tftp_id' => default_proxy['id']})
 
     name = 'PXELinux global default'
-    pxe_template = @foreman.config_template.show_or_ensure({'id' => name},
-                                                           {'template' => template})
+    @foreman.config_template.show_or_ensure({'id' => name},
+                                            {'template' => template})
 
     @foreman.config_template.build_pxe_default
 
-    ptable = assign_provisioning_templates(os)
-    assign_partition_table(os)
+    assign_provisioning_templates(os)
+    ptable = assign_partition_table(os)
 
     default_hostgroup = @foreman.hostgroup.show_or_ensure({'id' => 'base'},
                                                           {'name' => 'base',
@@ -118,7 +118,7 @@ class ProvisioningSeeder
       ptable_name = 'Preseed default'
     end
     ptable = @foreman.partition_table.first! %Q(name ~ "#{ptable_name}*")
-    if os['ptables'].nil?
+    if os['ptables'].nil? || os['ptables'].empty?
       @foreman.partition_table.update 'id' => ptable['id'], 'ptable' => {'operatingsystem_ids' => [os['id']]}
     end
     ptable
