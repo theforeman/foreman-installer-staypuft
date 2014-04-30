@@ -12,8 +12,8 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.0.1
-Release:    0%{?dotalphatag}%{?dist}
+Version:    0.0.2
+Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
 License:    GPLv3+ and ASL 2.0
@@ -57,6 +57,9 @@ cp -R hooks modules %{buildroot}%{_datadir}/foreman-installer
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft.pp
 
 %changelog
+* Wed Apr 30 2014 Marek Hulan <mhulan@redhat.com> 0.0.2-1
+- Fix seeding and download discovery images (mhulan@redhat.com)
+
 * Wed Apr 30 2014 Marek Hulan <mhulan@redhat.com> 0.0.1-0
 - new package built with tito
 
