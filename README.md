@@ -16,8 +16,8 @@ We publish this in official Foreman repositories. Visit [yum.theforeman.org](htt
 
 ## How do I build RPM myself?
 
-You can use release script which is a part of this repository. It creates a .srpm
-file that you can use. We build our packages in koji running at koji.katello.org.
+We use tito for building the package in our koji instance. Once you tag your changes
+you can trigger the build by running ```tito release koji```.
 
 ## What platforms are supported
 

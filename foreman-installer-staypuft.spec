@@ -12,8 +12,8 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    1.5.0
-Release:    0.develop%{?dotalphatag}%{?dist}
+Version:    0.0.1
+Release:    0%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
 License:    GPLv3+ and ASL 2.0
