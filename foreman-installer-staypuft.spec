@@ -57,4 +57,7 @@ cp -R hooks modules %{buildroot}%{_datadir}/foreman-installer
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft.pp
 
 %changelog
+* Wed Apr 30 2014 Marek Hulan <mhulan@redhat.com> 0.0.1-0
+- new package built with tito
+
 
