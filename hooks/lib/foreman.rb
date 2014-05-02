@@ -6,10 +6,11 @@ class Foreman
       :host => 'Host',
       :config_template => 'ConfigTemplate',
       :operating_system => 'OperatingSystem',
-      :installation_medium => 'Medium',
+      :medium => 'Medium',
       :template_kind => 'TemplateKind',
       :os_default_template => 'OsDefaultTemplate',
       :partition_table => 'Ptable',
+      :parameter => 'Parameter',
       :hostgroup => 'Hostgroup',
       :environment => 'Environment',
       :setting => 'Setting',
@@ -69,7 +70,7 @@ class Foreman
           object, _ = @api_resource.show(identifier)
         end
       rescue RestClient::ResourceNotFound
-        object, _ = @api_resource.create({@name.to_s => attributes})
+        object, _ = @api_resource.create({@name.to_s => attributes}.merge(identifier.tap {|h| h.delete('id')}))
       end
       object
     end

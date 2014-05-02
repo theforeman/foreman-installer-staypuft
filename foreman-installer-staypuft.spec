@@ -48,9 +48,11 @@ cp -R hooks modules %{buildroot}%{_datadir}/foreman-installer
 %defattr(-,root,root,-)
 %doc LICENSE
 %{_datadir}/foreman-installer/hooks/boot/10-add_options.rb
+%{_datadir}/foreman-installer/hooks/lib/base_seeder.rb
 %{_datadir}/foreman-installer/hooks/lib/foreman.rb
 %{_datadir}/foreman-installer/hooks/lib/provisioning_seeder.rb
 %{_datadir}/foreman-installer/hooks/lib/provisioning_wizard.rb
+%{_datadir}/foreman-installer/hooks/lib/subscription_seeder.rb
 %{_datadir}/foreman-installer/hooks/post/10-setup_provisioning.rb
 %{_datadir}/foreman-installer/hooks/pre_values/10-gather_information.rb
 %{_datadir}/foreman-installer/modules/network

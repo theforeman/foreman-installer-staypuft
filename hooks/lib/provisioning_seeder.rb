@@ -1,17 +1,13 @@
-require 'foreman_api'
 require 'ipaddr'
-require 'uri'
 
-class ProvisioningSeeder
+class ProvisioningSeeder < BaseSeeder
   attr_accessor :domain, :fqdn
 
   def initialize(kafo)
+    super
     @domain = kafo.param('foreman_proxy', 'dns_zone').value
-    @foreman_url = kafo.param('foreman_proxy', 'foreman_base_url').value
-    @fqdn = URI.parse(@foreman_url).host # TODO rescue error
     @environment = kafo.param('foreman', 'environment').value
-    @username = 'admin'
-    @password = 'changeme'
+
     wizard = kafo.config.app[:wizard]
     @netmask = wizard.netmask
     @network = wizard.network
@@ -22,20 +18,15 @@ class ProvisioningSeeder
     @kernel = kafo.param('foreman_plugin_discovery', 'kernel').value
     @initrd = kafo.param('foreman_plugin_discovery', 'initrd').value
     @discovery_env_name = 'discovery'
-
-    @logger = kafo.logger
-
-    # Foreman singleton instance
-    @foreman = Foreman.new(:base_url => @foreman_url, :username => @username, :password => @password)
   end
 
   def seed
-    # setup part
+    say HighLine.color("Starting to seed provisioning data", :good)
     default_proxy = find_default_proxy
     default_environment = find_default_environment
     foreman_host = find_foreman_host
     os = find_default_os(foreman_host)
-    medium = @foreman.installation_medium.index('search' => "name ~ #{os['name']}").first
+    medium = @foreman.medium.index('search' => "name ~ #{os['name']}").first
 
     if os['architectures'].nil? || os['architectures'].empty?
       @foreman.operating_system.update 'id' => os['id'],
@@ -88,7 +79,7 @@ class ProvisioningSeeder
     setup_setting(default_hostgroup)
     create_discovery_env(pxe_template)
 
-    say HighLine.color("Your system is ready to provision using '#{default_hostgroup['name']}' hostgroup", :good)
+    say HighLine.color("Use '#{default_hostgroup['name']}' hostgroup for provisioning", :good)
   end
 
   private
@@ -159,16 +150,6 @@ class ProvisioningSeeder
                                             'operatingsystem_id' => os['id']
       end
     end
-  end
-
-  def find_default_os(foreman_host)
-    @foreman.operating_system.show! 'id' => foreman_host['operatingsystem_id'],
-                                    :error_message => "operating system for #{@fqdn} not found, DB inconsitency?"
-  end
-
-  def find_foreman_host
-    @foreman.host.show! 'id' => @fqdn,
-                        :error_message => "host #{@fqdn} not found in foreman, puppet haven't run yet?"
   end
 
   def find_default_environment
