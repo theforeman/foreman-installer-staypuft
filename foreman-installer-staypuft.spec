@@ -24,6 +24,7 @@ BuildArch:  noarch
 
 Requires:   %{?scl_prefix}foreman-installer >= 1.5.0
 Requires:   %{?scl_prefix}rubygem-kafo >= 0.5.4
+Requires:   git
 
 %if 0%{?fedora} > 18
 Requires:   %{?scl_prefix}ruby(release)
@@ -50,6 +51,7 @@ cp -R hooks modules %{buildroot}%{_datadir}/foreman-installer
 %{_datadir}/foreman-installer/hooks/boot/10-add_options.rb
 %{_datadir}/foreman-installer/hooks/lib/base_seeder.rb
 %{_datadir}/foreman-installer/hooks/lib/foreman.rb
+%attr(755, root, root) %{_datadir}/foreman-installer/hooks/lib/install_modules.sh
 %{_datadir}/foreman-installer/hooks/lib/provisioning_seeder.rb
 %{_datadir}/foreman-installer/hooks/lib/provisioning_wizard.rb
 %{_datadir}/foreman-installer/hooks/lib/subscription_seeder.rb
