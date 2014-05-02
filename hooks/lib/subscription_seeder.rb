@@ -13,7 +13,8 @@ class SubscriptionSeeder < BaseSeeder
   def seed
     if subscription_seed?
       get = get_credentials
-      while get
+      while get || (invalid && !@skip)
+        puts HighLine.color('Credentials can not be empty', :bad) if !get && invalid
         get = get_credentials
       end
     else
@@ -46,14 +47,18 @@ class SubscriptionSeeder < BaseSeeder
 
   private
 
+  def invalid
+    @sm_username.empty? || @sm_password.empty?
+  end
+
   def get_credentials
     choose do |menu|
       menu.header = HighLine.color("\nEnter your subscription manager credentials?", :important)
       menu.prompt = ''
-      menu.choice('Subscription manager username: '.ljust(37) + @sm_username) { print 'value: '; @sm_username = gets.chomp }
-      menu.choice('Subscription manager password: '.ljust(37) + @sm_password) { print 'value: '; @sm_password = gets.chomp }
-      menu.choice('Comma separated repositories: '.ljust(37) + @repositories) { print 'value: '; @repositories = gets.chomp }
-      menu.choice('RHEL repo path (http(s) or nfs URL): '.ljust(37) + @repo_path) { print 'value: '; @repo_path = gets.chomp }
+      menu.choice('Subscription manager username: '.ljust(37) + HighLine.color(@sm_username, :info)) { print 'value: '; @sm_username = gets.chomp }
+      menu.choice('Subscription manager password: '.ljust(37) + HighLine.color(@sm_password, :info)) { print 'value: '; @sm_password = gets.chomp }
+      menu.choice('Comma separated repositories: '.ljust(37) + HighLine.color(@repositories, :info)) { print 'value: '; @repositories = gets.chomp }
+      menu.choice('RHEL repo path (http(s) or nfs URL): '.ljust(37) + HighLine.color(@repo_path, :info)) { print 'value: '; @repo_path = gets.chomp }
       menu.choice(HighLine.color('Credentials are correct', :run)) { false }
       menu.choice(HighLine.color("Skip this step (provisioning won't subscribe your machines)", :cancel)) {
         @skip = true; false

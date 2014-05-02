@@ -7,11 +7,11 @@ OS_MODULES=/usr/share/openstack-puppet/modules
 if [ -d $OFI_MODULES -a -d $OS_MODULES ]; then
   # copy modules from packages
   for mod in "$OFI_MODULES/*"; do
-    ln -s $mod $TARGET
+    ln -nfs $mod $TARGET
   done
 
   for mod in "$OS_MODULES/*"; do
-    ln -s $mod $TARGET
+    ln -nfs $mod $TARGET
   done
 else
   # get stable modules for git repositories
