@@ -42,7 +42,7 @@ class SubscriptionSeeder < BaseSeeder
       @foreman.parameter.show_or_ensure({'id' => 'subscription_manager', 'operatingsystem_id' => @os['id']},
                                         {
                                             'name' => 'subscription_manager',
-                                            'value' => true,
+                                            'value' => 'true',
                                         })
       @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_username', 'operatingsystem_id' => @os['id']},
                                         {
