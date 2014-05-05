@@ -60,6 +60,9 @@
   :foreman::plugin::setup:
     :dir_name: foreman
     :manifest_name: plugin/setup
+  :foreman::plugin::staypuft:
+    :dir_name: foreman
+    :manifest_name: plugin/staypuft
   :foreman::plugin::default_hostgroup:
     :dir_name: foreman
     :manifest_name: plugin/default_hostgroup
@@ -84,3 +87,6 @@
   :foreman::compute::ovirt:
     :dir_name: foreman
     :manifest_name: compute/ovirt
+
+  :provisioning_wizard: true
+  :installer_dir: /usr/share/foreman-installer

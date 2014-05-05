@@ -20,5 +20,6 @@ puppet:
 "foreman::plugin::discovery":
   install_images: false
 "foreman::plugin::tasks": true
+"foreman::plugin::staypuft": true
 "foreman::plugin::bootdisk": false
 
