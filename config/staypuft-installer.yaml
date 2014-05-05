@@ -4,9 +4,11 @@
 ## Installer configuration
 # Path to answer file
 :answer_file: /etc/foreman/staypuft-installer.answers.yaml
-:installer_dir: .
 # Uncomment if you want to load puppet modules from a specific path, $pwd/modules is used by default
 :modules_dir: /usr/share/foreman-installer/modules
+:provisioning_wizard: true
+:installer_dir: /usr/share/foreman-installer
+
 
 ## Useful for development, e.g. when you want to move log files to local directory
 :log_dir: '/var/log/foreman-installer'
@@ -60,9 +62,6 @@
   :foreman::plugin::setup:
     :dir_name: foreman
     :manifest_name: plugin/setup
-  :foreman::plugin::staypuft:
-    :dir_name: foreman
-    :manifest_name: plugin/staypuft
   :foreman::plugin::default_hostgroup:
     :dir_name: foreman
     :manifest_name: plugin/default_hostgroup
@@ -88,5 +87,3 @@
     :dir_name: foreman
     :manifest_name: compute/ovirt
 
-  :provisioning_wizard: true
-  :installer_dir: /usr/share/foreman-installer
