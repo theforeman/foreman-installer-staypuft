@@ -27,4 +27,5 @@ if app_value(:provisioning_wizard)
   # add other provisioning data
   pro_seeder = ProvisioningSeeder.new(kafo)
   pro_seeder.seed
+  `foreman-rake db:seed`
 end
