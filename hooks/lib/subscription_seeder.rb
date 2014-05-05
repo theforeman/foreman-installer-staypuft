@@ -59,7 +59,7 @@ class SubscriptionSeeder < BaseSeeder
       menu.choice('Subscription manager password: '.ljust(37) + HighLine.color(@sm_password, :info)) { print 'value: '; @sm_password = gets.chomp }
       menu.choice('Comma separated repositories: '.ljust(37) + HighLine.color(@repositories, :info)) { print 'value: '; @repositories = gets.chomp }
       menu.choice('RHEL repo path (http(s) or nfs URL): '.ljust(37) + HighLine.color(@repo_path, :info)) { print 'value: '; @repo_path = gets.chomp }
-      menu.choice(HighLine.color('Credentials are correct', :run)) { false }
+      menu.choice(HighLine.color('Proceed with configuration', :run)) { false }
       menu.choice(HighLine.color("Skip this step (provisioning won't subscribe your machines)", :cancel)) {
         @skip = true; false
       }
