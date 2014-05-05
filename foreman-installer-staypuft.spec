@@ -40,10 +40,20 @@ staypuft foreman plugin
 %setup -q -n %{name}-%{version}%{?dashalphatag}
 
 %build
+#replace shebangs for SCL
+%if %{?scl:1}%{!?scl:0}
+  sed -ri '1sX(/usr/bin/ruby|/usr/bin/env ruby)X%{scl_ruby}X' bin/staypuft-installer
+%endif
 
 %install
 install -d -m0755 %{buildroot}%{_datadir}/foreman-installer
 cp -R hooks modules %{buildroot}%{_datadir}/foreman-installer
+install -d -m0755 %{buildroot}%{_sbindir}
+cp bin/staypuft-installer %{buildroot}%{_sbindir}/staypuft-installer
+install -d -m0755 %{buildroot}%{_sysconfdir}/foreman/
+cp config/staypuft-installer.yaml %{buildroot}%{_sysconfdir}/foreman/staypuft-installer.yaml
+cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/staypuft-installer.answers.yaml
+
 
 %files
 %defattr(-,root,root,-)
@@ -59,6 +69,10 @@ cp -R hooks modules %{buildroot}%{_datadir}/foreman-installer
 %{_datadir}/foreman-installer/hooks/pre_values/10-gather_information.rb
 %{_datadir}/foreman-installer/modules/network
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft.pp
+
+%config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.yaml
+%config(noreplace) %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.answers.yaml
+%{_sbindir}/staypuft-installer
 
 %changelog
 * Mon May 05 2014 Marek Hulan <mhulan@redhat.com> 0.0.7-1
