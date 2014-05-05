@@ -18,6 +18,7 @@ class ProvisioningSeeder < BaseSeeder
     @kernel = kafo.param('foreman_plugin_discovery', 'kernel').value
     @initrd = kafo.param('foreman_plugin_discovery', 'initrd').value
     @discovery_env_name = 'discovery'
+    @default_root_pass = 'spengler'
   end
 
   def seed
@@ -80,6 +81,7 @@ class ProvisioningSeeder < BaseSeeder
                                                            'subnet_id' => default_subnet['id']})
 
     setup_setting(default_hostgroup)
+    setup_default_root_pass
     create_discovery_env(pxe_template)
 
     say HighLine.color("Use '#{default_hostgroup['name']}' hostgroup for provisioning", :good)
@@ -102,6 +104,14 @@ class ProvisioningSeeder < BaseSeeder
                                     {'value' => default_hostgroup['name'].to_s})
   rescue NoMethodError => e
     @logger.error "Setting with name 'base_hostgroup' not found, you must run 'foreman-rake db:seed' " +
+                      "and rerun installer to fix this issue."
+  end
+
+  def setup_default_root_pass
+    @foreman.setting.show_or_ensure({'id' => 'root_pass'},
+                                    {'value' => @default_root_pass})
+  rescue NoMethodError => e
+    @logger.error "Setting with name 'root_pass' not found, you must run 'foreman-rake db:seed' " +
                       "and rerun installer to fix this issue."
   end
 
@@ -177,7 +187,8 @@ ONTIMEOUT discovery
 LABEL discovery
 MENU LABEL Foreman Discovery
 KERNEL boot/#{@kernel}
-APPEND rootflags=loop initrd=boot/#{@initrd} root=live:/@foreman.iso rootfstype=auto ro rd.live.image rd.live.check rd.lvm=0 rootflags=ro crashkernel=128M elevator=deadline max_loop=256 rd.luks=0 rd.md=0 rd.dm=0 foreman.url=#{@foreman_url} nomodeset selinux=0 stateless
+APPEND rootflags=loop initrd=boot/#{@initrd} root=live:/foreman.iso rootfstype=auto ro rd.live.image rd.live.check rd.lvm=0 rootflags=ro crashkernel=128M elevator=deadline max_loop=256 rd.luks=0 rd.md=0 rd.dm=0 foreman.url=#{@foreman_url} nomodeset selinux=0 stateless
+IPAPPEND 2
 EOS
   end
 
