@@ -18,6 +18,9 @@
 class foreman::plugin::staypuft($configure_networking = true, $interface, $ip, $netmask, $gateway) {
   validate_bool($configure_networking)
 
+  foreman::plugin {'staypuft':
+  }
+
   if ($configure_networking) {
     class { 'network::global':
       gateway => $gateway,
