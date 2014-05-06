@@ -18,8 +18,19 @@
 class foreman::plugin::staypuft($configure_networking = true, $interface, $ip, $netmask, $gateway) {
   validate_bool($configure_networking)
 
-  foreman::plugin {'staypuft':
+  case $::operatingsystem {
+    'fedora': {
+      $staypuft_name = 'rubygem-staypuft'
+    }
+    default: {
+      $staypuft_name = 'ruby193-rubygem-staypuft'
+    }
   }
+
+  package { $staypuft_name:
+    ensure => installed,
+    notify => Class['foreman::service'],
+  } 
 
   if ($configure_networking) {
     class { 'network::global':
