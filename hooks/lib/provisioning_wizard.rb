@@ -152,7 +152,7 @@ class ProvisioningWizard
       if ip && network && netmask
         cidr = "#{network}/#{IPAddr.new(netmask).to_i.to_s(2).count('1')}"
         from = IPAddr.new(ip).succ.to_s
-        to = IPAddr.new(cidr).to_range.last.to_s
+        to = IPAddr.new(cidr).to_range.entries[-2].to_s
       end
 
       ifaces[i] = {:ip => ip, :netmask => netmask, :network => network, :cidr => cidr, :from => from, :to => to, :gateway => gateway}

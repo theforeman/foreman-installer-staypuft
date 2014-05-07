@@ -132,7 +132,7 @@ class ProvisioningSeeder < BaseSeeder
     # Default values used for provision template searching, some were renamed after 1.4
     if os['family'] == 'Redhat'
       tmpl_name = 'Kickstart default'
-      provision_tmpl_name = os['name'] == 'Redhat' ? 'Kickstart RHEL default' : tmpl_name
+      provision_tmpl_name = os['name'] == 'RedHat' ? 'Kickstart RHEL default' : tmpl_name
       ipxe_tmpl_name = 'Kickstart'
     elsif os['family'] == 'Debian'
       tmpl_name = provision_tmpl_name = 'Preseed'
