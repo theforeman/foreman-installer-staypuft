@@ -24,6 +24,7 @@ BuildArch:  noarch
 
 Requires:   %{?scl_prefix}foreman-installer >= 1.5.0
 Requires:   %{?scl_prefix}rubygem-kafo >= 0.5.4
+Requires:   %{?scl_prefix}rubygem-foreman_api >= 0.1.4
 Requires:   git
 
 %if 0%{?fedora} > 18
