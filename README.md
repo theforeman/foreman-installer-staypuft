@@ -12,7 +12,7 @@ Without any further effort you should be able to create your OpenStack deploymen
 
 ## Where can I download RPMs?
 
-We publish this in official Foreman repositories. Visit [yum.theforeman.org](http://yum.theforeman.org/ yum.theforeman.org) for more details.
+We publish this in official Foreman repositories. Visit [yum.theforeman.org](http://yum.theforeman.org/) for more details.
 
 ## How do I build RPM myself?
 

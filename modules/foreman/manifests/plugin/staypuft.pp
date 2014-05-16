@@ -15,7 +15,8 @@
 #
 # $gateway::              What is the gateway for this machine
 #
-class foreman::plugin::staypuft($configure_networking = true, $interface, $ip, $netmask, $gateway) {
+# $dns::                  DNS forwarder to use as secondary nameserver
+class foreman::plugin::staypuft($configure_networking = true, $interface, $ip, $netmask, $gateway, $dns) {
   validate_bool($configure_networking)
 
   case $::operatingsystem {
@@ -41,6 +42,9 @@ class foreman::plugin::staypuft($configure_networking = true, $interface, $ip, $
       ensure    => 'up',
       ipaddress => $ip,
       netmask   => $netmask,
+      dns1      => $ip,
+      dns2      => $dns,
+      peerdns   => true,
     }
   }
 }

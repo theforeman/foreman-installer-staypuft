@@ -32,6 +32,7 @@ if app_value(:provisioning_wizard)
   param('foreman_plugin_staypuft', 'ip').value = wizard.ip
   param('foreman_plugin_staypuft', 'netmask').value = wizard.netmask
   param('foreman_plugin_staypuft', 'gateway').value = wizard.gateway
+  param('foreman_plugin_staypuft', 'dns').value = wizard.dns_server
 
   # some enforced values for foreman-installer
   param('foreman_proxy', 'tftp').value = true
