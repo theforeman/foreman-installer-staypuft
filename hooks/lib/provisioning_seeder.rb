@@ -81,6 +81,7 @@ class ProvisioningSeeder < BaseSeeder
                                                            'subnet_id' => default_subnet['id']})
 
     setup_setting(default_hostgroup)
+    setup_idle_timeout
     setup_default_root_pass
     create_discovery_env(pxe_template)
 
@@ -104,6 +105,14 @@ class ProvisioningSeeder < BaseSeeder
                                     {'value' => default_hostgroup['name'].to_s})
   rescue NoMethodError => e
     @logger.error "Setting with name 'base_hostgroup' not found, you must run 'foreman-rake db:seed' " +
+                      "and rerun installer to fix this issue."
+  end
+
+  def setup_idle_timeout
+    @foreman.setting.show_or_ensure({'id' => 'idle_timeout'},
+                                    {'value' => 180})
+  rescue NoMethodError => e
+    @logger.error "Setting with name 'idle_timeout' not found, you must run 'foreman-rake db:seed' " +
                       "and rerun installer to fix this issue."
   end
 
