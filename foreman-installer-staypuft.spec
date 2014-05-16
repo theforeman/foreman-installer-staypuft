@@ -12,7 +12,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.0.12
+Version:    0.0.13
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -76,6 +76,12 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Fri May 16 2014 Marek Hulan <mhulan@redhat.com> 0.0.13-1
+- Fix docs (mhulan@redhat.com)
+- Enable user authentication (mhulan@redhat.com)
+- Add foreman_api dependency (mhulan@redhat.com)
+- Change default koji tags (mhulan@redhat.com)
+
 * Wed May 07 2014 Marek Hulan <mhulan@redhat.com> 0.0.12-1
 - Configure host nameservers during installation (mhulan@redhat.com)
 
