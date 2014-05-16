@@ -4,10 +4,10 @@ default_tagger = tito.tagger.VersionTagger
 changelog_do_not_remove_cherrypick = 0
 changelog_format = %s (%ae)
 
-[foreman-nightly-nonscl-rhel6]
+[foreman-plugins-nightly-rhel6]
 disttag = .el6
 blacklist =
 
-[foreman-nightly-fedora19]
+[foreman-plugins-nightly-fedora19]
 disttag = .fc19
 blacklist =
