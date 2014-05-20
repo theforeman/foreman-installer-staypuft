@@ -76,6 +76,10 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Tue May 20 2014 Marek Hulan <mhulan@redhat.com> 0.0.13-2
+- Fixes gh#4 - nonscl rpm dependencies (mhulan@redhat.com)
+- Fix release configuration (mhulan@redhat.com)
+
 * Fri May 16 2014 Marek Hulan <mhulan@redhat.com> 0.0.13-1
 - Fix docs (mhulan@redhat.com)
 - Enable user authentication (mhulan@redhat.com)
