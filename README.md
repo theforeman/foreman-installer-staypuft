@@ -5,10 +5,11 @@ This is a plugin for foreman-installer to help with Staypuft installation.
 
 ## How do I use it?
 
-You just install RPM package and run foreman-installer. It will automatically
-run the wizard that asks few questions specific to your environment. The result
-is Foreman with provisioning correctly configured and Staypuft plugin enabled.
-Without any further effort you should be able to create your OpenStack deployment.
+You just install RPM package named foreman-installer-staypuft and run 
+staypuft-installer. It will automatically run the wizard that asks few questions
+specific to your environment. The result is Foreman with provisioning correctly
+configured and Staypuft plugin enabled. Without any further effort you should 
+be able to create your OpenStack deployment.
 
 ## Where can I download RPMs?
 
