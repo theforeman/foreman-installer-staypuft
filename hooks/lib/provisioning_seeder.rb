@@ -8,12 +8,11 @@ class ProvisioningSeeder < BaseSeeder
     @domain = kafo.param('foreman_proxy', 'dns_zone').value
     @environment = kafo.param('foreman', 'environment').value
 
-    wizard = kafo.config.app[:wizard]
-    @netmask = wizard.netmask
-    @network = wizard.network
+    @netmask = kafo.param('foreman_plugin_staypuft', 'netmask').value
+    @network = kafo.param('foreman_plugin_staypuft', 'network').value
     @ip = kafo.param('foreman_proxy', 'tftp_servername').value
-    @from = wizard.from
-    @to = wizard.to
+    @from = kafo.param('foreman_plugin_staypuft', 'from').value
+    @to = kafo.param('foreman_plugin_staypuft', 'to').value
     @gateway = kafo.param('foreman_proxy', 'dhcp_gateway').value
     @kernel = kafo.param('foreman_plugin_discovery', 'kernel').value
     @initrd = kafo.param('foreman_plugin_discovery', 'initrd').value
