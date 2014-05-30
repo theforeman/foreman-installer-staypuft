@@ -15,6 +15,12 @@ foreman:
   configure_epel_repo: false
 foreman_proxy:
   custom_repo: true
+  puppetrun_provider: 'puppetssh'
+  puppetssh_keyfile: "/etc/foreman-proxy/.ssh/id_rsa"
+sshkeypair:
+  home: '/etc/foreman-proxy/'
+  user: 'foreman-proxy'
+  group: 'foreman-proxy'
 puppet:
   server: true
 "foreman::plugin::discovery":
