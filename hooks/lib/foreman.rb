@@ -15,6 +15,8 @@ class Foreman
       :environment => 'Environment',
       :setting => 'Setting',
       :template_combination => 'TemplateCombination',
+      :puppetclass => 'Puppetclass',
+      :smart_class_parameter => 'SmartClassParameter',
   }
 
   def initialize(options)
