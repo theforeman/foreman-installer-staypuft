@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'highline/import'
+require 'yaml'
+require 'kafo'
+
+# base the answer file name on the file calling the
+# script.  This allows other programs to use their own
+# files if named based on their executable
+config_filename = File.basename($0) + ".yaml"
+
+# where to find answer file
+if File.exist?('config/' + config_filename)
+  CONFIG_FILE = 'config/' + config_filename
+else
+  CONFIG_FILE = '/etc/foreman/' + config_filename
+end
+
+# Run the install
+@result = Kafo::KafoConfigure.run
+exit 0 if @result.nil? # --help invocation
+
+# Puppet status codes say 0 for unchanged, 2 for changed succesfully
+if [0,2].include? @result.exit_code
+  say "  <%= color('Success!', :good) %>"
+  value = @result.param('puppet', 'puppetmaster').value
+  say "  your host was registered in staypuft running on <%= color('#{value}', :info) %>"
+
+  exit_code = 0
+else
+  say "  <%= color('Something went wrong!', :bad) %> Check the log for ERROR-level output"
+  exit_code = @result.exit_code
+end
+
+# This is always useful, success or fail
+log = @result.config.app[:log_dir] + '/' + @result.config.app[:log_name]
+say "  The full log is at <%= color('#{log}', :info) %>"
+
+exit exit_code
