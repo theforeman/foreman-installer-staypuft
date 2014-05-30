@@ -17,8 +17,19 @@ class ProvisioningSeeder < BaseSeeder
     @kernel = kafo.param('foreman_plugin_discovery', 'kernel').value
     @initrd = kafo.param('foreman_plugin_discovery', 'initrd').value
     @discovery_env_name = 'discovery'
+    @default_root_pass = 'spengler'
     @default_root_pass = kafo.param('foreman_plugin_staypuft', 'root_password').instance_variable_get('@value')
     @default_ssh_public_key = kafo.param('foreman_plugin_staypuft', 'ssh_public_key').value
+
+    begin
+      pub_key_path = kafo.param('sshkeypair', 'foreman_proxy_home').value + '/.ssh/id_rsa.pub'
+      @pub_key = File.read(pub_key_path).split(' ')[1]
+    rescue => e
+      say "Could not read SSH public key from #{pub_key_path} - #{e.message}, answer file will be <%= color('broken', :bad) %>"
+      @pub_key = 'broken'
+    end
+
+
   end
 
   def seed
@@ -46,14 +57,17 @@ class ProvisioningSeeder < BaseSeeder
                                                      'tftp_id' => default_proxy['id']})
 
     @foreman.config_template.show_or_ensure({'id' => 'redhat_register'},
-                                            {'template' => redhat_register_snippet})
+                                            {'template' => redhat_register_snippet, 'name' => 'redhat_register', 'snippet' => '1'})
+    @foreman.config_template.show_or_ensure({'id' => 'staypuft-client-installer-answers-yaml'},
+                                            {'template' => staypuft_staypuft_answers_snippet, 'name' => 'staypuft-client-installer-answers-yaml', 'snippet' => '1'})
+    @foreman.config_template.show_or_ensure({'id' => 'staypuft_client_bootstrap'},
+                                            {'template' => staypuft_bootstrap_snippet, 'name' => 'staypuft_client_bootstrap', 'snippet' => '1'})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart RHEL default'},
                                             {'template' => kickstart_rhel_default})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart default'},
                                             {'template' => kickstart_default})
     @foreman.config_template.show_or_ensure({'id' => 'ssh_public_key'},
                                             {'template' => ssh_public_key_snippet, 'snippet' => '1', 'name' => 'ssh_public_key'})
-
     @foreman.partition_table.show_or_ensure({'id' => 'LVM with cinder-volumes',
                                              'name' => 'LVM with cinder-volumes',
                                              'layout' => lvm_w_cinder_volumes,
@@ -64,6 +78,19 @@ class ProvisioningSeeder < BaseSeeder
                                                            {'template' => template})
 
     @foreman.config_template.build_pxe_default
+
+    puppet_klass = @foreman.puppetclass.search('name = foreman::puppet::agent::service')['foreman'].first
+    smart_parameter = @foreman.smart_class_parameter.first('puppetclass = foreman::puppet::agent::service and key = runmode')
+    @foreman.smart_class_parameter.show_or_ensure({'id' => smart_parameter['id']},
+                                                  {'override' => true, 'default_value' => 'none'})
+
+    staypuft_client_klass = @foreman.puppetclass.search('name = foreman::plugin::staypuft_client')['foreman'].first
+    smart_parameter = @foreman.smart_class_parameter.first('puppetclass = foreman::plugin::staypuft_client and key = staypuft_public_ssh_key')
+    @foreman.smart_class_parameter.show_or_ensure({'id' => smart_parameter['id']},
+                                                  {'override' => true, 'default_value' => @pub_key})
+
+    klasses = [puppet_klass, staypuft_client_klass]
+    puppet_class_ids = klasses.map { |klass| klass['id'] }
 
     @hostgroups = []
     oses = find_default_oses(foreman_host)
@@ -96,7 +123,9 @@ class ProvisioningSeeder < BaseSeeder
                          'ptable_id' => ptable['id'],
                          'puppet_ca_proxy_id' => default_proxy['id'],
                          'puppet_proxy_id' => default_proxy['id'],
-                         'subnet_id' => default_subnet['id']}
+                         'subnet_id' => default_subnet['id'],
+                         'puppetclass_ids' => puppet_class_ids}
+
       hostgroup_attrs['medium_id'] = medium['id'] unless medium.nil?
 
       hostgroup = @foreman.hostgroup.show_or_ensure({'id' => group_id}, hostgroup_attrs)
@@ -115,6 +144,7 @@ class ProvisioningSeeder < BaseSeeder
     setup_setting(default_hostgroup)
     setup_idle_timeout
     setup_default_root_pass
+    setup_puppetrun
     create_discovery_env(pxe_template)
 
     say HighLine.color("Use '#{default_hostgroup['name']}' hostgroup for provisioning", :good)
@@ -133,26 +163,26 @@ class ProvisioningSeeder < BaseSeeder
   end
 
   def setup_setting(default_hostgroup)
-    @foreman.setting.show_or_ensure({'id' => 'base_hostgroup'},
-                                    {'value' => default_hostgroup['name'].to_s})
-  rescue NoMethodError => e
-    @logger.error "Setting with name 'base_hostgroup' not found, you must run 'foreman-rake db:seed' " +
-                      "and rerun installer to fix this issue."
+    adjust_setting('base_hostgroup', default_hostgroup['name'].to_s)
   end
 
   def setup_idle_timeout
-    @foreman.setting.show_or_ensure({'id' => 'idle_timeout'},
-                                    {'value' => 180})
-  rescue NoMethodError => e
-    @logger.error "Setting with name 'idle_timeout' not found, you must run 'foreman-rake db:seed' " +
-                      "and rerun installer to fix this issue."
+    adjust_setting('idle_timeout', 180)
   end
 
   def setup_default_root_pass
-    @foreman.setting.show_or_ensure({'id' => 'root_pass'},
-                                    {'value' => @default_root_pass.to_s.crypt('$5$fm')})
+    adjust_setting('root_pass', @default_root_pass)
+  end
+
+  def setup_puppetrun
+    adjust_setting('puppetrun', true)
+  end
+
+  def adjust_setting(id, value)
+    @foreman.setting.show_or_ensure({'id' => id},
+                                    {'value' => value})
   rescue NoMethodError => e
-    @logger.error "Setting with name 'root_pass' not found, you must run 'foreman-rake db:seed' " +
+    @logger.error "Setting with name '#{id}' not found, you must run 'foreman-rake db:seed' " +
                       "and rerun installer to fix this issue."
   end
 
@@ -164,6 +194,7 @@ class ProvisioningSeeder < BaseSeeder
       default_ptable_name = 'Preseed default'
       additional_ptable_names = []
     end
+
     default_ptable = nil
     additional_ptables_names.push(default_ptable_name).each do |ptable_name|
       ptable = @foreman.partition_table.first! %Q(name ~ "#{ptable_name}*")
@@ -172,6 +203,7 @@ class ProvisioningSeeder < BaseSeeder
         ids = @foreman.partition_table.show!('id' => ptable['id'])['operatingsystems'].map { |o| o['id'] }
         @foreman.partition_table.update 'id' => ptable['id'], 'ptable' => {'operatingsystem_ids' => (ids + [os['id']]).uniq}
       end
+
     end
     default_ptable
   end
@@ -265,6 +297,7 @@ realm join --one-time-password=<%= @host.otp %> <%= @host.realm %>
 <% if os_major > 4 -%>
 services --disabled autofs,gpm,sendmail,cups,iptables,ip6tables,auditd,arptables_jf,xfs,pcmcia,isdn,rawdevices,hpoj,bluetooth,openibd,avahi-daemon,avahi-dnsconfd,hidd,hplip,pcscd,restorecond,mcstrans,rhnsd,yum-updatesd
 
+repo --name="Extra Packages for Enterprise Linux" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-<%= @host.operatingsystem.major %>&arch=<%= @host.architecture %>
 <% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
 repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
 repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/dependencies/<%= @host.architecture %>
@@ -389,14 +422,17 @@ yum -t -y -e 0 remove firewalld
 yum -t -y -e 0 install puppet
 
 echo "Configuring puppet"
-cat > /etc/puppet/puppet.conf << EOF
-<%= snippet 'puppet.conf' %>
-EOF
+#cat > /etc/puppet/puppet.conf << EOF
+#<%= snippet 'puppet.conf' %>
+#EOF
 
 # Setup puppet to run on system reboot
-/sbin/chkconfig --level 345 puppet on
+#/sbin/chkconfig --level 345 puppet on#
+#
+#/usr/bin/puppet agent --config /etc/puppet/puppet.conf -o --tags no_such_tag <%= @host.puppetmaster.blank? ? '' : "--server #{@host.puppetmaster}" %> --no-daemonize
 
-/usr/bin/puppet agent --config /etc/puppet/puppet.conf -o --tags no_such_tag <%= @host.puppetmaster.blank? ? '' : "--server #{@host.puppetmaster}" %> --no-daemonize
+# we reuse our machine registerer instead
+<%= snippet 'staypuft_client_bootstrap' %>
 
 <% end -%>
 
@@ -459,12 +495,14 @@ realm join --one-time-password='<%= @host.otp %>' <%= @host.realm %>
 
 <% if @host.operatingsystem.name == 'Fedora' -%>
 repo --name=fedora-everything --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=fedora-<%= @host.operatingsystem.major %>&arch=<%= @host.architecture %>
+repo --name=foreman-nightly --baseurl=http://yum.theforeman.org/plugins/nightly/f<%= @host.operatingsystem.major %>/<%= @host.architecture %>
 <% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
 repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/fedora/f<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
 repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/fedora/f<%= @host.operatingsystem.major %>/dependencies/<%= @host.architecture %>
 <% end -%>
 <% elsif rhel_compatible && os_major > 4 -%>
 repo --name="Extra Packages for Enterprise Linux" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-<%= @host.operatingsystem.major %>&arch=<%= @host.architecture %>
+repo --name=foreman-nightly --baseurl=http://yum.theforeman.org/plugins/nightly/el<%= @host.operatingsystem.major %>/<%= @host.architecture %>
 <% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
 repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
 repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/dependencies/<%= @host.architecture %>
@@ -545,15 +583,17 @@ yum -t -y -e 0 remove firewalld
 
 <% if puppet_enabled %>
 echo "Configuring puppet"
-cat > /etc/puppet/puppet.conf << EOF
-<%= snippet 'puppet.conf' %>
-EOF
+#cat > /etc/puppet/puppet.conf << EOF
+#<% # snippet 'puppet.conf' %>
+#EOF
+#
+## Setup puppet to run on system reboot
+#/sbin/chkconfig --level 345 puppet on
+#
+#/usr/bin/puppet agent --config /etc/puppet/puppet.conf -o --tags no_such_tag <%= @host.puppetmaster.blank? ? '' : "--server #{@host.puppetmaster}" %> --no-daemonize
 
-# Setup puppet to run on system reboot
-/sbin/chkconfig --level 345 puppet on
-
-/usr/bin/puppet agent --config /etc/puppet/puppet.conf -o --tags no_such_tag <%= @host.puppetmaster.blank? ? '' : "--server #{@host.puppetmaster}" %> --no-daemonize
-
+# we reuse our machine registerer instead
+<%= snippet 'staypuft_client_bootstrap' %>
 <% end -%>
 
 sync
@@ -566,6 +606,28 @@ wget -q -O /dev/null --no-check-certificate <%= foreman_url %>
 exit 0
 
 %end
+EOS
+  end
+
+  def staypuft_bootstrap_snippet
+    <<EOS
+yum install -t -e 0 -y foreman-installer-staypuft-client
+cat > /etc/foreman/staypuft-client-installer.answers.yaml << EOF
+<%= snippet 'staypuft-client-installer-answers-yaml' %>
+EOF
+staypuft-client-installer
+EOS
+  end
+
+  def staypuft_staypuft_answers_snippet
+    <<EOS
+---
+  puppet:
+    server: false
+    runmode: none
+    puppetmaster: <%= @host.puppetmaster %>
+  foreman::plugin::staypuft_client:
+    staypuft_public_ssh_key: <%= @host.info['classes'].fetch('foreman::plugin::staypuft_client', {}).fetch('staypuft_public_ssh_key', 'missing') %>
 EOS
   end
 
