@@ -1,26 +1,26 @@
 class ProvisioningWizard
   NIC_ATTRS = {
-    :nic => 'Network interface',
+    :interface => 'Network interface',
     :ip => 'IP address',
     :netmask => 'Network mask',
     :network => 'Network address',
     :from => 'DHCP range start',
     :to => 'DHCP range end',
     :gateway => 'Gateway',
-    :dns_server => 'DNS forwarder',
+    :dns => 'DNS forwarder',
     :domain => 'Domain',
     :base_url => 'Foreman URL',
     :configure_networking => 'Set this host networking'
   }
-  ORDER = %w(nic ip netmask network from to gateway dns_server domain base_url configure_networking)
+  ORDER = %w(interface ip netmask network from to gateway dns domain base_url configure_networking)
   attr_accessor *NIC_ATTRS.keys
 
   def initialize(kafo)
-    # set default value according to default value, at this point 
-    # parameter does not have value based on answer file - wizard is used in pre_values hook
+    @logger = kafo.logger
+    # set default value according to parameter value
     NIC_ATTRS.each_pair do |attr, name|
       param = kafo.param('foreman_plugin_staypuft', attr.to_s)
-      send "#{attr}=", param && param.default
+      send "#{attr}=", param && param.value
     end
 
     say HighLine.color('Provisioning setup', :headline)
@@ -28,7 +28,7 @@ class ProvisioningWizard
   end
 
   def start
-    get_nic
+    get_nic if @interface.nil? || !interfaces.has_key?(@interface)
     configure = true
     while configure
       send("get_#{configure}") if configure.is_a?(Symbol)
@@ -65,8 +65,8 @@ class ProvisioningWizard
     @domain ||= Facter.value :domain
   end
 
-  def dns_server
-    @dns_server ||= begin
+  def dns
+    @dns ||= begin
       line = File.read('/etc/resolv.conf').split("\n").detect { |line| line =~ /nameserver\s+.*/}
       line.split(' ').last || ''
     rescue
@@ -112,6 +112,9 @@ class ProvisioningWizard
       end
       menu.choice(HighLine.color('No, cancel installation', :cancel)) { exit 0 }
     end
+  rescue Interrupt
+    @logger.debug "Got interrupt, exiting"
+    exit(0)
   end
 
   def get_nic
@@ -120,9 +123,9 @@ class ProvisioningWizard
         HighLine.color("\nFacter didn't find any NIC, can not continue", :bad)
         raise StandardError
       when 1
-        @nic = interfaces.keys.first
+        @interface = interfaces.keys.first
       else
-        @nic = choose do |menu|
+        @interface = choose do |menu|
           menu.header = HighLine.color("\nPlease select NIC on which you want Foreman provisioning enabled", :important)
           interfaces.keys.each do |nic|
             menu.choice nic
@@ -134,12 +137,12 @@ class ProvisioningWizard
   end
 
   def setup_networking
-    @ip      = interfaces[@nic][:ip]
-    @network = interfaces[@nic][:network]
-    @netmask = interfaces[@nic][:netmask]
-    @cidr    = interfaces[@nic][:cidr]
-    @from    = interfaces[@nic][:from]
-    @to      = interfaces[@nic][:to]
+    @ip      = interfaces[@interface][:ip]
+    @network = interfaces[@interface][:network]
+    @netmask = interfaces[@interface][:netmask]
+    @cidr    = interfaces[@interface][:cidr]
+    @from    = interfaces[@interface][:from]
+    @to      = interfaces[@interface][:to]
   end
 
   def interfaces

@@ -23,7 +23,7 @@ Source0:    %{name}-%{version}%{?dashalphatag}.tar.gz
 BuildArch:  noarch
 
 Requires:   foreman-installer >= 1.5.0
-Requires:   rubygem-kafo >= 0.5.4
+Requires:   rubygem-kafo >= 0.6.0
 Requires:   rubygem-foreman_api >= 0.1.4
 Requires:   git
 
@@ -67,7 +67,8 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_datadir}/foreman-installer/hooks/lib/provisioning_wizard.rb
 %{_datadir}/foreman-installer/hooks/lib/subscription_seeder.rb
 %{_datadir}/foreman-installer/hooks/post/10-setup_provisioning.rb
-%{_datadir}/foreman-installer/hooks/pre_values/10-gather_information.rb
+%{_datadir}/foreman-installer/hooks/pre_validations/10-gather_and_set_staypuft_values.rb
+%{_datadir}/foreman-installer/hooks/pre_values/10-register_staypuft_modules.rb
 %{_datadir}/foreman-installer/modules/network
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft.pp
 

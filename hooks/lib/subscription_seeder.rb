@@ -1,6 +1,7 @@
 class SubscriptionSeeder < BaseSeeder
   def initialize(kafo)
     super
+    @config = kafo.config
 
     max_tries = 5
     current = 0
@@ -14,11 +15,12 @@ class SubscriptionSeeder < BaseSeeder
     end
 
     @os = find_default_os(foreman_host)
-    @sm_username = ''
-    @sm_password = ''
-    @repositories = 'rhel-6-server-openstack-4.0-rpms'
-    @repo_path = 'http://'
-    @sm_pool = ''
+
+    @sm_username = @config.get_custom(:sm_username) || ''
+    @sm_password = @config.get_custom(:sm_password) || ''
+    @repositories = @config.get_custom(:repositories) || 'rhel-6-server-openstack-4.0-rpms'
+    @repo_path = @config.get_custom(:repo_path) || 'http://'
+    @sm_pool = @config.get_custom(:sm_pool) ||''
     @skip = false
   end
 
@@ -29,6 +31,13 @@ class SubscriptionSeeder < BaseSeeder
         puts HighLine.color('Credentials can not be empty', :bad) if !get && invalid
         get = get_credentials
       end
+
+      @config.set_custom(:sm_username, @sm_username)
+      @config.set_custom(:sm_password, @sm_password)
+      @config.set_custom(:repositories, @repositories)
+      @config.set_custom(:repo_path, @repo_path)
+      @config.set_custom(:sm_pool, @sm_pool)
+      @config.save_configuration(@config.app)
     else
       @skip = true
     end
