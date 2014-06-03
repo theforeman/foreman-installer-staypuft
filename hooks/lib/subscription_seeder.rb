@@ -15,6 +15,7 @@ class SubscriptionSeeder < BaseSeeder
     end
 
     @os = find_default_os(foreman_host)
+    @oses = find_default_oses(foreman_host)
 
     @sm_username = @config.get_custom(:sm_username) || ''
     @sm_password = @config.get_custom(:sm_password) || ''
@@ -48,32 +49,34 @@ class SubscriptionSeeder < BaseSeeder
                                                  'os_family' => 'Redhat'})
 
     unless @skip
-      @foreman.parameter.show_or_ensure({'id' => 'subscription_manager', 'operatingsystem_id' => @os['id']},
-                                        {
-                                            'name' => 'subscription_manager',
-                                            'value' => 'true',
-                                        })
-      @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_username', 'operatingsystem_id' => @os['id']},
-                                        {
-                                            'name' => 'subscription_manager_username',
-                                            'value' => @sm_username,
-                                        })
-      @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_password', 'operatingsystem_id' => @os['id']},
-                                        {
-                                            'name' => 'subscription_manager_password',
-                                            'value' => @sm_password,
-                                        })
-      @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_repos', 'operatingsystem_id' => @os['id']},
-                                        {
-                                            'name' => 'subscription_manager_repos',
-                                            'value' => @repositories,
-                                        })
-      if !@sm_pool.empty? && !@sm_pool.nil?
-        @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_pool', 'operatingsystem_id' => @os['id']},
+      @oses.each do |os|
+        @foreman.parameter.show_or_ensure({'id' => 'subscription_manager', 'operatingsystem_id' => os['id']},
                                           {
-                                              'name' => 'subscription_manager_pool',
-                                              'value' => @sm_pool,
+                                              'name' => 'subscription_manager',
+                                              'value' => 'true',
                                           })
+        @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_username', 'operatingsystem_id' => os['id']},
+                                          {
+                                              'name' => 'subscription_manager_username',
+                                              'value' => @sm_username,
+                                          })
+        @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_password', 'operatingsystem_id' => os['id']},
+                                          {
+                                              'name' => 'subscription_manager_password',
+                                              'value' => @sm_password,
+                                          })
+        @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_repos', 'operatingsystem_id' => os['id']},
+                                          {
+                                              'name' => 'subscription_manager_repos',
+                                              'value' => @repositories,
+                                          })
+        if !@sm_pool.empty? && !@sm_pool.nil?
+          @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_pool', 'operatingsystem_id' => os['id']},
+                                            {
+                                                'name' => 'subscription_manager_pool',
+                                                'value' => @sm_pool,
+                                            })
+        end
       end
     end
   end

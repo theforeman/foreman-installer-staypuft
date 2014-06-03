@@ -25,17 +25,6 @@ class ProvisioningSeeder < BaseSeeder
     default_proxy = find_default_proxy
     default_environment = find_default_environment
     foreman_host = find_foreman_host
-    os = find_default_os(foreman_host)
-    medium = @foreman.medium.index('search' => "name ~ #{os['name']}").first
-
-    if os['architectures'].nil? || os['architectures'].empty?
-      @foreman.operating_system.update 'id' => os['id'],
-                                       'operatingsystem' => {'architecture_ids' => [foreman_host['architecture_id']]}
-    end
-
-    if os['media'].nil? || os['media'].empty?
-      @foreman.operating_system.update 'id' => os['id'], 'operatingsystem' => {'medium_ids' => [medium['id']]}
-    end
 
     default_domain = @foreman.domain.show_or_ensure({'id' => @domain},
                                                     {'name' => @domain,
@@ -64,21 +53,39 @@ class ProvisioningSeeder < BaseSeeder
 
     @foreman.config_template.build_pxe_default
 
-    assign_provisioning_templates(os)
-    ptable = assign_partition_table(os)
+    @hostgroups = []
+    oses = find_default_oses(foreman_host)
+    oses.each do |os|
+      medium = @foreman.medium.index('search' => "name ~ #{os['name']}").first
 
-    default_hostgroup = @foreman.hostgroup.show_or_ensure({'id' => 'base'},
-                                                          {'name' => 'base',
-                                                           'architecture_id' => foreman_host['architecture_id'],
-                                                           'domain_id' => default_domain['id'],
-                                                           'environment_id' => default_environment['id'],
-                                                           'medium_id' => medium['id'],
-                                                           'operatingsystem_id' => os['id'],
-                                                           'ptable_id' => ptable['id'],
-                                                           'puppet_ca_proxy_id' => default_proxy['id'],
-                                                           'puppet_proxy_id' => default_proxy['id'],
-                                                           'subnet_id' => default_subnet['id']})
+      if os['architectures'].nil? || os['architectures'].empty?
+        @foreman.operating_system.update 'id' => os['id'],
+                                         'operatingsystem' => {'architecture_ids' => [foreman_host['architecture_id']]}
+      end
 
+      if os['media'].nil? || os['media'].empty?
+        @foreman.operating_system.update 'id' => os['id'], 'operatingsystem' => {'medium_ids' => [medium['id']]}
+      end
+
+      assign_provisioning_templates(os)
+      ptable = assign_partition_table(os)
+
+      group_id = "base_#{os['name']}_#{os['major']}"
+      hostgroup = @foreman.hostgroup.show_or_ensure({'id' => group_id},
+                                                    {'name' => group_id,
+                                                     'architecture_id' => foreman_host['architecture_id'],
+                                                     'domain_id' => default_domain['id'],
+                                                     'environment_id' => default_environment['id'],
+                                                     'medium_id' => medium['id'],
+                                                     'operatingsystem_id' => os['id'],
+                                                     'ptable_id' => ptable['id'],
+                                                     'puppet_ca_proxy_id' => default_proxy['id'],
+                                                     'puppet_proxy_id' => default_proxy['id'],
+                                                     'subnet_id' => default_subnet['id']})
+      @hostgroups.push hostgroup
+    end
+
+    default_hostgroup = @hostgroups.last
     setup_setting(default_hostgroup)
     setup_idle_timeout
     setup_default_root_pass
@@ -131,7 +138,8 @@ class ProvisioningSeeder < BaseSeeder
     end
     ptable = @foreman.partition_table.first! %Q(name ~ "#{ptable_name}*")
     if os['ptables'].nil? || os['ptables'].empty?
-      @foreman.partition_table.update 'id' => ptable['id'], 'ptable' => {'operatingsystem_ids' => [os['id']]}
+      ids = @foreman.partition_table.show!('id' => ptable['id'])['operatingsystems'].map {|o| o['id']}
+      @foreman.partition_table.update 'id' => ptable['id'], 'ptable' => {'operatingsystem_ids' => (ids + [os['id']]).uniq}
     end
     ptable
   end

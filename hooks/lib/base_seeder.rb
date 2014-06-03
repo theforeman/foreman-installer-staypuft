@@ -19,16 +19,24 @@ class BaseSeeder
 
   private
 
-  def find_default_os(foreman_host)
-    os = @foreman.operating_system.show! 'id' => foreman_host['operatingsystem_id'],
-                                         :error_message => "operating system for #{@fqdn} not found, DB inconsitency?"
+  def find_default_oses(foreman_host)
+    os = find_default_os(foreman_host)
+    ([os] + additional_oses(os)).compact
+  end
 
+  def find_default_os(foreman_host)
+    @foreman.operating_system.show! 'id' => foreman_host['operatingsystem_id'],
+                                    :error_message => "operating system for #{@fqdn} not found, DB inconsitency?"
+  end
+
+  def additional_oses(os)
+    additional = []
     if os['name'] == 'RedHat' && os['major'] == '6'
-      os = foreman.operating_system.show_or_ensure({'id' => 'RedHat 7.0',
-                                                    'name' => 'RedHat', 'major' => '7', 'minor' => '0',
-                                                    'family' => 'Redhat'}, {})
+      additional << foreman.operating_system.show_or_ensure({'id' => 'RedHat 7.0',
+                                                             'name' => 'RedHat', 'major' => '7', 'minor' => '0',
+                                                             'family' => 'Redhat'}, {})
     end
-    os
+    additional
   end
 
   def find_foreman_host
