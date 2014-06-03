@@ -93,9 +93,9 @@ class ProvisioningSeeder < BaseSeeder
     env = @foreman.environment.show_or_ensure({'id' => @discovery_env_name},
                                               {'name' => @discovery_env_name})
     # if the template has combination already, we don't update it
-    unless template['template_combinations'].any? {|c| c['environment_id'] == env['id'].to_i and c['hostgroup_id'].nil? }
+    unless template['template_combinations'].any? { |c| c['environment_id'] == env['id'].to_i and c['hostgroup_id'].nil? }
       @foreman.config_template.update 'id' => template['name'],
-                                      'config_template' => { 'template_combinations_attributes' => [ {'environment_id' => env['id']} ] }
+                                      'config_template' => {'template_combinations_attributes' => [{'environment_id' => env['id']}]}
     end
   end
 
@@ -157,10 +157,16 @@ class ProvisioningSeeder < BaseSeeder
       tmpl = tmpls.detect { |t| t['name'] =~ /.*sboot disk.*s/ } || tmpls.first
       raise StandardError, "no template found by search 'name ~ \"#{tmpl_name}*\"'" if tmpl.nil?
 
-      # if there's no provisioning template for this os found it means, it's not associated so we add relation
+      # if there's no provisioning template for this os family found it means, it's not associated so we add relation
+      # otherwise we still must check that it's assigned for right os not just family
       assigned_tmpl = @foreman.config_template.first %Q(name ~ "#{tmpl_name}*" and kind = #{kind_name} and operatingsystem = "#{os['name']}")
       if assigned_tmpl.nil?
         @foreman.config_template.update 'id' => tmpl['id'], 'config_template' => {'operatingsystem_ids' => [os['id']]}
+      else
+        assigned_os_ids = @foreman.config_template.show!('id' => tmpl['id'])['operatingsystems'].map { |o| o['id'] }
+        if !assigned_os_ids.include?(os['id'])
+          @foreman.config_template.update 'id' => tmpl['id'], 'config_template' => {'operatingsystem_ids' => assigned_os_ids + [os['id']]}
+        end
       end
 
       # finally we setup default template from possible values we assigned in previous steps
