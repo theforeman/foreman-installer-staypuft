@@ -51,7 +51,9 @@ install -d -m0755 %{buildroot}%{_datadir}/foreman-installer
 cp -R hooks modules %{buildroot}%{_datadir}/foreman-installer
 install -d -m0755 %{buildroot}%{_sbindir}
 cp bin/staypuft-installer %{buildroot}%{_sbindir}/staypuft-installer
+cp bin/staypuft-client-installer %{buildroot}%{_sbindir}/staypuft-client-installer
 install -d -m0755 %{buildroot}%{_sysconfdir}/foreman/
+cp config/staypuft-client-installer.yaml %{buildroot}%{_sysconfdir}/foreman/staypuft-client-installer.yaml
 cp config/staypuft-installer.yaml %{buildroot}%{_sysconfdir}/foreman/staypuft-installer.yaml
 cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/staypuft-installer.answers.yaml
 
@@ -66,15 +68,20 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_datadir}/foreman-installer/hooks/lib/provisioning_seeder.rb
 %{_datadir}/foreman-installer/hooks/lib/provisioning_wizard.rb
 %{_datadir}/foreman-installer/hooks/lib/subscription_seeder.rb
+%{_datadir}/foreman-installer/hooks/post/10-register_in_staypuft.rb
 %{_datadir}/foreman-installer/hooks/post/10-setup_provisioning.rb
 %{_datadir}/foreman-installer/hooks/pre_validations/10-gather_and_set_staypuft_values.rb
 %{_datadir}/foreman-installer/hooks/pre_values/10-register_staypuft_modules.rb
 %{_datadir}/foreman-installer/modules/network
+%{_datadir}/foreman-installer/modules/sshkeypair
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft.pp
+%{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft_client.pp
 
 %config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.yaml
+%config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-client-installer.yaml
 %config(noreplace) %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.answers.yaml
 %{_sbindir}/staypuft-installer
+%{_sbindir}/staypuft-client-installer
 
 %changelog
 * Tue May 20 2014 Marek Hulan <mhulan@redhat.com> 0.0.13-2
