@@ -73,6 +73,7 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_datadir}/foreman-installer/hooks/pre_validations/10-gather_and_set_staypuft_values.rb
 %{_datadir}/foreman-installer/hooks/pre_values/10-register_staypuft_modules.rb
 %{_datadir}/foreman-installer/modules/network
+%{_datadir}/foreman-installer/modules/ssh_keygen
 %{_datadir}/foreman-installer/modules/sshkeypair
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft.pp
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft_client.pp
