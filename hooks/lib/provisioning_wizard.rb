@@ -21,6 +21,7 @@ class ProvisioningWizard
   attr_accessor *NIC_ATTRS.keys
 
   def initialize(kafo)
+    @kafo   = kafo
     @logger = kafo.logger
     # set default value according to parameter value
     NIC_ATTRS.each_pair do |attr, name|
@@ -134,11 +135,11 @@ class ProvisioningWizard
         label = label
         menu.choice(label) { attr.to_sym }
       end
-      menu.choice(HighLine.color('Cancel Installation', :cancel)) { exit 0 }
+      menu.choice(HighLine.color('Cancel Installation', :cancel)) { @kafo.class.exit(100) }
     end
   rescue Interrupt
     @logger.debug "Got interrupt, exiting"
-    exit(0)
+    @kafo.class.exit(100)
   end
 
   def get_interface
