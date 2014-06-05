@@ -12,7 +12,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.0.14
+Version:    0.0.15
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -77,6 +77,9 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Thu Jun 05 2014 Marek Hulan <mhulan@redhat.com> 0.0.15-1
+- Fix RHEL7 default repo (mhulan@redhat.com)
+
 * Wed Jun 04 2014 Marek Hulan <mhulan@redhat.com> 0.0.14-1
 - On RHEL setup both 6 and 7 (mhulan@redhat.com)
 - Support RHEL7 as a default OS for provisioning (mhulan@redhat.com)
