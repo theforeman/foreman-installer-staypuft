@@ -10,8 +10,6 @@ if app_value(:provisioning_wizard)
   # we must enforce at least one puppet run
   logger.debug 'Running puppet agent to seed foreman data'
   `service puppet stop`
-  `puppet agent -t`
-  `service puppet start`
   logger.debug 'Puppet agent run finished'
 
   logger.debug 'Installing puppet modules'
