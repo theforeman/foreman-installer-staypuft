@@ -18,6 +18,15 @@ class ProvisioningSeeder < BaseSeeder
     @initrd = kafo.param('foreman_plugin_discovery', 'initrd').value
     @discovery_env_name = 'discovery'
     @default_root_pass = 'spengler'
+
+    begin
+      pub_key_path = kafo.param('sshkeypair', 'home').value + '/.ssh/id_rsa.pub'
+      @pub_key = File.read(pub_key_path).split(' ')[1]
+    rescue => e
+      say "Could not read SSH public key from #{pub_key_path} - #{e.message}, answer file will be <%= color('broken', :bad) %>"
+      @pub_key = 'broken'
+    end
+
   end
 
   def seed
@@ -45,13 +54,34 @@ class ProvisioningSeeder < BaseSeeder
                                                      'tftp_id' => default_proxy['id']})
 
     @foreman.config_template.show_or_ensure({'id' => 'redhat_register'},
-                                            {'template' => redhat_register_snippet})
+                                            {'template' => redhat_register_snippet, 'name' => 'redhat_register', 'snippet' => '1'})
+    @foreman.config_template.show_or_ensure({'id' => 'staypuft-client-installer-answers-yaml'},
+                                            {'template' => staypuft_staypuft_answers_snippet, 'name' => 'staypuft-client-installer-answers-yaml', 'snippet' => '1'})
+    @foreman.config_template.show_or_ensure({'id' => 'staypuft_client_bootstrap'},
+                                            {'template' => staypuft_bootstrap_snippet, 'name' => 'staypuft_client_bootstrap', 'snippet' => '1'})
+    @foreman.config_template.show_or_ensure({'id' => 'Kickstart RHEL default'},
+                                            {'template' => kickstart_rhel_default})
+    @foreman.config_template.show_or_ensure({'id' => 'Kickstart default'},
+                                            {'template' => kickstart_default})
 
     name = 'PXELinux global default'
     pxe_template = @foreman.config_template.show_or_ensure({'id' => name},
                                                            {'template' => template})
 
     @foreman.config_template.build_pxe_default
+
+    puppet_klass = @foreman.puppetclass.search('name = foreman::puppet::agent::service')['foreman'].first
+    smart_parameter = @foreman.smart_class_parameter.first('puppetclass = foreman::puppet::agent::service and key = runmode')
+    @foreman.smart_class_parameter.show_or_ensure({'id' => smart_parameter['id']},
+                                                  {'override' => true, 'default_value' => 'none'})
+
+    staypuft_client_klass = @foreman.puppetclass.search('name = foreman::plugin::staypuft_client')['foreman'].first
+    smart_parameter = @foreman.smart_class_parameter.first('puppetclass = foreman::plugin::staypuft_client and key = staypuft_public_ssh_key')
+    @foreman.smart_class_parameter.show_or_ensure({'id' => smart_parameter['id']},
+                                                  {'override' => true, 'default_value' => @pub_key})
+
+    klasses = [puppet_klass, staypuft_client_klass]
+    puppet_class_ids = klasses.map { |klass| klass['id'] }
 
     @hostgroups = []
     oses = find_default_oses(foreman_host)
@@ -81,7 +111,8 @@ class ProvisioningSeeder < BaseSeeder
                                                      'ptable_id' => ptable['id'],
                                                      'puppet_ca_proxy_id' => default_proxy['id'],
                                                      'puppet_proxy_id' => default_proxy['id'],
-                                                     'subnet_id' => default_subnet['id']})
+                                                     'subnet_id' => default_subnet['id'],
+                                                     'puppetclass_ids' => puppet_class_ids})
       @hostgroups.push hostgroup
     end
 
@@ -138,7 +169,7 @@ class ProvisioningSeeder < BaseSeeder
     end
     ptable = @foreman.partition_table.first! %Q(name ~ "#{ptable_name}*")
     if os['ptables'].nil? || os['ptables'].empty?
-      ids = @foreman.partition_table.show!('id' => ptable['id'])['operatingsystems'].map {|o| o['id']}
+      ids = @foreman.partition_table.show!('id' => ptable['id'])['operatingsystems'].map { |o| o['id'] }
       @foreman.partition_table.update 'id' => ptable['id'], 'ptable' => {'operatingsystem_ids' => (ids + [os['id']]).uniq}
     end
     ptable
@@ -195,6 +226,320 @@ class ProvisioningSeeder < BaseSeeder
   def find_default_proxy
     @foreman.smart_proxy.show! 'id' => @fqdn,
                                :error_message => "smart proxy #{@fqdn} haven't been registered in foreman yet, installer failure?"
+  end
+
+  def kickstart_rhel_default
+    <<'EOS'
+<%#
+kind: provision
+name: Kickstart RHEL default
+oses:
+- RedHat 4
+- RedHat 5
+- RedHat 6
+- RedHat 7
+%>
+<%
+  os_major = @host.operatingsystem.major.to_i
+  # safemode renderer does not support unary negation
+  pm_set = @host.puppetmaster.empty? ? false : true
+  puppet_enabled = pm_set || @host.params['force-puppet']
+%>
+install
+<%= @mediapath %>
+lang en_US.UTF-8
+selinux --enforcing
+keyboard us
+skipx
+network --bootproto <%= @static ? "static --ip=#{@host.ip} --netmask=#{@host.subnet.mask} --gateway=#{@host.subnet.gateway} --nameserver=#{[@host.subnet.dns_primary, @host.subnet.dns_secondary].reject { |n| n.blank? }.join(',')}" : 'dhcp' %> --hostname <%= @host %>
+rootpw --iscrypted <%= root_pass %>
+firewall --<%= os_major >= 6 ? 'service=' : '' %>ssh
+authconfig --useshadow --passalgo=sha256 --kickstart
+timezone --utc <%= @host.params['time-zone'] || 'UTC' %>
+
+<% if os_major >= 7 && @host.info["parameters"]["realm"] && @host.otp && @host.realm -%>
+realm join --one-time-password=<%= @host.otp %> <%= @host.realm %>
+<% end -%>
+
+<% if os_major > 4 -%>
+services --disabled autofs,gpm,sendmail,cups,iptables,ip6tables,auditd,arptables_jf,xfs,pcmcia,isdn,rawdevices,hpoj,bluetooth,openibd,avahi-daemon,avahi-dnsconfd,hidd,hplip,pcscd,restorecond,mcstrans,rhnsd,yum-updatesd
+
+repo --name="Extra Packages for Enterprise Linux" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-<%= @host.operatingsystem.major %>&arch=<%= @host.architecture %>
+<% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
+repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
+repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/dependencies/<%= @host.architecture %>
+<% end -%>
+<% end -%>
+
+bootloader --location=mbr --append="nofb quiet splash=quiet" <%= grub_pass %>
+<% if os_major == 5 -%>
+key --skip
+<% end -%>
+
+
+<% if @dynamic -%>
+%include /tmp/diskpart.cfg
+<% else -%>
+<%= @host.diskLayout %>
+<% end -%>
+
+text
+reboot
+
+%packages --ignoremissing
+yum
+dhclient
+ntp
+wget
+@Core
+epel-release
+<% if puppet_enabled %>
+puppet
+<% if @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
+puppetlabs-release
+<% end -%>
+<% end -%>
+%end
+
+<% if @dynamic -%>
+%pre
+<%= @host.diskLayout %>
+%end
+<% end -%>
+
+%post --nochroot
+exec < /dev/tty3 > /dev/tty3
+#changing to VT 3 so that we can see whats going on....
+/usr/bin/chvt 3
+(
+cp -va /etc/resolv.conf /mnt/sysimage/etc/resolv.conf
+/usr/bin/chvt 1
+) 2>&1 | tee /mnt/sysimage/root/install.postnochroot.log
+%end
+
+%post
+logger "Starting anaconda <%= @host %> postinstall"
+exec < /dev/tty3 > /dev/tty3
+#changing to VT 3 so that we can see whats going on....
+/usr/bin/chvt 3
+(
+#update local time
+echo "updating system time"
+/usr/sbin/ntpdate -sub <%= @host.params['ntp-server'] || '0.fedora.pool.ntp.org' %>
+/usr/sbin/hwclock --systohc
+
+<%= snippet 'redhat_register' %>
+
+<% if @host.info["parameters"]["realm"] && @host.otp && @host.realm && @host.realm.realm_type == "Red Hat Directory Server" && os_major <= 6 -%>
+<%= snippet "freeipa_register" %>
+<% end -%>
+
+# update all the base packages from the updates repository
+yum -t -y -e 0 update
+
+<% if puppet_enabled %>
+# and add the puppet package
+yum -t -y -e 0 install puppet
+
+echo "Configuring puppet"
+#cat > /etc/puppet/puppet.conf << EOF
+#<%= snippet 'puppet.conf' %>
+#EOF
+#
+## Setup puppet to run on system reboot
+#/sbin/chkconfig --level 345 puppet on
+#
+#/usr/bin/puppet agent --config /etc/puppet/puppet.conf -o --tags no_such_tag <%= @host.puppetmaster.blank? ? '' : "--server #{@host.puppetmaster}" %> --no-daemonize
+
+# we reuse our machine registerer instead
+<%= snippet 'staypuft_client_bootstrap' %>
+<% end -%>
+
+sync
+
+# Inform the build system that we are done.
+echo "Informing Foreman that we are built"
+wget -q -O /dev/null --no-check-certificate <%= foreman_url %>
+# Sleeping an hour for debug
+) 2>&1 | tee /root/install.post.log
+exit 0
+
+%end
+EOS
+  end
+
+  def kickstart_default
+    <<'EOS'
+<%#
+kind: provision
+name: Kickstart default
+oses:
+- CentOS 4
+- CentOS 5
+- CentOS 6
+- CentOS 7
+- Fedora 16
+- Fedora 17
+- Fedora 18
+- Fedora 19
+- Fedora 20
+%>
+<%
+  rhel_compatible = @host.operatingsystem.family == 'Redhat' && @host.operatingsystem.name != 'Fedora'
+  os_major = @host.operatingsystem.major.to_i
+  realm_compatible = (@host.operatingsystem.name == "Fedora" && os_major >= 20) || (rhel_compatible && os_major >= 7)
+  # safemode renderer does not support unary negation
+  realm_incompatible = (@host.operatingsystem.name == "Fedora" && os_major < 20) || (rhel_compatible && os_major < 7)
+  pm_set = @host.puppetmaster.empty? ? false : true
+  puppet_enabled = pm_set || @host.params['force-puppet']
+%>
+install
+<%= @mediapath %>
+lang en_US.UTF-8
+selinux --enforcing
+keyboard us
+skipx
+network --bootproto <%= @static ? "static --ip=#{@host.ip} --netmask=#{@host.subnet.mask} --gateway=#{@host.subnet.gateway} --nameserver=#{[@host.subnet.dns_primary, @host.subnet.dns_secondary].reject { |n| n.blank? }.join(',')}" : 'dhcp' %> --hostname <%= @host %>
+rootpw --iscrypted <%= root_pass %>
+firewall --<%= os_major >= 6 ? 'service=' : '' %>ssh
+authconfig --useshadow --passalgo=sha256 --kickstart
+timezone --utc <%= @host.params['time-zone'] || 'UTC' %>
+<% if rhel_compatible && os_major > 4 -%>
+services --disabled autofs,gpm,sendmail,cups,iptables,ip6tables,auditd,arptables_jf,xfs,pcmcia,isdn,rawdevices,hpoj,bluetooth,openibd,avahi-daemon,avahi-dnsconfd,hidd,hplip,pcscd,restorecond,mcstrans,rhnsd,yum-updatesd
+<% end -%>
+
+<% if realm_compatible && @host.info["parameters"]["realm"] && @host.otp && @host.realm -%>
+realm join --one-time-password='<%= @host.otp %>' <%= @host.realm %>
+<% end -%>
+
+<% if @host.operatingsystem.name == 'Fedora' -%>
+repo --name=fedora-everything --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=fedora-<%= @host.operatingsystem.major %>&arch=<%= @host.architecture %>
+<% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
+repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/fedora/f<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
+repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/fedora/f<%= @host.operatingsystem.major %>/dependencies/<%= @host.architecture %>
+<% end -%>
+<% elsif rhel_compatible && os_major > 4 -%>
+repo --name="Extra Packages for Enterprise Linux" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-<%= @host.operatingsystem.major %>&arch=<%= @host.architecture %>
+<% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
+repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
+repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/dependencies/<%= @host.architecture %>
+<% end -%>
+<% end -%>
+
+<% if @host.operatingsystem.name == 'Fedora' and os_major <= 16 -%>
+# Bootloader exception for Fedora 16:
+bootloader --append="nofb quiet splash=quiet <%=ks_console%>" <%= grub_pass %>
+part biosboot --fstype=biosboot --size=1
+<% else -%>
+bootloader --location=mbr --append="nofb quiet splash=quiet" <%= grub_pass %>
+<% end -%>
+
+<% if @dynamic -%>
+%include /tmp/diskpart.cfg
+<% else -%>
+<%= @host.diskLayout %>
+<% end -%>
+
+text
+reboot
+
+%packages --ignoremissing
+yum
+dhclient
+ntp
+wget
+@Core
+epel-release
+<% if puppet_enabled %>
+puppet
+<% if @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
+puppetlabs-release
+<% end -%>
+<% end -%>
+%end
+
+<% if @dynamic -%>
+%pre
+<%= @host.diskLayout %>
+%end
+<% end -%>
+
+%post --nochroot
+exec < /dev/tty3 > /dev/tty3
+#changing to VT 3 so that we can see whats going on....
+/usr/bin/chvt 3
+(
+cp -va /etc/resolv.conf /mnt/sysimage/etc/resolv.conf
+/usr/bin/chvt 1
+) 2>&1 | tee /mnt/sysimage/root/install.postnochroot.log
+%end
+
+%post
+logger "Starting anaconda <%= @host %> postinstall"
+exec < /dev/tty3 > /dev/tty3
+#changing to VT 3 so that we can see whats going on....
+/usr/bin/chvt 3
+(
+#update local time
+echo "updating system time"
+/usr/sbin/ntpdate -sub <%= @host.params['ntp-server'] || '0.fedora.pool.ntp.org' %>
+/usr/sbin/hwclock --systohc
+
+<% if realm_incompatible && @host.info["parameters"]["realm"] && @host.otp && @host.realm && @host.realm.realm_type == "Red Hat Directory Server" -%>
+<%= snippet "freeipa_register" %>
+<% end -%>
+
+# update all the base packages from the updates repository
+yum -t -y -e 0 update
+
+<% if puppet_enabled %>
+echo "Configuring puppet"
+#cat > /etc/puppet/puppet.conf << EOF
+#<%= snippet 'puppet.conf' %>
+#EOF
+#
+## Setup puppet to run on system reboot
+#/sbin/chkconfig --level 345 puppet on
+#
+#/usr/bin/puppet agent --config /etc/puppet/puppet.conf -o --tags no_such_tag <%= @host.puppetmaster.blank? ? '' : "--server #{@host.puppetmaster}" %> --no-daemonize
+
+# we reuse our machine registerer instead
+<%= snippet 'staypuft_client_bootstrap' %>
+<% end -%>
+
+sync
+
+# Inform the build system that we are done.
+echo "Informing Foreman that we are built"
+wget -q -O /dev/null --no-check-certificate <%= foreman_url %>
+# Sleeping an hour for debug
+) 2>&1 | tee /root/install.post.log
+exit 0
+
+%end
+EOS
+  end
+
+  def staypuft_bootstrap_snippet
+    <<EOS
+yum install -t -e 0 -y foreman-installer-staypuft
+cat > /etc/foreman/staypuft-client-installer.answers.yaml << EOF
+<%= snippet 'staypuft-client-installer-answers-yaml' %>
+EOF
+staypuft-client-installer
+EOS
+  end
+
+  def staypuft_staypuft_answers_snippet
+    <<EOS
+---
+  puppet:
+    server: false
+    runmode: none
+    puppetmaster: <%= @host.puppetmaster %>
+  foreman::plugin::staypuft_client:
+    staypuft_public_ssh_key: <%= @host.info['classes'].fetch('foreman::plugin::staypuft_client', {}).fetch('staypuft_public_ssh_key', 'missing') %>
+EOS
   end
 
   def template

@@ -77,6 +77,7 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_datadir}/foreman-installer/modules/sshkeypair
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft.pp
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft_client.pp
+%{_datadir}/foreman-installer/modules/foreman/manifests/puppet/agent/service.pp
 
 %config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.yaml
 %config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-client-installer.yaml

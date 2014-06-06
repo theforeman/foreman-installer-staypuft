@@ -16,10 +16,9 @@ if app_value(:provisioning_wizard)
 
   logger.debug 'Installing puppet modules'
   `/usr/share/foreman-installer/hooks/lib/install_modules.sh`
-  `foreman-rake puppet:import:puppet_classes[batch]`
+  `foreman-rake 'puppet:import:puppet_classes[batch]'`
   # run import
   logger.debug 'Puppet modules installed'
-
 
   # first, create RedHat installation media and subscription info
   sub_seeder = SubscriptionSeeder.new(kafo)
