@@ -524,7 +524,7 @@ EOS
 
   def staypuft_bootstrap_snippet
     <<EOS
-yum install -t -e 0 -y foreman-installer-staypuft
+yum install -t -e 0 -y foreman-installer-staypuft-client
 cat > /etc/foreman/staypuft-client-installer.answers.yaml << EOF
 <%= snippet 'staypuft-client-installer-answers-yaml' %>
 EOF

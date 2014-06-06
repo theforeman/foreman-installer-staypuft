@@ -37,6 +37,21 @@ Requires:   %{?scl_prefix}ruby(abi)
 This is a Foreman-installer plugins that allows you to install and configure
 staypuft foreman plugin
 
+%package client
+Summary:    A staypuft client installer which registers a host in staypuft
+BuildArch:  noarch
+Requires:   foreman-installer >= 1.5.0
+Requires:   rubygem-kafo >= 0.6.0
+%if 0%{?fedora} > 18
+Requires:   %{?scl_prefix}ruby(release)
+%else
+Requires:   %{?scl_prefix}ruby(abi)
+%endif
+
+%description client
+This package installs subset of foreman-installer-staypuft files so it can
+be used only for registering a new client to staypuft instance.
+
 %prep
 %setup -q -n %{name}-%{version}%{?dashalphatag}
 
@@ -68,7 +83,6 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_datadir}/foreman-installer/hooks/lib/provisioning_seeder.rb
 %{_datadir}/foreman-installer/hooks/lib/provisioning_wizard.rb
 %{_datadir}/foreman-installer/hooks/lib/subscription_seeder.rb
-%{_datadir}/foreman-installer/hooks/post/10-register_in_staypuft.rb
 %{_datadir}/foreman-installer/hooks/post/10-setup_provisioning.rb
 %{_datadir}/foreman-installer/hooks/pre_validations/10-gather_and_set_staypuft_values.rb
 %{_datadir}/foreman-installer/hooks/pre_values/10-register_staypuft_modules.rb
@@ -80,9 +94,15 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_datadir}/foreman-installer/modules/foreman/manifests/puppet/agent/service.pp
 
 %config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.yaml
-%config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-client-installer.yaml
 %config(noreplace) %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.answers.yaml
 %{_sbindir}/staypuft-installer
+
+%files client
+%doc LICENSE
+%{_datadir}/foreman-installer/hooks/boot/10-add_client_options.rb
+%{_datadir}/foreman-installer/hooks/post/10-register_in_staypuft.rb
+%{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft_client.pp
+%config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-client-installer.yaml
 %{_sbindir}/staypuft-client-installer
 
 %changelog
