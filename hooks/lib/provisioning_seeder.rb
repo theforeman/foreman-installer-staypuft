@@ -343,7 +343,7 @@ yum -t -y -e 0 install puppet
 
 echo "Configuring puppet"
 #cat > /etc/puppet/puppet.conf << EOF
-#<%= snippet 'puppet.conf' %>
+#<% # snippet 'puppet.conf' %>
 #EOF
 #
 ## Setup puppet to run on system reboot
@@ -417,12 +417,14 @@ repo --name=fedora-everything --mirrorlist=https://mirrors.fedoraproject.org/met
 <% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
 repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/fedora/f<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
 repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/fedora/f<%= @host.operatingsystem.major %>/dependencies/<%= @host.architecture %>
+repo --name=foreman-nightly --baseurl=http://yum.theforeman.org/plugins/nightly/f<%= @host.operatingsystem.major %>/<%= @host.architecture %>
 <% end -%>
 <% elsif rhel_compatible && os_major > 4 -%>
 repo --name="Extra Packages for Enterprise Linux" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-<%= @host.operatingsystem.major %>&arch=<%= @host.architecture %>
 <% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
 repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
 repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/dependencies/<%= @host.architecture %>
+repo --name=foreman-nightly --baseurl=http://yum.theforeman.org/plugins/nightly/el<%= @host.operatingsystem.major %>/<%= @host.architecture %>
 <% end -%>
 <% end -%>
 
@@ -495,7 +497,7 @@ yum -t -y -e 0 update
 <% if puppet_enabled %>
 echo "Configuring puppet"
 #cat > /etc/puppet/puppet.conf << EOF
-#<%= snippet 'puppet.conf' %>
+#<% # snippet 'puppet.conf' %>
 #EOF
 #
 ## Setup puppet to run on system reboot
