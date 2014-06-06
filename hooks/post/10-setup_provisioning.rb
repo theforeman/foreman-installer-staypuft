@@ -32,7 +32,7 @@ if app_value(:provisioning_wizard)
   say "Generating answer file for client installers..."
   dump_file = Dir.tmpdir + '/staypuft-client-installer.answers.yaml'
   begin
-    pub_key_path = param('sshkeypair', 'home').value + '/.ssh/id_rsa.pub'
+    pub_key_path = param('sshkeypair', 'foreman_proxy_home').value + '/.ssh/id_rsa.pub'
     pub_key = File.read(pub_key_path).split(' ')[1]
   rescue => e
     say "Could not read SSH public key from #{pub_key_path} - #{e.message}, answer file will be <%= color('broken', :bad) %>"
