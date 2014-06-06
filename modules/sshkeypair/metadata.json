@@ -2,7 +2,7 @@
   "author": "",
   "checksums": {
     "Rakefile": "f37e6131fe7de9a49b09d31596f5fbf1",
-    "manifests/init.pp": "4b6049dd1caf1ba30254c06bc0f2a63a",
+    "manifests/init.pp": "06a461bee169d0b6fb12e6196c7c78ef",
     "Modulefile": "6b5e8291536c0065f50223b11cd89dd1",
     "spec/spec.opts": "a600ded995d948e393fbe2320ba8e51c",
     "tests/init.pp": "b5d149dd046ba74f1d839d35cf21e27b",
