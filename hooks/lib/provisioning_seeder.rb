@@ -16,6 +16,7 @@ class ProvisioningSeeder < BaseSeeder
     @gateway = kafo.param('foreman_proxy', 'dhcp_gateway').value
     @kernel = kafo.param('foreman_plugin_discovery', 'kernel').value
     @initrd = kafo.param('foreman_plugin_discovery', 'initrd').value
+    @dynflow_sshkey = kafo.param('puppetssh', 'dynflow_sshkey').value
     @discovery_env_name = 'discovery'
     @default_root_pass = 'spengler'
 
@@ -118,6 +119,7 @@ class ProvisioningSeeder < BaseSeeder
 
     default_hostgroup = @hostgroups.last
     setup_setting(default_hostgroup)
+    setup_dynflow_sshkey(@dynflow_sshkey)
     setup_idle_timeout
     setup_default_root_pass
     create_discovery_env(pxe_template)
@@ -156,6 +158,10 @@ class ProvisioningSeeder < BaseSeeder
   def setup_default_root_pass
     @foreman.setting.show_or_ensure({'id' => 'root_pass'},
                                     {'value' => @default_root_pass})
+
+  def setup_dynflow_sshkey(dynflow_sshkey)
+    @foreman.setting.show_or_ensure({'id' => 'dynflow_sshkey'},
+                                    {'value' => dynflow_sshkey})
   rescue NoMethodError => e
     @logger.error "Setting with name 'root_pass' not found, you must run 'foreman-rake db:seed' " +
                       "and rerun installer to fix this issue."
