@@ -414,17 +414,17 @@ realm join --one-time-password='<%= @host.otp %>' <%= @host.realm %>
 
 <% if @host.operatingsystem.name == 'Fedora' -%>
 repo --name=fedora-everything --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=fedora-<%= @host.operatingsystem.major %>&arch=<%= @host.architecture %>
+repo --name=foreman-nightly --baseurl=http://yum.theforeman.org/plugins/nightly/f<%= @host.operatingsystem.major %>/<%= @host.architecture %>
 <% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
 repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/fedora/f<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
 repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/fedora/f<%= @host.operatingsystem.major %>/dependencies/<%= @host.architecture %>
-repo --name=foreman-nightly --baseurl=http://yum.theforeman.org/plugins/nightly/f<%= @host.operatingsystem.major %>/<%= @host.architecture %>
 <% end -%>
 <% elsif rhel_compatible && os_major > 4 -%>
 repo --name="Extra Packages for Enterprise Linux" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-<%= @host.operatingsystem.major %>&arch=<%= @host.architecture %>
+repo --name=foreman-nightly --baseurl=http://yum.theforeman.org/plugins/nightly/el<%= @host.operatingsystem.major %>/<%= @host.architecture %>
 <% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
 repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
 repo --name=puppetlabs-deps --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/dependencies/<%= @host.architecture %>
-repo --name=foreman-nightly --baseurl=http://yum.theforeman.org/plugins/nightly/el<%= @host.operatingsystem.major %>/<%= @host.architecture %>
 <% end -%>
 <% end -%>
 
