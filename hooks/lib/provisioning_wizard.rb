@@ -78,6 +78,14 @@ class ProvisioningWizard
     @gateway ||= `ip route | awk '/default/{print $3}'`.chomp
   end
 
+  def netmask=(mask)
+    if mask.include?('/')
+      mask_len = mask.split('/').last.to_i
+      mask = IPAddr.new('255.255.255.255').mask(mask_len).to_s
+    end
+    @netmask = mask
+  end
+
   private
 
   def print_configuration
