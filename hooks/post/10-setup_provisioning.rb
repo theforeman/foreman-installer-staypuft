@@ -1,4 +1,4 @@
-if app_value(:provisioning_wizard)
+if app_value(:provisioning_wizard) && [0,2].include?(kafo.exit_code)
   require File.join(KafoConfigure.root_dir, 'hooks', 'lib', 'foreman.rb')
   require File.join(KafoConfigure.root_dir, 'hooks', 'lib', 'base_seeder.rb')
   require File.join(KafoConfigure.root_dir, 'hooks', 'lib', 'provisioning_seeder.rb')
@@ -28,4 +28,7 @@ if app_value(:provisioning_wizard)
   pro_seeder = ProvisioningSeeder.new(kafo)
   pro_seeder.seed
   `foreman-rake db:seed`
+else
+  say "Not running provisioning configuration since installation encountered errors, exit code was <%= color('#{kafo.exit_code}', :bad) %>"
+  false
 end
