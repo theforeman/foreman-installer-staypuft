@@ -79,7 +79,7 @@ class ProvisioningWizard
   end
 
   def netmask=(mask)
-    if mask.include?('/')
+    if mask.to_s.include?('/')
       mask_len = mask.split('/').last.to_i
       mask = IPAddr.new('255.255.255.255').mask(mask_len).to_s
     end
