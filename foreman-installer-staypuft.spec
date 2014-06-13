@@ -12,7 +12,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.0.16
+Version:    0.0.17
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -77,6 +77,9 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Fri Jun 13 2014 Marek Hulan <mhulan@redhat.com> 0.0.17-1
+- Fix netmask for nil values (mhulan@redhat.com)
+
 * Thu Jun 12 2014 Marek Hulan <mhulan@redhat.com> 0.0.16-1
 - Don't start configuration if installation fails (mhulan@redhat.com)
 - Accept CIDR for netmask and convert it (mhulan@redhat.com)
