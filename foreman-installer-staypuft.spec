@@ -12,7 +12,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.0.17
+Version:    0.0.18
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -77,6 +77,14 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Mon Jun 16 2014 Marek Hulan <mhulan@redhat.com> 0.0.18-1
+- Fix puppetmaster firewall port (mhulan@redhat.com)
+- NFS is not supported (mhulan@redhat.com)
+- Fix BZ#1103151 (mhulan@redhat.com)
+- Fix BZ#1102706 (mhulan@redhat.com)
+- Fix BZ#1105328 (mhulan@redhat.com)
+- Fix BZ#1102394 (mhulan@redhat.com)
+
 * Fri Jun 13 2014 Marek Hulan <mhulan@redhat.com> 0.0.17-1
 - Fix netmask for nil values (mhulan@redhat.com)
 
