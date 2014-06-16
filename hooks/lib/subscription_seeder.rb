@@ -94,6 +94,7 @@ class SubscriptionSeeder < BaseSeeder
   def get_credentials
     choose do |menu|
       menu.header = HighLine.color("\nEnter your subscription manager credentials?", :important)
+      menu.select_by = :index
       menu.prompt = ''
       menu.choice('Subscription manager username: '.ljust(37) + HighLine.color(@sm_username, :info)) { @sm_username = ask("Username: ")  }
       menu.choice('Subscription manager password: '.ljust(37) + HighLine.color('*' * @sm_password.size, :info)) { @sm_password = ask("Password: ") { |q| q.echo = "*" } }

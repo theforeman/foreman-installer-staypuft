@@ -113,6 +113,7 @@ class ProvisioningWizard
     choose do |menu|
       menu.header = HighLine.color("\nIs the networking correct?", :important)
       menu.prompt = ''
+      menu.select_by = :index
       menu.choice(HighLine.color('Yes, move on!', :run)) { false }
       ORDER.each do |attr|
         name = NIC_ATTRS[attr.to_sym]
