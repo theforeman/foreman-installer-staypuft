@@ -29,7 +29,7 @@ class SubscriptionSeeder < BaseSeeder
     if subscription_seed?
       get = get_credentials
       while get || (invalid && !@skip)
-        puts HighLine.color('Credentials can not be empty', :bad) if !get && invalid
+        puts HighLine.color(invalid, :bad) if !get && invalid
         get = get_credentials
       end
 
@@ -88,7 +88,20 @@ class SubscriptionSeeder < BaseSeeder
   private
 
   def invalid
-    @sm_username.empty? || @sm_password.empty?
+    message = "\n"
+    message += "Subscription manager username can't be empty\n" if @sm_username.empty?
+    message += "Subscription manager password can't be empty\n" if @sm_password.empty?
+    message += "Repository path can't be empty\n" if @repo_path.empty?
+    message += "Repository path is not valid\n" if repo_path_invalid?
+    message == "\n" ? false : message
+  end
+
+  def repo_path_invalid?
+    URI.parse(@repo_path)
+    return false
+  rescue URI::InvalidURIError => e
+    @logger.debug "User tried to use invalid repo path: #{e.message}"
+    return true
   end
 
   def get_credentials
