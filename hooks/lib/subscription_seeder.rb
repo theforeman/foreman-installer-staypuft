@@ -65,10 +65,14 @@ class SubscriptionSeeder < BaseSeeder
                                               'name' => 'subscription_manager_password',
                                               'value' => @sm_password,
                                           })
+
+        respositories = @repositories
+        repositories = respositories.gsub('rhel-7-', 'rhel-6-') if os['major'].to_s == '6'
+        repositories = respositories.gsub('rhel-6-', 'rhel-7-') if os['major'].to_s == '7'
         @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_repos', 'operatingsystem_id' => os['id']},
                                           {
                                               'name' => 'subscription_manager_repos',
-                                              'value' => @repositories,
+                                              'value' => repositories,
                                           })
         if !@sm_pool.empty? && !@sm_pool.nil?
           @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_pool', 'operatingsystem_id' => os['id']},
