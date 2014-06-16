@@ -13,7 +13,7 @@
 #
 # $netmask::              What netmask should be set
 #
-# $gateway::              What is the gateway for this machine
+# $own_gateway::          What is the gateway for this machine
 #
 # $dns::                  DNS forwarder to use as secondary nameserver
 #
@@ -35,11 +35,14 @@
 #
 # $base_url::             URL of Foreman instance used for smart proxy configuration
 #
+# $gateway::              What is the gateway for machines using managed DHCP
+#
 class foreman::plugin::staypuft(
     $configure_networking = true,
     $interface,
     $ip,
     $netmask,
+    $own_gateway,
     $gateway,
     $dns,
     $network,
@@ -66,7 +69,7 @@ class foreman::plugin::staypuft(
 
   if ($configure_networking) {
     class { 'network::global':
-      gateway => $gateway,
+      gateway => $own_gateway,
     }
 
     network::if::static { $interface:

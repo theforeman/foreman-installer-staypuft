@@ -4,15 +4,16 @@ class ProvisioningWizard
     :ip => 'IP address',
     :netmask => 'Network mask',
     :network => 'Network address',
+    :own_gateway => 'Host Gateway',
     :from => 'DHCP range start',
     :to => 'DHCP range end',
-    :gateway => 'Gateway',
+    :gateway => 'DHCP Gateway',
     :dns => 'DNS forwarder',
     :domain => 'Domain',
     :base_url => 'Foreman URL',
     :configure_networking => 'Set this host networking'
   }
-  ORDER = %w(interface ip netmask network from to gateway dns domain base_url configure_networking)
+  ORDER = %w(interface ip netmask network own_gateway from to gateway dns domain base_url configure_networking)
   attr_accessor *NIC_ATTRS.keys
 
   def initialize(kafo)
@@ -74,8 +75,12 @@ class ProvisioningWizard
     end
   end
 
+  def own_gateway
+    @own_gateway ||= `ip route | awk '/default/{print $3}'`.chomp
+  end
+
   def gateway
-    @gateway ||= `ip route | awk '/default/{print $3}'`.chomp
+    @gateway ||= @own_gateway
   end
 
   def netmask=(mask)

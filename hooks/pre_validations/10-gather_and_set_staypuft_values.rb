@@ -18,6 +18,7 @@ if app_value(:provisioning_wizard)
   param('foreman_plugin_staypuft', 'interface').value = wizard.interface
   param('foreman_plugin_staypuft', 'ip').value = wizard.ip
   param('foreman_plugin_staypuft', 'netmask').value = wizard.netmask
+  param('foreman_plugin_staypuft', 'own_gateway').value = wizard.own_gateway
   param('foreman_plugin_staypuft', 'gateway').value = wizard.gateway
   param('foreman_plugin_staypuft', 'dns').value = wizard.dns
   param('foreman_plugin_staypuft', 'network').value = wizard.network
