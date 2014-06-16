@@ -29,7 +29,7 @@ class SubscriptionSeeder < BaseSeeder
     if subscription_seed?
       get = get_credentials
       while get || (invalid && !@skip)
-        puts HighLine.color('Credentials can not be empty', :bad) if !get && invalid
+        puts HighLine.color(invalid, :bad) if !get && invalid
         get = get_credentials
       end
 
@@ -65,10 +65,14 @@ class SubscriptionSeeder < BaseSeeder
                                               'name' => 'subscription_manager_password',
                                               'value' => @sm_password,
                                           })
+
+        respositories = @repositories
+        repositories = respositories.gsub('rhel-7-', 'rhel-6-') if os['major'].to_s == '6'
+        repositories = respositories.gsub('rhel-6-', 'rhel-7-') if os['major'].to_s == '7'
         @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_repos', 'operatingsystem_id' => os['id']},
                                           {
                                               'name' => 'subscription_manager_repos',
-                                              'value' => @repositories,
+                                              'value' => repositories,
                                           })
         if !@sm_pool.empty? && !@sm_pool.nil?
           @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_pool', 'operatingsystem_id' => os['id']},
@@ -84,17 +88,31 @@ class SubscriptionSeeder < BaseSeeder
   private
 
   def invalid
-    @sm_username.empty? || @sm_password.empty?
+    message = "\n"
+    message += "Subscription manager username can't be empty\n" if @sm_username.empty?
+    message += "Subscription manager password can't be empty\n" if @sm_password.empty?
+    message += "Repository path can't be empty\n" if @repo_path.empty?
+    message += "Repository path is not valid\n" if repo_path_invalid?
+    message == "\n" ? false : message
+  end
+
+  def repo_path_invalid?
+    URI.parse(@repo_path)
+    return false
+  rescue URI::InvalidURIError => e
+    @logger.debug "User tried to use invalid repo path: #{e.message}"
+    return true
   end
 
   def get_credentials
     choose do |menu|
       menu.header = HighLine.color("\nEnter your subscription manager credentials?", :important)
+      menu.select_by = :index
       menu.prompt = ''
       menu.choice('Subscription manager username: '.ljust(37) + HighLine.color(@sm_username, :info)) { @sm_username = ask("Username: ")  }
       menu.choice('Subscription manager password: '.ljust(37) + HighLine.color('*' * @sm_password.size, :info)) { @sm_password = ask("Password: ") { |q| q.echo = "*" } }
       menu.choice('Comma separated repositories: '.ljust(37) + HighLine.color(@repositories, :info)) { print 'value: '; @repositories = ask("Repositories: ") }
-      menu.choice('RHEL repo path (http(s) or nfs URL): '.ljust(37) + HighLine.color(@repo_path, :info)) { print 'value: '; @repo_path = ask("Path: ") }
+      menu.choice('RHEL repo path (http or https URL): '.ljust(37) + HighLine.color(@repo_path, :info)) { print 'value: '; @repo_path = ask("Path: ") }
       menu.choice('Subscription manager pool (optional): '.ljust(37) + HighLine.color(@sm_pool, :info)) { print 'value: '; @sm_pool = ask("Pool: ") }
       menu.choice(HighLine.color('Proceed with configuration', :run)) { false }
       menu.choice(HighLine.color("Skip this step (provisioning won't subscribe your machines)", :cancel)) {
