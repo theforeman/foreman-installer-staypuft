@@ -112,7 +112,7 @@ class SubscriptionSeeder < BaseSeeder
       menu.choice('Subscription manager username: '.ljust(37) + HighLine.color(@sm_username, :info)) { @sm_username = ask("Username: ")  }
       menu.choice('Subscription manager password: '.ljust(37) + HighLine.color('*' * @sm_password.size, :info)) { @sm_password = ask("Password: ") { |q| q.echo = "*" } }
       menu.choice('Comma separated repositories: '.ljust(37) + HighLine.color(@repositories, :info)) { print 'value: '; @repositories = ask("Repositories: ") }
-      menu.choice('RHEL repo path (http(s) or nfs URL): '.ljust(37) + HighLine.color(@repo_path, :info)) { print 'value: '; @repo_path = ask("Path: ") }
+      menu.choice('RHEL repo path (http or https URL): '.ljust(37) + HighLine.color(@repo_path, :info)) { print 'value: '; @repo_path = ask("Path: ") }
       menu.choice('Subscription manager pool (optional): '.ljust(37) + HighLine.color(@sm_pool, :info)) { print 'value: '; @sm_pool = ask("Pool: ") }
       menu.choice(HighLine.color('Proceed with configuration', :run)) { false }
       menu.choice(HighLine.color("Skip this step (provisioning won't subscribe your machines)", :cancel)) {
