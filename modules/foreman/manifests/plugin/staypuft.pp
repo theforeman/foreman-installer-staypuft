@@ -110,7 +110,7 @@ class foreman::plugin::staypuft(
     } ->
     # The Foreman server accepts connections to Puppet on this port.
     firewall { '8140 accept - puppetmaster':
-      port   => '443',
+      port   => '8140',
       proto  => 'tcp',
       action => 'accept',
     }
