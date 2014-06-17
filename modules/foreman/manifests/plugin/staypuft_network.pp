@@ -49,10 +49,21 @@ class foreman::plugin::staypuft_network(
   resources { "firewall":
     purge => false
   } ->
-  # The Foreman server needs to accept DNS requests on this port when provisioning systems.
-  firewall { '53 accept - dns':
+  # The Foreman server should accept ssh connections for management.
+  firewall { '22 accept - ssh':
+    port   => '22',
+    proto  => 'tcp',
+    action => 'accept',
+  } ->
+  # The Foreman server needs to accept DNS requests on this port for tcp and udp when provisioning systems.
+  firewall { '53 accept - dns tcp':
     port   => '53',
     proto  => 'tcp',
+    action => 'accept',
+  } ->
+  firewall { '53 accept - dns udp':
+    port   => '53',
+    proto  => 'udp',
     action => 'accept',
   } ->
   # The Foreman server needs to accept TFTP requests on this port when provisioning systems.
