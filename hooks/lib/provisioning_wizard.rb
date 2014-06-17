@@ -29,7 +29,7 @@ class ProvisioningWizard
   end
 
   def start
-    get_nic if @interface.nil? || !interfaces.has_key?(@interface)
+    get_interface if @interface.nil? || !interfaces.has_key?(@interface)
     configure = true
     while configure
       send("get_#{configure}") if configure.is_a?(Symbol)
@@ -131,7 +131,7 @@ class ProvisioningWizard
     exit(0)
   end
 
-  def get_nic
+  def get_interface
     case interfaces.size
       when 0
         HighLine.color("\nFacter didn't find any NIC, can not continue", :bad)
