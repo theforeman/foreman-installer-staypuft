@@ -71,6 +71,7 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_datadir}/foreman-installer/hooks/pre_values/10-register_staypuft_modules.rb
 %{_datadir}/foreman-installer/modules/network
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft.pp
+%{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft_network.pp
 
 %config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.yaml
 %config(noreplace) %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.answers.yaml

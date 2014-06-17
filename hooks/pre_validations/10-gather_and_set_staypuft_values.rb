@@ -3,6 +3,29 @@ if app_value(:provisioning_wizard)
   wizard = ProvisioningWizard.new(kafo)
   wizard.start
 
+  if wizard.configure_networking
+    command = PuppetCommand.new(%Q(class {"foreman::plugin::staypuft_network":
+      interface            => "#{wizard.interface}",
+      ip                   => "#{wizard.ip}",
+      netmask              => "#{wizard.netmask}",
+      gateway              => "#{wizard.gateway}",
+      dns                  => "#{wizard.dns}",
+    }))
+    command.append '2>&1'
+    command = command.command
+
+    say 'Starting networking setup'
+    logger.debug "running command to set networking"
+    logger.debug `#{command}`
+
+    if $?.success?
+      say 'Networking setup has finished'
+    else
+      say "<%= color('Networking setup failed', :bad) %>"
+      kafo.class.exit(101)
+    end
+  end
+
   param('foreman_proxy', 'tftp_servername').value = wizard.ip
   param('foreman_proxy', 'dhcp_interface').value = wizard.interface
   param('foreman_proxy', 'dhcp_gateway').value = wizard.gateway
