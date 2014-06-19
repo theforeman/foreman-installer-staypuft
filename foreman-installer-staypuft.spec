@@ -1,9 +1,6 @@
-%if "%{?scl}" == "ruby193"
-    %global scl_prefix %{scl}-
-    %global scl_ruby /usr/bin/ruby193-ruby
-%else
-    %global scl_ruby /usr/bin/ruby
-%endif
+# We don't want to use SCL since we are missing some dependencies 
+# in SCL and we still support 1.8 for installer
+%global scl_ruby /usr/bin/ruby
 
 # set and uncomment all three to set alpha tag
 #global alphatag RC1

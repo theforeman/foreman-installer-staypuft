@@ -11,9 +11,12 @@ class ProvisioningWizard
     :dns => 'DNS forwarder',
     :domain => 'Domain',
     :base_url => 'Foreman URL',
-    :configure_networking => 'Set this host networking'
+    :configure_networking => 'Configure networking on this machine'
   }
   ORDER = %w(interface ip netmask network own_gateway from to gateway dns domain base_url configure_networking)
+  CUSTOM_LABELS = {
+    :configure_networking => 'Configure networking'
+  }
   attr_accessor *NIC_ATTRS.keys
 
   def initialize(kafo)
@@ -23,9 +26,6 @@ class ProvisioningWizard
       param = kafo.param('foreman_plugin_staypuft', attr.to_s)
       send "#{attr}=", param && param.value
     end
-
-    say HighLine.color('Provisioning setup', :headline)
-    say '' 
   end
 
   def start
@@ -94,7 +94,7 @@ class ProvisioningWizard
   private
 
   def print_configuration
-    say HighLine.color("\nCurrent networking setup:", :headline)
+    say HighLine.color("Networking setup:", :headline)
     ORDER.each do |attr|
       name = NIC_ATTRS[attr.to_sym]
       print_pair name, send(attr) 
@@ -116,15 +116,20 @@ class ProvisioningWizard
 
   def get_ready
     choose do |menu|
-      menu.header = HighLine.color("\nIs the networking correct?", :important)
+      say "\nStaypuft can configure the networking and firewall rules on this machine with the above configuration. Defaults are populated from the this machine's existing networking configuration."
+      say "\nIf you DO NOT want Staypuft Installer to configure networking please set 'Configure networking on this machine' to No before proceeding. Do this by selecting option 'Do not configure networking' from the list below."
+      menu.header = HighLine.color("\nHow would you like to proceed?", :important)
       menu.prompt = ''
       menu.select_by = :index
-      menu.choice(HighLine.color('Yes, move on!', :run)) { false }
+      menu.choice(HighLine.color('Proceed with the above values', :run)) { false }
       ORDER.each do |attr|
         name = NIC_ATTRS[attr.to_sym]
-        menu.choice("No, change #{name}") { attr.to_sym }
+        label = CUSTOM_LABELS[attr.to_sym] || "Change #{name}"
+        label = "Do not " + label.downcase if send(attr).is_a?(TrueClass)
+        label = label
+        menu.choice(label) { attr.to_sym }
       end
-      menu.choice(HighLine.color('No, cancel installation', :cancel)) { exit 0 }
+      menu.choice(HighLine.color('Cancel Installation', :cancel)) { exit 0 }
     end
   rescue Interrupt
     @logger.debug "Got interrupt, exiting"
