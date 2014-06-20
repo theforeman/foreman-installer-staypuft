@@ -11,9 +11,10 @@ class ProvisioningWizard
     :dns => 'DNS forwarder',
     :domain => 'Domain',
     :base_url => 'Foreman URL',
+    :ntp_host => 'NTP sync host',
     :configure_networking => 'Configure networking on this machine'
   }
-  ORDER = %w(interface ip netmask network own_gateway from to gateway dns domain base_url configure_networking)
+  ORDER = %w(interface ip netmask network own_gateway from to gateway dns domain base_url ntp_host configure_networking)
   CUSTOM_LABELS = {
     :configure_networking => 'Configure networking'
   }
@@ -89,6 +90,10 @@ class ProvisioningWizard
       mask = IPAddr.new('255.255.255.255').mask(mask_len).to_s
     end
     @netmask = mask
+  end
+
+  def ntp_host
+    @ntp_host ||= '1.centos.pool.ntp.org'
   end
 
   private
