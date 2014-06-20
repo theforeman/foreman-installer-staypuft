@@ -1,63 +1,48 @@
-class ProvisioningWizard
-  NIC_ATTRS = {
-    :interface => 'Network interface',
-    :ip => 'IP address',
-    :netmask => 'Network mask',
-    :network => 'Network address',
-    :own_gateway => 'Host Gateway',
-    :from => 'DHCP range start',
-    :to => 'DHCP range end',
-    :gateway => 'DHCP Gateway',
-    :dns => 'DNS forwarder',
-    :domain => 'Domain',
-    :base_url => 'Foreman URL',
-    :ntp_host => 'NTP sync host',
-    :configure_networking => 'Configure networking on this machine'
-  }
-  ORDER = %w(interface ip netmask network own_gateway from to gateway dns domain base_url ntp_host configure_networking)
-  CUSTOM_LABELS = {
-    :configure_networking => 'Configure networking'
-  }
-  attr_accessor *NIC_ATTRS.keys
+class ProvisioningWizard < BaseWizard
+  def self.attrs
+    {
+        :interface => 'Network interface',
+        :ip => 'IP address',
+        :netmask => 'Network mask',
+        :network => 'Network address',
+        :own_gateway => 'Host Gateway',
+        :from => 'DHCP range start',
+        :to => 'DHCP range end',
+        :gateway => 'DHCP Gateway',
+        :dns => 'DNS forwarder',
+        :domain => 'Domain',
+        :base_url => 'Foreman URL',
+        :ntp_host => 'NTP sync host',
+        :configure_networking => 'Configure networking on this machine'
+    }
+  end
 
-  def initialize(kafo)
-    @kafo   = kafo
-    @logger = kafo.logger
-    # set default value according to parameter value
-    NIC_ATTRS.each_pair do |attr, name|
-      param = kafo.param('foreman_plugin_staypuft', attr.to_s)
-      send "#{attr}=", param && param.value
-    end
+  def self.order
+    %w(interface ip netmask network own_gateway from to gateway dns domain base_url ntp_host configure_networking)
+  end
+
+  def self.custom_labels
+    {
+        :configure_networking => 'Configure networking'
+    }
+  end
+
+  attr_accessor *attrs.keys
+
+  def initialize(*args)
+    super
+    self.header = 'Networking setup:'
+    self.help = "Staypuft can configure the networking and firewall rules on this machine with the above configuration. Defaults are populated from the this machine's existing networking configuration.\n\nIf you DO NOT want Staypuft Installer to configure networking please set 'Configure networking on this machine' to No before proceeding. Do this by selecting option 'Do not configure networking' from the list below."
+    self.allow_cancellation = true
   end
 
   def start
     get_interface if @interface.nil? || !interfaces.has_key?(@interface)
-    configure = true
-    while configure
-      send("get_#{configure}") if configure.is_a?(Symbol)
-      print_configuration
-      configure = get_ready
-    end
+    super
   end
 
   def get_configure_networking
     self.configure_networking = !configure_networking
-  end
-
-  def method_missing(name, *args, &block)
-    if name.to_s =~ /^get_(.*)/ && NIC_ATTRS.keys.include?(attr = $1.to_sym)
-      send "#{$1}=", ask("new value for #{NIC_ATTRS[attr]}")
-    else
-      super
-    end
-  end
-
-  def respond_to?(name)
-    if name.to_s =~ /^get_(.*)/ && NIC_ATTRS.keys.include?($1.to_sym)
-      true 
-    else
-      super
-    end
   end
 
   def base_url
@@ -70,7 +55,7 @@ class ProvisioningWizard
 
   def dns
     @dns ||= begin
-      line = File.read('/etc/resolv.conf').split("\n").detect { |line| line =~ /nameserver\s+.*/}
+      line = File.read('/etc/resolv.conf').split("\n").detect { |line| line =~ /nameserver\s+.*/ }
       line.split(' ').last || ''
     rescue
       ''
@@ -99,49 +84,6 @@ class ProvisioningWizard
 
   private
 
-  def print_configuration
-    say HighLine.color("Networking setup:", :headline)
-    ORDER.each do |attr|
-      name = NIC_ATTRS[attr.to_sym]
-      print_pair name, send(attr) 
-    end
-  end
-
-  def print_pair(name, value)
-    value = case
-              when value.is_a?(TrueClass)
-                HighLine.color(Kafo::Wizard::OK, :run)
-              when value.is_a?(FalseClass)
-                HighLine.color(Kafo::Wizard::NO, :cancel)
-              else
-                "'#{HighLine.color(value.to_s, :info)}'"
-            end
-
-    say "#{name}:".rjust(25) + " #{value}"
-  end
-
-  def get_ready
-    choose do |menu|
-      say "\nStaypuft can configure the networking and firewall rules on this machine with the above configuration. Defaults are populated from the this machine's existing networking configuration."
-      say "\nIf you DO NOT want Staypuft Installer to configure networking please set 'Configure networking on this machine' to No before proceeding. Do this by selecting option 'Do not configure networking' from the list below."
-      menu.header = HighLine.color("\nHow would you like to proceed?", :important)
-      menu.prompt = ''
-      menu.select_by = :index
-      menu.choice(HighLine.color('Proceed with the above values', :run)) { false }
-      ORDER.each do |attr|
-        name = NIC_ATTRS[attr.to_sym]
-        label = CUSTOM_LABELS[attr.to_sym] || "Change #{name}"
-        label = "Do not " + label.downcase if send(attr).is_a?(TrueClass)
-        label = label
-        menu.choice(label) { attr.to_sym }
-      end
-      menu.choice(HighLine.color('Cancel Installation', :cancel)) { @kafo.class.exit(100) }
-    end
-  rescue Interrupt
-    @logger.debug "Got interrupt, exiting"
-    @kafo.class.exit(100)
-  end
-
   def get_interface
     case interfaces.size
       when 0
@@ -162,12 +104,12 @@ class ProvisioningWizard
   end
 
   def setup_networking
-    @ip      = interfaces[@interface][:ip]
+    @ip = interfaces[@interface][:ip]
     @network = interfaces[@interface][:network]
     @netmask = interfaces[@interface][:netmask]
-    @cidr    = interfaces[@interface][:cidr]
-    @from    = interfaces[@interface][:from]
-    @to      = interfaces[@interface][:to]
+    @cidr = interfaces[@interface][:cidr]
+    @from = interfaces[@interface][:from]
+    @to = interfaces[@interface][:to]
   end
 
   def interfaces
@@ -175,7 +117,7 @@ class ProvisioningWizard
       ip = Facter.value "ipaddress_#{i}"
       network = Facter.value "network_#{i}"
       netmask = Facter.value "netmask_#{i}"
-      
+
       cidr, from, to = nil, nil, nil
       if ip && network && netmask
         cidr = "#{network}/#{IPAddr.new(netmask).to_i.to_s(2).count('1')}"
