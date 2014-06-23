@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.0.20
+Version:    0.0.21
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -77,6 +77,11 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Mon Jun 23 2014 Marek Hulan <mhulan@redhat.com> 0.0.21-1
+- Add root password and ssh key wizard (mhulan@redhat.com)
+- Fix output during interupt or cancel (mhulan@redhat.com)
+- adding ntp sync to installation tasks (dradez@redhat.com)
+
 * Thu Jun 19 2014 Marek Hulan <mhulan@redhat.com> 0.0.20-1
 - Disable SCL for installer packages (mhulan@redhat.com)
 - Fix BZ#1102952 (mhulan@redhat.com)
