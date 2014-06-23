@@ -60,6 +60,8 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_datadir}/foreman-installer/hooks/lib/base_seeder.rb
 %{_datadir}/foreman-installer/hooks/lib/foreman.rb
 %attr(755, root, root) %{_datadir}/foreman-installer/hooks/lib/install_modules.sh
+%{_datadir}/foreman-installer/hooks/lib/authentication_wizard.rb
+%{_datadir}/foreman-installer/hooks/lib/base_wizard.rb
 %{_datadir}/foreman-installer/hooks/lib/provisioning_seeder.rb
 %{_datadir}/foreman-installer/hooks/lib/provisioning_wizard.rb
 %{_datadir}/foreman-installer/hooks/lib/subscription_seeder.rb

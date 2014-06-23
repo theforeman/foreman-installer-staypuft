@@ -37,6 +37,11 @@
 #
 # $ntp_host::             NTP sync host
 #
+# $root_password::        Default root password for provisioned machines
+#                         type:password
+#
+# $ssh_public_key::       SSH public key installed on provisioned machines during provisioning
+#
 class foreman::plugin::staypuft(
     $configure_networking = true,
     $interface,
@@ -51,6 +56,8 @@ class foreman::plugin::staypuft(
     $domain,
     $base_url,
     $ntp_host,
+    $root_password = 'spengler',
+    $ssh_public_key
 ) {
   validate_bool($configure_networking)
 
