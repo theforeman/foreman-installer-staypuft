@@ -49,6 +49,7 @@ if app_value(:provisioning_wizard)
   param('foreman_plugin_staypuft', 'to').value = wizard.to
   param('foreman_plugin_staypuft', 'domain').value = wizard.domain
   param('foreman_plugin_staypuft', 'base_url').value = wizard.base_url
+  param('foreman_plugin_staypuft', 'ntp_host').value = wizard.ntp_host
 
   # some enforced values for foreman-installer
   param('foreman_proxy', 'tftp').value = true

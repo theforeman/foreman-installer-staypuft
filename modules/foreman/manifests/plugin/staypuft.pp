@@ -35,6 +35,8 @@
 #
 # $gateway::              What is the gateway for machines using managed DHCP
 #
+# $ntp_host::             NTP sync host
+#
 class foreman::plugin::staypuft(
     $configure_networking = true,
     $interface,
@@ -47,7 +49,8 @@ class foreman::plugin::staypuft(
     $from,
     $to,
     $domain,
-    $base_url
+    $base_url,
+    $ntp_host,
 ) {
   validate_bool($configure_networking)
 
@@ -63,5 +66,10 @@ class foreman::plugin::staypuft(
   package { $staypuft_name:
     ensure => installed,
     notify => Class['foreman::service'],
+    require => Exec['NTP sync'],
+  }
+
+  exec { 'NTP sync':
+    command => "/usr/sbin/ntpdate $ntp_host",
   }
 }
