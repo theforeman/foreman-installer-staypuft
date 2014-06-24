@@ -82,6 +82,54 @@ class ProvisioningWizard < BaseWizard
     @ntp_host ||= '1.centos.pool.ntp.org'
   end
 
+  def validate_interface
+    'Interface must be present' if @interface.nil? || @interface.empty?
+  end
+
+  def validate_ip
+    'IP address is invalid' unless valid_ip?(@ip)
+  end
+
+  def validate_netmask
+    'Network mask is invalid' unless valid_ip?(@netmask)
+  end
+
+  def validate_network
+    'Network address is invalid' unless valid_ip?(@network)
+  end
+
+  def validate_own_gateway
+    'Host Gateway is invalid' unless valid_ip?(@own_gateway)
+  end
+
+  def validate_from
+    'DHCP range start is invalid' unless valid_ip?(@from)
+  end
+
+  def validate_to
+    'DHCP range end is invalid' unless valid_ip?(@to)
+  end
+
+  def validate_gateway
+    'DHCP Gateway is invalid' unless valid_ip?(@gateway)
+  end
+
+  def validate_dns
+    'DNS forwarder is invalid' unless valid_ip?(@dns)
+  end
+
+  def validate_domain
+    'Domain must be present' if @domain.nil? || @domain.empty?
+  end
+
+  def validate_base_url
+    'Foreman URL must be present' if @base_url.nil? || @base_url.empty?
+  end
+
+  def validate_ntp_host
+    'NTP sync host' if @ntp_host.nil? || @ntp_host.empty?
+  end
+
   private
 
   def get_interface
@@ -128,5 +176,9 @@ class ProvisioningWizard < BaseWizard
       ifaces[i] = {:ip => ip, :netmask => netmask, :network => network, :cidr => cidr, :from => from, :to => to, :gateway => gateway}
       ifaces
     end
+  end
+
+  def valid_ip?(ip)
+    !!(ip =~ Resolv::IPv4::Regex)
   end
 end

@@ -58,12 +58,13 @@ class BaseWizard
   private
 
   def validate
-    errors = self.class.attrs.keys.map do |attr|
+    errors = self.class.order.map do |attr|
       method_name = "validate_#{attr}"
       send(method_name) if respond_to?(method_name)
     end.compact
 
-    errors.each { |error| say HighLine.color(error, :bad) }
+    say HighLine.color("\nUnable to proceed because of following errors:", :bad) unless errors.empty?
+    errors.each { |error| say '  ' + HighLine.color(error, :bad) }
     errors.empty?
   end
 
@@ -114,49 +115,4 @@ class BaseWizard
     @kafo.class.exit(100)
   end
 
-  def get_interface
-    case interfaces.size
-      when 0
-        HighLine.color("\nFacter didn't find any NIC, can not continue", :bad)
-        raise StandardError
-      when 1
-        @interface = interfaces.keys.first
-      else
-        @interface = choose do |menu|
-          menu.header = HighLine.color("\nPlease select NIC on which you want Foreman provisioning enabled", :important)
-          interfaces.keys.each do |nic|
-            menu.choice nic
-          end
-        end
-    end
-
-    setup_networking
-  end
-
-  def setup_networking
-    @ip      = interfaces[@interface][:ip]
-    @network = interfaces[@interface][:network]
-    @netmask = interfaces[@interface][:netmask]
-    @cidr    = interfaces[@interface][:cidr]
-    @from    = interfaces[@interface][:from]
-    @to      = interfaces[@interface][:to]
-  end
-
-  def interfaces
-    @interfaces ||= (Facter.value :interfaces || '').split(',').reject { |i| i == 'lo' }.inject({}) do |ifaces, i|
-      ip = Facter.value "ipaddress_#{i}"
-      network = Facter.value "network_#{i}"
-      netmask = Facter.value "netmask_#{i}"
-
-      cidr, from, to = nil, nil, nil
-      if ip && network && netmask
-        cidr = "#{network}/#{IPAddr.new(netmask).to_i.to_s(2).count('1')}"
-        from = IPAddr.new(ip).succ.to_s
-        to = IPAddr.new(cidr).to_range.entries[-2].to_s
-      end
-
-      ifaces[i] = {:ip => ip, :netmask => netmask, :network => network, :cidr => cidr, :from => from, :to => to, :gateway => gateway}
-      ifaces
-    end
-  end
 end
