@@ -10,6 +10,9 @@
 # $configure_networking:: Should local networking be configured by installer?
 #                         type:boolean
 #
+# $configure_firewall::   Should local firewall be configured by installer?
+#                         type:boolean
+#
 # $interface::            Which interface should this class configure
 #
 # $ip::                   What IP address should be set
@@ -44,6 +47,7 @@
 #
 class foreman::plugin::staypuft(
     $configure_networking = true,
+    $configure_firewall = true,
     $interface,
     $ip,
     $netmask,

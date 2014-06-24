@@ -27,6 +27,7 @@ if app_value(:provisioning_wizard) && [0,2].include?(kafo.exit_code)
   # add other provisioning data
   pro_seeder = ProvisioningSeeder.new(kafo)
   pro_seeder.seed
+  `foreman-rake db:migrate`
   `foreman-rake db:seed`
 else
   say "Not running provisioning configuration since installation encountered errors, exit code was <%= color('#{kafo.exit_code}', :bad) %>"

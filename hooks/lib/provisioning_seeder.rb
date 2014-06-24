@@ -336,6 +336,8 @@ EOF
 
 /usr/bin/puppet agent --config /etc/puppet/puppet.conf -o --tags no_such_tag <%= @host.puppetmaster.blank? ? '' : "--server #{@host.puppetmaster}" %> --no-daemonize
 
+<% end -%>
+
 sync
 
 # Inform the build system that we are done.
