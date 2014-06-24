@@ -1,3 +1,5 @@
+require 'resolv'
+
 class ProvisioningWizard < BaseWizard
   def self.attrs
     {
