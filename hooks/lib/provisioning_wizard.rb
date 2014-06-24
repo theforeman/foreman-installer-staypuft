@@ -67,7 +67,7 @@ class ProvisioningWizard < BaseWizard
   end
 
   def gateway
-    @gateway ||= @own_gateway
+    @gateway ||= @ip
   end
 
   def netmask=(mask)
