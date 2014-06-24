@@ -13,17 +13,19 @@ class ProvisioningWizard < BaseWizard
         :domain => 'Domain',
         :base_url => 'Foreman URL',
         :ntp_host => 'NTP sync host',
-        :configure_networking => 'Configure networking on this machine'
+        :configure_networking => 'Configure networking on this machine',
+        :configure_firewall => 'Configure firewall on this machine'
     }
   end
 
   def self.order
-    %w(interface ip netmask network own_gateway from to gateway dns domain base_url ntp_host configure_networking)
+    %w(interface ip netmask network own_gateway from to gateway dns domain base_url ntp_host configure_networking configure_firewall)
   end
 
   def self.custom_labels
     {
-        :configure_networking => 'Configure networking'
+        :configure_networking => 'Configure networking',
+        :configure_firewall => 'Configure firewall'
     }
   end
 
@@ -43,6 +45,10 @@ class ProvisioningWizard < BaseWizard
 
   def get_configure_networking
     self.configure_networking = !configure_networking
+  end
+
+  def get_configure_firewall
+    self.configure_firewall = !configure_firewall
   end
 
   def base_url

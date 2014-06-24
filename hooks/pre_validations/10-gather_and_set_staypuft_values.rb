@@ -7,13 +7,15 @@ if app_value(:provisioning_wizard)
   authentication_wizard = AuthenticationWizard.new(kafo)
   authentication_wizard.start
 
-  if provisioning_wizard.configure_networking
+  if provisioning_wizard.configure_networking || provisioning_wizard.configure_firewall
     command = PuppetCommand.new(%Q(class {"foreman::plugin::staypuft_network":
       interface            => "#{provisioning_wizard.interface}",
       ip                   => "#{provisioning_wizard.ip}",
       netmask              => "#{provisioning_wizard.netmask}",
-      gateway              => "#{provisioning_wizard.gateway}",
+      gateway              => "#{provisioning_wizard.own_gateway}",
       dns                  => "#{provisioning_wizard.dns}",
+      configure_networking => #{provisioning_wizard.configure_networking},
+      configure_firewall   => #{provisioning_wizard.configure_firewall},
     }))
     command.append '2>&1'
     command = command.command
@@ -42,6 +44,7 @@ if app_value(:provisioning_wizard)
   param('foreman_proxy', 'foreman_base_url').value = provisioning_wizard.base_url
 
   param('foreman_plugin_staypuft', 'configure_networking').value = provisioning_wizard.configure_networking
+  param('foreman_plugin_staypuft', 'configure_firewall').value = provisioning_wizard.configure_firewall
   param('foreman_plugin_staypuft', 'interface').value = provisioning_wizard.interface
   param('foreman_plugin_staypuft', 'ip').value = provisioning_wizard.ip
   param('foreman_plugin_staypuft', 'netmask').value = provisioning_wizard.netmask
