@@ -137,7 +137,7 @@ class ProvisioningSeeder < BaseSeeder
 
   def setup_default_root_pass
     @foreman.setting.show_or_ensure({'id' => 'root_pass'},
-                                    {'value' => @default_root_pass})
+                                    {'value' => @default_root_pass.to_s.crypt('$5$fm')})
   rescue NoMethodError => e
     @logger.error "Setting with name 'root_pass' not found, you must run 'foreman-rake db:seed' " +
                       "and rerun installer to fix this issue."
