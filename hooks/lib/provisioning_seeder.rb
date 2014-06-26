@@ -90,11 +90,13 @@ class ProvisioningSeeder < BaseSeeder
                                                      'puppet_proxy_id' => default_proxy['id'],
                                                      'subnet_id' => default_subnet['id']})
 
-      @foreman.parameter.show_or_ensure({'id' => 'ssh_public_key', 'operatingsystem_id' => os['id']},
-                                        {
-                                            'name' => 'ssh_public_key',
-                                            'value' => @default_ssh_public_key,
-                                        })
+      if !@default_ssh_public_key.nil? && !@default_ssh_public_key.empty?
+        @foreman.parameter.show_or_ensure({'id' => 'ssh_public_key', 'operatingsystem_id' => os['id']},
+                                          {
+                                              'name' => 'ssh_public_key',
+                                              'value' => @default_ssh_public_key,
+                                          })
+      end
       @hostgroups.push hostgroup
     end
 
