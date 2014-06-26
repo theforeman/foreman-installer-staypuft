@@ -19,7 +19,7 @@ class AuthenticationWizard < BaseWizard
   def initialize(*args)
     super
     self.header = 'Configure client authentication'
-    self.help = "You can configure default root password and public ssh key for root account which will be used fr machines provisioned by Staypuft. You can leave default password which is '<%= HighLine.color('spengler', :info) %>' or set your own. The minimal password length is 8 characters. You can optionally set SSH public key. You can combine both methods."
+    self.help = "Please set a default root password for newly provisioned machines.  If you choose not to set a password, it will be defaulted to '<%= HighLine.color('spengler', :info) %>'.  The password must be a minimum of 8 characters.  You can also set a public ssh key which will be deployed to newly provisioned machines."
   end
 
   attr_accessor *attrs.keys
