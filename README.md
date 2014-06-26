@@ -1,7 +1,7 @@
 # Foreman Installer - Staypuft plugin
 
 This is a plugin for foreman-installer to help with Staypuft installation.
-[Staypuft](https://github.com/theforeman/staypuft Staypuft) is a Foreman plugin which allows user to install OpenStack.
+[Staypuft](https://github.com/theforeman/staypuft) is a Foreman plugin which allows user to install OpenStack.
 
 ## How do I use it?
 
