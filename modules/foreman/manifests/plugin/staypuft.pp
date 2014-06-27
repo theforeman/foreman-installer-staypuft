@@ -65,6 +65,11 @@ class foreman::plugin::staypuft(
 ) {
   validate_bool($configure_networking)
 
+  $required_packages = ['ntpdate']
+  package {$required_packages :
+    ensure => installed,
+  }
+
   case $::operatingsystem {
     'fedora': {
       $staypuft_name = 'rubygem-staypuft'
@@ -82,5 +87,6 @@ class foreman::plugin::staypuft(
 
   exec { 'NTP sync':
     command => "/usr/sbin/ntpdate $ntp_host",
+    require => Package['ntpdate'],
   }
 }
