@@ -36,7 +36,7 @@ class ProvisioningWizard < BaseWizard
   def initialize(*args)
     super
     self.header = 'Networking setup:'
-    self.help = "Staypuft can configure the networking and firewall rules on this machine with the above configuration. Defaults are populated from the this machine's existing networking configuration.\n\nIf you DO NOT want Staypuft Installer to configure networking please set 'Configure networking on this machine' to No before proceeding. Do this by selecting option 'Do not configure networking' from the list below."
+    self.help = "The installer can configure the networking and firewall rules on this machine with the above configuration. Default values are populated from the this machine's existing networking configuration.\n\nIf you DO NOT want to configure networking please set 'Configure networking on this machine' to No before proceeding. Do this by selecting option 'Do not configure networking' from the list below."
     self.allow_cancellation = true
   end
 
