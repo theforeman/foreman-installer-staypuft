@@ -272,6 +272,7 @@ reboot
 
 %packages --ignoremissing
 yum
+yum-utils
 dhclient
 ntp
 wget
