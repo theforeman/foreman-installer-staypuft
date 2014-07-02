@@ -3,23 +3,25 @@ class AuthenticationWizard < BaseWizard
     {
         :ssh_public_key => 'SSH public key',
         :root_password => 'Root Password',
+        :show_password => 'Display root password'
     }
   end
 
   def self.order
-    %w(ssh_public_key root_password)
+    %w(ssh_public_key root_password show_password)
   end
 
   def self.custom_labels
     {
-        :configure_networking => 'Configure networking'
+        :configure_networking => 'Configure networking',
+        :show_password => 'Display root password'
     }
   end
 
   def initialize(*args)
     super
     self.header = 'Configure client authentication'
-    self.help = "Please set a default root password for newly provisioned machines.  If you choose not to set a password, it will be defaulted to '<%= HighLine.color('spengler', :info) %>'.  The password must be a minimum of 8 characters.  You can also set a public ssh key which will be deployed to newly provisioned machines."
+    self.help = "Please set a default root password for newly provisioned machines. If you choose not to set a password, it will be generated randomly. The password must be a minimum of 8 characters. You can also set a public ssh key which will be deployed to newly provisioned machines."
   end
 
   attr_accessor *attrs.keys
@@ -35,6 +37,10 @@ class AuthenticationWizard < BaseWizard
     @ssh_public_key = key.chomp
   end
 
+  def get_show_password
+    say "Current root password: '#{HighLine.color(@root_password.to_s, :info)}'"
+  end
+
   def validate_ssh_public_key
     return nil if @ssh_public_key.nil? || @ssh_public_key.empty?
     return nil if @ssh_public_key =~ /\Assh-.* .*( .*)?\Z/
@@ -43,5 +49,10 @@ class AuthenticationWizard < BaseWizard
 
   def validate_root_password
     return "Password must be at least 8 characters long" if @root_password.nil? || @root_password.length < 8
+  end
+
+  def print_pair(name, value)
+    return true if name == 'Display root password'
+    super
   end
 end

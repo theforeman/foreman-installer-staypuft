@@ -21,7 +21,7 @@ BuildArch:  noarch
 
 Requires:   foreman-installer >= 1.5.0
 Requires:   ntp
-Requires:   rubygem-kafo >= 0.6.0
+Requires:   rubygem-kafo >= 0.6.4
 Requires:   rubygem-foreman_api >= 0.1.4
 Requires:   git
 

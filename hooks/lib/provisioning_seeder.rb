@@ -63,6 +63,8 @@ class ProvisioningSeeder < BaseSeeder
     @hostgroups = []
     oses = find_default_oses(foreman_host)
     oses.each do |os|
+      group_id = "base_#{os['name']}_#{os['major']}"
+
       medium = @foreman.medium.index('search' => "name ~ #{os['name']}").first
 
       if os['architectures'].nil? || os['architectures'].empty?
@@ -71,24 +73,28 @@ class ProvisioningSeeder < BaseSeeder
       end
 
       if os['media'].nil? || os['media'].empty?
-        @foreman.operating_system.update 'id' => os['id'], 'operatingsystem' => {'medium_ids' => [medium['id']]}
+        if medium.nil?
+          say HighLine.color("Installation medium for #{os['name']} not found, provisioning will not work for hostgroup #{group_id} unless you create it manually", :info)
+        else
+          @foreman.operating_system.update 'id' => os['id'], 'operatingsystem' => {'medium_ids' => [medium['id']]}
+        end
       end
 
       assign_provisioning_templates(os)
       ptable = assign_partition_table(os)
 
-      group_id = "base_#{os['name']}_#{os['major']}"
-      hostgroup = @foreman.hostgroup.show_or_ensure({'id' => group_id},
-                                                    {'name' => group_id,
-                                                     'architecture_id' => foreman_host['architecture_id'],
-                                                     'domain_id' => default_domain['id'],
-                                                     'environment_id' => default_environment['id'],
-                                                     'medium_id' => medium['id'],
-                                                     'operatingsystem_id' => os['id'],
-                                                     'ptable_id' => ptable['id'],
-                                                     'puppet_ca_proxy_id' => default_proxy['id'],
-                                                     'puppet_proxy_id' => default_proxy['id'],
-                                                     'subnet_id' => default_subnet['id']})
+      hostgroup_attrs = {'name' => group_id,
+                         'architecture_id' => foreman_host['architecture_id'],
+                         'domain_id' => default_domain['id'],
+                         'environment_id' => default_environment['id'],
+                         'operatingsystem_id' => os['id'],
+                         'ptable_id' => ptable['id'],
+                         'puppet_ca_proxy_id' => default_proxy['id'],
+                         'puppet_proxy_id' => default_proxy['id'],
+                         'subnet_id' => default_subnet['id']}
+      hostgroup_attrs['medium_id'] = medium['id'] unless medium.nil?
+
+      hostgroup = @foreman.hostgroup.show_or_ensure({'id' => group_id}, hostgroup_attrs)
 
       if !@default_ssh_public_key.nil? && !@default_ssh_public_key.empty?
         @foreman.parameter.show_or_ensure({'id' => 'ssh_public_key', 'operatingsystem_id' => os['id']},
