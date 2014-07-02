@@ -60,7 +60,7 @@ class foreman::plugin::staypuft(
     $domain,
     $base_url,
     $ntp_host,
-    $root_password = 'spengler',
+    $root_password,
     $ssh_public_key
 ) {
   validate_bool($configure_networking)
