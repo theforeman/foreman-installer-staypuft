@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.0.25
+Version:    0.1.0
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,21 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Thu Jul 03 2014 Marek Hulan <mhulan@redhat.com> 0.1.0-1
+- Remove EPEL repo from RHEL KS template (mhulan@redhat.com)
+- We need latest kafo to fix password default values (mhulan@redhat.com)
+- Fix BZ#1109432 - random root password (mhulan@redhat.com)
+- Fix BZ#1114693 - don't crash on missing installation medium
+  (mhulan@redhat.com)
+- use subscription-manager instead of yum-config-manager (dradez@redhat.com)
+- Fixing typos (yanis.guenane@enovance.com)
+- add explicit ntp requirement to spec file (mburns@redhat.com)
+- some more re-wording changes (mburns@redhat.com)
+- bz#1113748 reword the help text for password/ssh key (mburns@redhat.com)
+- adding service resources for ntpd (dradez@redhat.com)
+- Fix BZ#1113537 - allow empty ssh keys (mhulan@redhat.com)
+- moving the repo enable for redhat_register (dradez@redhat.com)
+
 * Wed Jun 25 2014 Marek Hulan <mhulan@redhat.com> 0.0.25-1
 - Crypts root password using sha256 (mhulan@redhat.com)
 
