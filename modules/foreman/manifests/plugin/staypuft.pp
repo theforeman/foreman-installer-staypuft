@@ -75,7 +75,6 @@ class foreman::plugin::staypuft(
   }
 
   package { $staypuft_name:
-    ensure  => installed,
     notify  => Class['foreman::service'],
     require => Exec['NTP sync'],
   }
@@ -83,7 +82,10 @@ class foreman::plugin::staypuft(
   exec { 'NTP sync':
     command => "/sbin/service ntpd stop; /usr/sbin/ntpdate $ntp_host",
     notify  => Service['ntpd'],
+    require => [Package['ntp'], Package['ntpdate']],
   }
+
+  package { ['ntp', 'ntpdate']: }
 
   service { 'ntpd':
     name   => 'ntpd',
