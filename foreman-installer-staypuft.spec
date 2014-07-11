@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.1.0
+Version:    0.1.1
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,10 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Fri Jul 11 2014 Marek Hulan <mhulan@redhat.com> 0.1.1-1
+- adding lvm with cinder volumes ptable (dradez@redhat.com)
+- adding ntp package dependancies (dradez@redhat.com)
+
 * Thu Jul 03 2014 Marek Hulan <mhulan@redhat.com> 0.1.0-1
 - Remove EPEL repo from RHEL KS template (mhulan@redhat.com)
 - We need latest kafo to fix password default values (mhulan@redhat.com)
