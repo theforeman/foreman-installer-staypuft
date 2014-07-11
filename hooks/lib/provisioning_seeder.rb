@@ -54,6 +54,11 @@ class ProvisioningSeeder < BaseSeeder
     @foreman.config_template.show_or_ensure({'id' => 'ssh_public_key'},
                                             {'template' => ssh_public_key_snippet, 'snippet' => '1', 'name' => 'ssh_public_key'})
 
+    @foreman.partition_table.show_or_ensure({'id' => 'LVM with cinder-volumes',
+                                             'name' => 'LVM with cinder-volumes',
+                                             'layout' => lvm_w_cinder_volumes,
+                                             'os_family' => 'Redhat'}, {})
+
     name = 'PXELinux global default'
     pxe_template = @foreman.config_template.show_or_ensure({'id' => name},
                                                            {'template' => template})
@@ -81,7 +86,7 @@ class ProvisioningSeeder < BaseSeeder
       end
 
       assign_provisioning_templates(os)
-      ptable = assign_partition_table(os)
+      ptable = assign_partition_tables(os)
 
       hostgroup_attrs = {'name' => group_id,
                          'architecture_id' => foreman_host['architecture_id'],
@@ -151,18 +156,24 @@ class ProvisioningSeeder < BaseSeeder
                       "and rerun installer to fix this issue."
   end
 
-  def assign_partition_table(os)
+  def assign_partition_tables(os)
     if os['family'] == 'Redhat'
-      ptable_name = 'Kickstart default'
+      default_ptable_name = 'Kickstart default'
+      additional_ptables_names = ['LVM with cinder-volumes']
     elsif os['family'] == 'Debian'
-      ptable_name = 'Preseed default'
+      default_ptable_name = 'Preseed default'
+      additional_ptable_names = []
     end
-    ptable = @foreman.partition_table.first! %Q(name ~ "#{ptable_name}*")
-    if os['ptables'].nil? || os['ptables'].empty?
-      ids = @foreman.partition_table.show!('id' => ptable['id'])['operatingsystems'].map { |o| o['id'] }
-      @foreman.partition_table.update 'id' => ptable['id'], 'ptable' => {'operatingsystem_ids' => (ids + [os['id']]).uniq}
+    default_ptable = nil
+    additional_ptables_names.push(default_ptable_name).each do |ptable_name|
+      ptable = @foreman.partition_table.first! %Q(name ~ "#{ptable_name}*")
+      default_ptable = ptable if default_ptable_name == ptable['name']
+      if os['ptables'].nil? || os['ptables'].empty?
+        ids = @foreman.partition_table.show!('id' => ptable['id'])['operatingsystems'].map { |o| o['id'] }
+        @foreman.partition_table.update 'id' => ptable['id'], 'ptable' => {'operatingsystem_ids' => (ids + [os['id']]).uniq}
+      end
     end
-    ptable
+    default_ptable
   end
 
   def assign_provisioning_templates(os)
@@ -535,6 +546,20 @@ cat >> /root/.ssh/authorized_keys << PUBLIC_KEY
 <%= @host.params['ssh_public_key'] %>
 PUBLIC_KEY
 chmod 600 /root/.ssh/authorized_keys
+EOS
+  end
+
+  def lvm_w_cinder_volumes
+    <<'EOS'
+zerombr
+clearpart --all --initlabel
+part /boot --fstype ext3 --size=500 --ondisk=sda
+part swap --size=1024 --ondisk=sda
+part pv.01 --size=102400 --ondisk=sda
+part pv.02 --size=1 --grow --ondisk=sda
+volgroup vg_root pv.01
+volgroup cinder-volumes pv.02
+logvol  /  --vgname=vg_root  --size=1 --grow --name=lv_root
 EOS
   end
 
