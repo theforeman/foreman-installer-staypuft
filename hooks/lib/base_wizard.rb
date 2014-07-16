@@ -30,7 +30,7 @@ class BaseWizard
   end
 
   def start
-    configure = true
+    configure = @kafo.config.app[:provisioning_wizard] != 'non-interactive'
     while configure
       send("get_#{configure}") if configure.is_a?(Symbol)
       print_configuration

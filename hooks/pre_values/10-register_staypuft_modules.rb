@@ -1,4 +1,4 @@
-if app_value(:provisioning_wizard)
+if app_value(:provisioning_wizard) != 'none'
   # we register staypuft module and its mapping
   add_module('foreman::plugin::staypuft',
              {:manifest_name => 'plugin/staypuft',  :dir_name => 'foreman'})
