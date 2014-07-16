@@ -1,4 +1,4 @@
-if app_value(:provisioning_wizard) && [0,2].include?(kafo.exit_code)
+if app_value(:provisioning_wizard) != 'none' && [0,2].include?(kafo.exit_code)
   require File.join(KafoConfigure.root_dir, 'hooks', 'lib', 'foreman.rb')
   require File.join(KafoConfigure.root_dir, 'hooks', 'lib', 'base_seeder.rb')
   require File.join(KafoConfigure.root_dir, 'hooks', 'lib', 'provisioning_seeder.rb')

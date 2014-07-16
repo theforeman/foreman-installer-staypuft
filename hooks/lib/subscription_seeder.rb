@@ -22,25 +22,30 @@ class SubscriptionSeeder < BaseSeeder
     @repositories = @config.get_custom(:repositories) || 'rhel-7-server-openstack-5.0-rpms'
     @repo_path = @config.get_custom(:repo_path) || 'http://'
     @sm_pool = @config.get_custom(:sm_pool) ||''
-    @skip = false
-    @skip_repo_path = false
+    @skip = @config.get_custom(:skip_subscription_seeding) || false
+    @skip_repo_path = @config.get_custom(:skip_repo_path) || false
+    @interactive = kafo.config.app[:provisioning_wizard] != 'non-interactive'
   end
 
   def seed
     if subscription_seed?
-      say "\nNow you should configure installation media which will be used for provisioning."
-      say "Note that if you don't configure it properly, host provisioning won't work until you configure installation media manually."
-      get = get_repo_path
-      while get || (invalid_repo_path && !@skip_repo_path)
-        puts HighLine.color(invalid_repo_path, :bad) if !get && invalid_repo_path
+      if @interactive
+        say "\nNow you should configure installation media which will be used for provisioning."
+        say "Note that if you don't configure it properly, host provisioning won't work until you configure installation media manually."
         get = get_repo_path
+        while get || (invalid_repo_path && !@skip_repo_path)
+          puts HighLine.color(invalid_repo_path, :bad) if !get && invalid_repo_path
+          get = get_repo_path
+        end
       end
       @config.set_custom(:repo_path, @repo_path)
 
-      get = get_credentials
-      while get || (invalid && !@skip)
-        puts HighLine.color(invalid, :bad) if !get && invalid
+      if @interactive
         get = get_credentials
+         while get || (invalid && !@skip)
+          puts HighLine.color(invalid, :bad) if !get && invalid
+          get = get_credentials
+        end
       end
 
       @config.set_custom(:sm_username, @sm_username)

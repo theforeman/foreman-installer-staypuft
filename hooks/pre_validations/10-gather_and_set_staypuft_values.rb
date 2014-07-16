@@ -1,4 +1,4 @@
-if app_value(:provisioning_wizard)
+if app_value(:provisioning_wizard) != 'none'
   require File.join(KafoConfigure.root_dir, 'hooks', 'lib', 'base_wizard.rb')
   require File.join(KafoConfigure.root_dir, 'hooks', 'lib', 'authentication_wizard.rb')
   require File.join(KafoConfigure.root_dir, 'hooks', 'lib', 'provisioning_wizard.rb')
