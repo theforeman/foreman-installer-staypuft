@@ -33,6 +33,7 @@
 :order:
   - foreman
   - foreman_proxy
+  - sshkeypair
   - puppet
 
 # The mapping hash provides Kafo with the information to find plugin classes
