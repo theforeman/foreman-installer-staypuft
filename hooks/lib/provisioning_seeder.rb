@@ -303,7 +303,13 @@ puppetlabs-release
 
 <% if @dynamic -%>
 %pre
+cat > /tmp/diskpart.cfg << EOF
 <%= @host.diskLayout %>
+EOF
+
+# ensures a valid disk is addressed in the partition table layout
+# sda is assumed and replaced if it is not correct
+sed -i "s/sda/$(cat /proc/partitions | awk '{ print $4 }' | grep -e "^.d.$" | sort | head -1)/" /tmp/diskpart.cfg
 %end
 <% end -%>
 
@@ -551,6 +557,7 @@ EOS
 
   def lvm_w_cinder_volumes
     <<'EOS'
+#Dynamic
 zerombr
 clearpart --all --initlabel
 part /boot --fstype ext3 --size=500 --ondisk=sda
