@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.1.3
+Version:    0.1.4
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,12 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Tue Jul 22 2014 Marek Hulan <mhulan@redhat.com> 0.1.4-1
+- set ONBOOT=yes for all nics in the default kickstart template
+  (dradez@redhat.com)
+- dynamically update the partition table that created the cinder volumes vg
+  (dradez@redhat.com)
+
 * Wed Jul 16 2014 Marek Hulan <mhulan@redhat.com> 0.1.2-1
 - Add non-interactive mode to provisioning wizard (mhulan@redhat.com)
 
