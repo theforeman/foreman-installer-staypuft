@@ -4,8 +4,8 @@ require 'uri'
 class BaseSeeder
   def initialize(kafo)
     @foreman_url = kafo.param('foreman_proxy', 'foreman_base_url').value
-    @username = 'admin'
-    @password = 'changeme'
+    @username = kafo.param('foreman', 'admin_username').value || 'admin'
+    @password = kafo.param('foreman', 'admin_password').value || 'changeme'
     foreman
 
     @logger = kafo.logger
