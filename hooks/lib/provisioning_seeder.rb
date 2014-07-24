@@ -561,8 +561,8 @@ zerombr
 clearpart --all --initlabel
 part /boot --fstype ext3 --size=500 --ondisk=sda
 part swap --size=1024 --ondisk=sda
-part pv.01 --size=102400 --ondisk=sda
-part pv.02 --size=1 --grow --ondisk=sda
+part pv.01 --size=1024 --grow --maxsize=102400 --ondisk=sda
+part pv.02 --size=1024 --grow --ondisk=sda
 volgroup vg_root pv.01
 volgroup cinder-volumes pv.02
 logvol  /  --vgname=vg_root  --size=1 --grow --name=lv_root
