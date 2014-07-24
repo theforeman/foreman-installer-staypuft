@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.1.4
+Version:    0.1.5
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,10 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Thu Jul 24 2014 Marek Hulan <mhulan@redhat.com> 0.1.5-1
+- Fixes BZ#1121411 - use correct NIC names (mhulan@redhat.com)
+- Support random generated password (mhulan@redhat.com)
+
 * Tue Jul 22 2014 Marek Hulan <mhulan@redhat.com> 0.1.4-1
 - set ONBOOT=yes for all nics in the default kickstart template
   (dradez@redhat.com)
