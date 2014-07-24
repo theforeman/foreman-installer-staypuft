@@ -181,9 +181,26 @@ class ProvisioningWizard < BaseWizard
         to = IPAddr.new(cidr).to_range.entries[-2].to_s
       end
 
-      ifaces[i] = {:ip => ip, :netmask => netmask, :network => network, :cidr => cidr, :from => from, :to => to, :gateway => gateway}
+      ifaces[fix_interface_name(i)] = {:ip => ip, :netmask => netmask, :network => network, :cidr => cidr, :from => from, :to => to, :gateway => gateway}
       ifaces
     end
+  end
+
+  # facter can't distinguish between alias and vlan interface so we have to check and fix the eth0_0 name accordingly
+  # if it's a vlan, the name should be eth0.0, otherwise it's alias and the name is eth0:0
+  # if both are present (unlikly) facter overwrites attriutes and we can't fix it
+  def fix_interface_name(facter_name)
+    if facter_name.include?('_')
+      ['.', ':'].each do |separator|
+        new_facter_name = facter_name.tr('_', separator)
+        return new_facter_name if system("ifconfig #{new_facter_name} &> /dev/null")
+      end
+
+      # if ifconfig failed, we fallback to /sys/class/net detection, aliases are not listed there
+      new_facter_name = facter_name.tr('_', '.')
+      return new_facter_name if File.exists?("/sys/class/net/#{new_facter_name}")
+    end
+    facter_name
   end
 
   def valid_ip?(ip)
