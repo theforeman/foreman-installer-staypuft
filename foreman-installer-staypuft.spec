@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.1.6
+Version:    0.1.7
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,9 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Fri Jul 25 2014 Marek Hulan <mhulan@redhat.com> 0.1.7-1
+- don't require 100GB for root filesystem (lars@redhat.com)
+
 * Thu Jul 24 2014 Marek Hulan <mhulan@redhat.com> 0.1.6-1
 - removing the dependancy on #Dynamic from the ptable. (dradez@redhat.com)
 
