@@ -323,10 +323,24 @@ exec < /dev/tty3 > /dev/tty3
 /usr/bin/chvt 3
 (
 # set ONBOOT to yes for all nics
+# also set PEERDNS=no for all nics except provisioning interface
+# (resolves https://bugzilla.redhat.com/show_bug.cgi?id=1124027)
+
+# get name of provisioning interface
+PROVISION_IFACE=$(ip route  | awk '$1 == "default" {print $5}')
+
 IFACES=$(ls -d /sys/class/net/* | while read iface; do readlink $iface | grep -q virtual || echo ${iface##*/}; done)
 for i in $IFACES; do
     sed -i 's/ONBOOT.*/ONBOOT=yes/' /etc/sysconfig/network-scripts/ifcfg-$i
+    if [ "$i" != "$PROVISION_IFACE" ]; then
+        sed -i '
+            /PEERDNS/ d
+            $ a\PEERDNS=no
+        ' /etc/sysconfig/network-scripts/ifcfg-$i
+    fi
 done
+
+
 
 #update local time
 echo "updating system time"
