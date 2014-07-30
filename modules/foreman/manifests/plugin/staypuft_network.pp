@@ -77,6 +77,12 @@ class foreman::plugin::staypuft_network(
       proto  => 'udp',
       action => 'accept',
     } ->
+    # The Foreman server needs to accept DHCP requests on this port when provisioning systems.
+    firewall { '67 accept - dhcp':
+      port   => '67',
+      proto  => 'udp',
+      action => 'accept',
+    } ->
     # The Foreman server needs to accept TFTP requests on this port when provisioning systems.
     firewall { '69 accept - tftp':
       port   => '69',
