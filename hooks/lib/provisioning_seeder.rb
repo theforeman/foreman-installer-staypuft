@@ -345,6 +345,9 @@ echo "updating system time"
 # update all the base packages from the updates repository
 yum -t -y -e 0 update
 
+# ensure firewalld is absent (BZ#1125075)
+yum -t -y -e 0 remove firewalld
+
 <% if puppet_enabled %>
 # and add the puppet package
 yum -t -y -e 0 install puppet
@@ -500,6 +503,9 @@ echo "updating system time"
 
 # update all the base packages from the updates repository
 yum -t -y -e 0 update
+
+# ensure firewalld is absent (BZ#1125075)
+yum -t -y -e 0 remove firewalld
 
 <% if puppet_enabled %>
 echo "Configuring puppet"
