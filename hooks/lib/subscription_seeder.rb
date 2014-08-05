@@ -52,6 +52,8 @@ class SubscriptionSeeder < BaseSeeder
       @config.set_custom(:sm_password, @sm_password)
       @config.set_custom(:repositories, @repositories)
       @config.set_custom(:sm_pool, @sm_pool)
+      @config.set_custom(:skip_repo_path, @skip_repo_path)
+      @config.set_custom(:skip_subscription_seeding, @skip)
       @config.save_configuration(@config.app)
     else
       @skip = true
@@ -141,7 +143,9 @@ class SubscriptionSeeder < BaseSeeder
       menu.select_by = :index
       menu.prompt = ''
       menu.choice('Set RHEL repo path (http or https URL): '.ljust(37) + HighLine.color(@repo_path, :info)) { @repo_path = ask("Path: ") }
-      menu.choice(HighLine.color('Proceed with configuration', :run)) { false }
+      menu.choice(HighLine.color('Proceed with configuration', :run)) {
+        @skip_repo_path = false; false
+      }
       menu.choice(HighLine.color("Skip this step (provisioning won't work)", :cancel)) {
         @skip_repo_path = true; false
       }
@@ -157,7 +161,9 @@ class SubscriptionSeeder < BaseSeeder
       menu.choice('Subscription manager password: '.ljust(37) + HighLine.color('*' * @sm_password.size, :info)) { @sm_password = ask("Password: ") { |q| q.echo = "*" } }
       menu.choice('Comma separated repositories: '.ljust(37) + HighLine.color(@repositories, :info)) { @repositories = ask("Repositories: ") }
       menu.choice('Subscription manager pool (optional): '.ljust(37) + HighLine.color(@sm_pool, :info)) { @sm_pool = ask("Pool: ") }
-      menu.choice(HighLine.color('Proceed with configuration', :run)) { false }
+      menu.choice(HighLine.color('Proceed with configuration', :run)) {
+        @skip = false; false
+      }
       menu.choice(HighLine.color("Skip this step (provisioning won't subscribe your machines)", :cancel)) {
         @skip = true; false
       }
