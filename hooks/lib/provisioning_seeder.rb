@@ -325,6 +325,8 @@ exec < /dev/tty3 > /dev/tty3
 # set ONBOOT to yes for all nics
 # also set PEERDNS=no for all nics except provisioning interface
 # (resolves https://bugzilla.redhat.com/show_bug.cgi?id=1124027)
+# also set DEFROUTE=no for all nics except provisioning interface
+# (resolves https://bugzilla.redhat.com/show_bug.cgi?id=1124598)
 
 # get name of provisioning interface
 PROVISION_IFACE=$(ip route  | awk '$1 == "default" {print $5}' | head -1)
@@ -338,6 +340,11 @@ for i in $IFACES; do
         sed -i '
             /PEERDNS/ d
             $ a\PEERDNS=no
+        ' /etc/sysconfig/network-scripts/ifcfg-$i
+        echo "setting DEFROUTE=no on $i"
+        sed -i '
+            /DEFROUTE/ d
+            $ a\DEFROUTE=no
         ' /etc/sysconfig/network-scripts/ifcfg-$i
     fi
 done
