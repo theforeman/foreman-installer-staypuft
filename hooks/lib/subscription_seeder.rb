@@ -23,7 +23,7 @@ class SubscriptionSeeder < BaseSeeder
     @repo_path = @config.get_custom(:repo_path) || 'http://'
     @sm_pool = @config.get_custom(:sm_pool) ||''
     @sm_proxy = @config.get_custom(:sm_proxy) ||''
-    @sm_proxyport = @config.get_custom(:sm_proxyport) ||''
+    @sm_proxy_port = @config.get_custom(:sm_proxy_port) ||''
     @skip = @config.get_custom(:skip_subscription_seeding) || false
     @skip_repo_path = @config.get_custom(:skip_repo_path) || false
     @interactive = kafo.config.app[:provisioning_wizard] != 'non-interactive'
@@ -55,7 +55,7 @@ class SubscriptionSeeder < BaseSeeder
       @config.set_custom(:repositories, @repositories)
       @config.set_custom(:sm_pool, @sm_pool)
       @config.set_custom(:sm_proxy, @sm_proxy)
-      @config.set_custom(:sm_proxyport, @sm_proxyport)
+      @config.set_custom(:sm_proxy_port, @sm_proxy_port)
       @config.save_configuration(@config.app)
     else
       @skip = true
@@ -109,11 +109,11 @@ class SubscriptionSeeder < BaseSeeder
                                                 'value' => @sm_proxy,
                                             })
         end
-        if !@sm_proxyport.empty? && !@sm_proxyport.nil?
+        if !@sm_proxy_port.empty? && !@sm_proxy_port.nil?
           @foreman.parameter.show_or_ensure({'id' => 'subscription_manager_proxy_port', 'operatingsystem_id' => os['id']},
                                             {
                                                 'name' => 'subscription_manager_proxy_port',
-                                                'value' => @sm_proxyport,
+                                                'value' => @sm_proxy_port,
                                             })
         end
       end
@@ -176,7 +176,7 @@ class SubscriptionSeeder < BaseSeeder
       menu.choice('Comma separated repositories: '.ljust(37) + HighLine.color(@repositories, :info)) { @repositories = ask("Repositories: ") }
       menu.choice('Subscription manager pool (optional): '.ljust(37) + HighLine.color(@sm_pool, :info)) { @sm_pool = ask("Pool: ") }
       menu.choice('Subscription manager proxy (optional): '.ljust(37) + HighLine.color(@sm_proxy, :info)) { @sm_proxy = ask("Proxy: ") }
-      menu.choice('Subscription manager proxy port (optional): '.ljust(37) + HighLine.color(@sm_proxyport, :info)) { @sm_proxyport = ask("Port: ") }
+      menu.choice('Subscription manager proxy port (optional): '.ljust(37) + HighLine.color(@sm_proxy_port, :info)) { @sm_proxy_port = ask("Port: ") }
       menu.choice(HighLine.color('Proceed with configuration', :run)) { false }
       menu.choice(HighLine.color("Skip this step (provisioning won't subscribe your machines)", :cancel)) {
         @skip = true; false
