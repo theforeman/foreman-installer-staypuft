@@ -333,6 +333,10 @@ echo "updating system time"
 /usr/sbin/ntpdate -sub <%= @host.params['ntp-server'] || '0.fedora.pool.ntp.org' %>
 /usr/sbin/hwclock --systohc
 
+#disable NetworkManager and enable network
+chkconfig NetworkManager off
+chkconfig network on
+
 # setup SSH key for root user
 <%= snippet 'ssh_public_key' %>
 
