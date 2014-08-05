@@ -341,13 +341,22 @@ for i in $IFACES; do
             /PEERDNS/ d
             $ a\PEERDNS=no
         ' /etc/sysconfig/network-scripts/ifcfg-$i
+<% unless @host.hostgroup.to_s.include?("Controller") %>
         echo "setting DEFROUTE=no on $i"
         sed -i '
             /DEFROUTE/ d
             $ a\DEFROUTE=no
         ' /etc/sysconfig/network-scripts/ifcfg-$i
+<% end -%>
     fi
 done
+<% if @host.hostgroup.to_s.include?("Controller") %>
+echo "setting DEFROUTE=no on $PROVISION_IFACE"
+sed -i '
+    /DEFROUTE/ d
+    $ a\DEFROUTE=no
+' /etc/sysconfig/network-scripts/ifcfg-$PROVISION_IFACE
+<% end -%>
 
 
 
