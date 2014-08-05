@@ -637,6 +637,10 @@ name: redhat_register
 #   subscription_manager_host = <hostname> (hostname of SAM/Katello
 #                                           installation, if using SAM)
 #
+#   subscription_manager_proxy_host = <hostname> (proxy to use with RHN)
+#
+#   subscription_manager_proxy_port = <port> (port to use with proxy)
+#
 #   subscription_manager_org = <org name> (organization name, if using
 #                                          SAM/Katello)
 #
@@ -711,6 +715,9 @@ name: redhat_register
 <% else %>
   echo "Starting the subscription-manager registration process"
   <% if @host.params['subscription_manager_username'] && @host.params['subscription_manager_password'] %>
+     <% if @host.params['subscription_manager_proxy_host'] %>
+      subscription-manager config --server.proxy_hostname="<%= @host.params['subscription_manager_proxy_host'] %>" --server.proxy_port="<%= @host.params['subscription_manager_proxy_port'] %>"
+    <% end %>
     subscription-manager register --username="<%= @host.params['subscription_manager_username'] %>" --password="<%= @host.params['subscription_manager_password'] %>" --auto-attach
     <% if @host.params['subscription_manager_pool'] %>
       subscription-manager attach --pool="<%= @host.params['subscription_manager_pool'] %>"
