@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.1.7
+Version:    0.1.8
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,23 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Thu Aug 07 2014 Marek Hulan <mhulan@redhat.com> 0.1.8-1
+- Fix BZ#1124850 - accept UDP port 68 (mhulan@redhat.com)
+- Fix BZ#1102394 - do not enable RHEL6 (mhulan@redhat.com)
+- Fix BZ#1124806 - remove Foreman from provisioning question
+  (mhulan@redhat.com)
+- Fix BZ#1124810 - sort interfaces by name (mhulan@redhat.com)
+- BZ#1124545 - Write the values for skipping repo and subman (brad@redhat.com)
+- BZ#1125075 - Ensure firewalld is removed during kickstart
+  (jeckersb@redhat.com)
+- use correct default gateway on controller (lars@redhat.com)
+- BZ#1124598 - provisioning+external network default gateway conflict
+  (jeckersb@redhat.com)
+- add dhcp port to the default firewall (mburns@redhat.com)
+- ensure we only get one interface name for PROVISION_IFACE (lars@redhat.com)
+- set PEERDNS=no on all but provision iface (lars@redhat.com)
+- disable NetworkManager and enable network by default (mburns@redhat.com)
+
 * Fri Jul 25 2014 Marek Hulan <mhulan@redhat.com> 0.1.7-1
 - don't require 100GB for root filesystem (lars@redhat.com)
 
