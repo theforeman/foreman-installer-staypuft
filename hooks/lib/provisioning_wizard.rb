@@ -150,7 +150,7 @@ class ProvisioningWizard < BaseWizard
       else
         @interface = choose do |menu|
           menu.header = HighLine.color("\nPlease select NIC on which you want Foreman provisioning enabled", :important)
-          interfaces.keys.each do |nic|
+          interfaces.keys.sort.each do |nic|
             menu.choice nic
           end
         end
