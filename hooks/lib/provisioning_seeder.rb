@@ -654,6 +654,15 @@ name: redhat_register
 #   subscription_manager_pool = <pool> (specific pool to be used for
 #                                       registration)
 #
+#   http-proxy = <host> (proxy hostname to be used for registration)
+#
+#   http-proxy-port = <port> (proxy port to be used for registration)
+#
+#   http-proxy-user = <user> (proxy user to be used for registration)
+#
+#   http-proxy-password = <password> (proxy password to be
+#                                           used for registration)
+#
 # Set this parameter regardless of which registration method you're using:
 #
 #   activation_key = <key>      (activation key string, not needed if using
@@ -717,6 +726,18 @@ name: redhat_register
   <% end %>
 <% else %>
   echo "Starting the subscription-manager registration process"
+  <% if @host.params['http-proxy'] %>
+    subscription-manager config --server.proxy_hostname="<%= @host.params['http-proxy'] %>"
+    <% if @host.params['http-proxy-user'] %>
+      subscription-manager config --server.proxy_user="<%= @host.params['http-proxy-user'] %>"
+    <% end %>
+    <% if @host.params['http-proxy-password'] %>
+      subscription-manager config --server.proxy_password="<%= @host.params['http-proxy-password'] %>"
+    <% end %>
+    <% if @host.params['http-proxy-port'] %>
+      subscription-manager config --server.proxy_port="<%= @host.params['http-proxy-port'] %>"
+    <% end %>
+  <% end %>
   <% if @host.params['subscription_manager_username'] && @host.params['subscription_manager_password'] %>
     subscription-manager register --username="<%= @host.params['subscription_manager_username'] %>" --password="<%= @host.params['subscription_manager_password'] %>" --auto-attach
     <% if @host.params['subscription_manager_pool'] %>
