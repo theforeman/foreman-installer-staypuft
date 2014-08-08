@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.1.8
+Version:    0.1.9
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,10 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Fri Aug 08 2014 Marek Hulan <mhulan@redhat.com> 0.1.9-1
+- Add proxy options for subscription_manager (mburns@redhat.com)
+- Fix BZ#1127806 - set ntp-server parameter (mhulan@redhat.com)
+
 * Thu Aug 07 2014 Marek Hulan <mhulan@redhat.com> 0.1.8-1
 - Fix BZ#1124850 - accept UDP port 68 (mhulan@redhat.com)
 - Fix BZ#1102394 - do not enable RHEL6 (mhulan@redhat.com)
