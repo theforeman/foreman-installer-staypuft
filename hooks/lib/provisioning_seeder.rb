@@ -19,6 +19,7 @@ class ProvisioningSeeder < BaseSeeder
     @discovery_env_name = 'discovery'
     @default_root_pass = kafo.param('foreman_plugin_staypuft', 'root_password').instance_variable_get('@value')
     @default_ssh_public_key = kafo.param('foreman_plugin_staypuft', 'ssh_public_key').value
+    @ntp_host = kafo.param('foreman_plugin_staypuft', 'ntp_host').value
   end
 
   def seed
@@ -109,6 +110,11 @@ class ProvisioningSeeder < BaseSeeder
                                               'value' => @default_ssh_public_key,
                                           })
       end
+      @foreman.parameter.show_or_ensure({'id' => 'ntp-server', 'operatingsystem_id' => os['id']},
+                                        {
+                                            'name' => 'ntp-server',
+                                            'value' => @ntp_host,
+                                        })
       @hostgroups.push hostgroup
     end
 
