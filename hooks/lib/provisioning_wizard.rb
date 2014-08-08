@@ -107,23 +107,6 @@ class ProvisioningWizard < BaseWizard
     say "#{name}:".rjust(25) + " #{value}"
   end
 
-  def get_ready
-    choose do |menu|
-      menu.header = HighLine.color("\nIs the networking correct?", :important)
-      menu.prompt = ''
-      menu.select_by = :index
-      menu.choice(HighLine.color('Yes, move on!', :run)) { false }
-      ORDER.each do |attr|
-        name = NIC_ATTRS[attr.to_sym]
-        menu.choice("No, change #{name}") { attr.to_sym }
-      end
-      menu.choice(HighLine.color('No, cancel installation', :cancel)) { @kafo.class.exit(100) }
-    end
-  rescue Interrupt
-    @logger.debug "Got interrupt, exiting"
-    @kafo.class.exit(100)
-  end
-
   def validate_ip
     'IP address is invalid' unless valid_ip?(@ip)
   end
