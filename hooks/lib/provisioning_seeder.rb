@@ -122,6 +122,7 @@ class ProvisioningSeeder < BaseSeeder
     setup_setting(default_hostgroup)
     setup_idle_timeout
     setup_default_root_pass
+    setup_ignore_puppet_facts_for_provisioning
     create_discovery_env(pxe_template)
 
     say HighLine.color("Use '#{default_hostgroup['name']}' hostgroup for provisioning", :good)
@@ -153,6 +154,15 @@ class ProvisioningSeeder < BaseSeeder
   rescue NoMethodError => e
     @logger.error "Setting with name 'idle_timeout' not found, you must run 'foreman-rake db:seed' " +
                       "and rerun installer to fix this issue."
+  end
+
+  def setup_ignore_puppet_facts_for_provisioning
+    @foreman.setting.show_or_ensure({'id' => 'ignore_puppet_facts_for_provisioning'},
+                                    {'value' => true})
+  rescue NoMethodError => e
+    @logger.error "Setting with name 'ignore_puppet_facts_for_provisioning' not found, you must run 'foreman-rake db:seed' " +
+                      "and rerun installer to fix this issue."
+
   end
 
   def setup_default_root_pass
