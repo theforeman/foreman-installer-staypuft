@@ -108,26 +108,34 @@ class SubscriptionSeeder < BaseSeeder
                                                 'value' => @sm_pool,
                                             })
         end
-        @foreman.parameter.show_or_ensure({'id' => 'http-proxy', 'operatingsystem_id' => os['id']},
-                                          {
-                                              'name' => 'http-proxy',
-                                              'value' => @sm_proxy_host,
-                                          })
-        @foreman.parameter.show_or_ensure({'id' => 'http-proxy-port', 'operatingsystem_id' => os['id']},
-                                          {
-                                              'name' => 'http-proxy-port',
-                                              'value' => @sm_proxy_port,
-                                          })
-        @foreman.parameter.show_or_ensure({'id' => 'http-proxy-user', 'operatingsystem_id' => os['id']},
-                                          {
-                                              'name' => 'http-proxy-user',
-                                              'value' => @sm_proxy_user,
-                                          })
-        @foreman.parameter.show_or_ensure({'id' => 'http-proxy-password', 'operatingsystem_id' => os['id']},
-                                          {
-                                              'name' => 'http-proxy-password',
-                                              'value' => @sm_proxy_password,
-                                          })
+        if !@sm_proxy_host.empty? && !@sm_proxy_host.nil?
+          @foreman.parameter.show_or_ensure({'id' => 'http-proxy', 'operatingsystem_id' => os['id']},
+                                            {
+                                                'name' => 'http-proxy',
+                                                'value' => @sm_proxy_host,
+                                            })
+        end
+        if !@sm_proxy_port.empty? && !@sm_proxy_port.nil?
+          @foreman.parameter.show_or_ensure({'id' => 'http-proxy-port', 'operatingsystem_id' => os['id']},
+                                            {
+                                                'name' => 'http-proxy-port',
+                                                'value' => @sm_proxy_port,
+                                            })
+        end
+        if !@sm_proxy_user.empty? && !@sm_proxy_user.nil?
+          @foreman.parameter.show_or_ensure({'id' => 'http-proxy-user', 'operatingsystem_id' => os['id']},
+                                            {
+                                                'name' => 'http-proxy-user',
+                                                'value' => @sm_proxy_user,
+                                            })
+        end
+        if !@sm_proxy_password.empty? && !@sm_proxy_password.nil?
+          @foreman.parameter.show_or_ensure({'id' => 'http-proxy-password', 'operatingsystem_id' => os['id']},
+                                            {
+                                                'name' => 'http-proxy-password',
+                                                'value' => @sm_proxy_password,
+                                            })
+        end
       end
     end
   end
