@@ -16,6 +16,7 @@ class BaseWizard
   def initialize(kafo)
     @kafo   = kafo
     @logger = kafo.logger
+    @hide_password = true
     # set default value according to parameter value
     self.class.attrs.each_pair do |attr, name|
       param = kafo_param(attr)
@@ -76,7 +77,7 @@ class BaseWizard
     say HighLine.color(header, :headline) unless header.nil?
     self.class.order.each do |attr|
       name = self.class.attrs[attr.to_sym]
-      value = kafo_param(attr).is_a?(Kafo::Params::Password) ? '*' * send(attr).size : send(attr)
+      value = kafo_param(attr).is_a?(Kafo::Params::Password) && @hide_password ? '*' * send(attr).size : send(attr)
       print_pair name, value
     end
   end
