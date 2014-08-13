@@ -60,6 +60,11 @@ class ProvisioningSeeder < BaseSeeder
                                              'layout' => lvm_w_cinder_volumes,
                                              'os_family' => 'Redhat'}, {})
 
+    @foreman.partition_table.show_or_ensure({'id' => 'OpenStack Default',
+                                             'name' => 'OpenStack Default',
+                                             'layout' => openstack_lvm,
+                                             'os_family' => 'Redhat'}, {})
+
     name = 'PXELinux global default'
     pxe_template = @foreman.config_template.show_or_ensure({'id' => name},
                                                            {'template' => template})
@@ -175,7 +180,7 @@ class ProvisioningSeeder < BaseSeeder
 
   def assign_partition_tables(os)
     if os['family'] == 'Redhat'
-      default_ptable_name = 'Kickstart default'
+      default_ptable_name = 'OpenStack Default'
       additional_ptables_names = ['LVM with cinder-volumes']
     elsif os['family'] == 'Debian'
       default_ptable_name = 'Preseed default'
@@ -624,6 +629,19 @@ part pv.01 --size=1024 --grow --maxsize=102400 --ondisk=sda
 part pv.02 --size=1024 --grow --ondisk=sda
 volgroup vg_root pv.01
 volgroup cinder-volumes pv.02
+logvol  /  --vgname=vg_root  --size=1 --grow --name=lv_root
+EOS
+  end
+
+  def openstack_lvm
+    <<'EOS'
+#Dynamic
+zerombr
+clearpart --all --initlabel
+part /boot --fstype ext3 --size=500 --ondisk=sda
+part swap --size=1024 --ondisk=sda
+part pv.01 --size=1024 --grow --ondisk=sda
+volgroup vg_root pv.01
 logvol  /  --vgname=vg_root  --size=1 --grow --name=lv_root
 EOS
   end
