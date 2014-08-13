@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.1.9
+Version:    0.1.10
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,12 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Wed Aug 13 2014 Marek Hulan <mhulan@redhat.com> 0.1.10-1
+- Fix BZ#1127202 - toggle password visibility (mhulan@redhat.com)
+- adding a new default ptable so we do not use autopart (dradez@redhat.com)
+- Ref BZ#1127752 - disable IP updating (mhulan@redhat.com)
+- Fix BZ#1128679 - do not create empty parameters (mhulan@redhat.com)
+
 * Fri Aug 08 2014 Marek Hulan <mhulan@redhat.com> 0.1.9-1
 - Add proxy options for subscription_manager (mburns@redhat.com)
 - Fix BZ#1127806 - set ntp-server parameter (mhulan@redhat.com)
