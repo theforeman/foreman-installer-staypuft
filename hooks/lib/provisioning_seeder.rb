@@ -52,6 +52,8 @@ class ProvisioningSeeder < BaseSeeder
                                             {'template' => kickstart_rhel_default})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart default'},
                                             {'template' => kickstart_default})
+    @foreman.config_template.show_or_ensure({'id' => 'Kickstart default PXELinux'},
+                                            {'template' => kickstart_default_pxelinux})
     @foreman.config_template.show_or_ensure({'id' => 'ssh_public_key'},
                                             {'template' => ssh_public_key_snippet, 'snippet' => '1', 'name' => 'ssh_public_key'})
 
@@ -772,4 +774,37 @@ name: redhat_register
 EOS
   end
 
+  def kickstart_default_pxelinux
+    <<'EOS'
+<%#
+kind: PXELinux
+name: Kickstart default PXELinux
+oses:
+- CentOS 4
+- CentOS 5
+- CentOS 6
+- CentOS 7
+- Fedora 16
+- Fedora 17
+- Fedora 18
+- Fedora 19
+- Fedora 20
+- RedHat 4
+- RedHat 5
+- RedHat 6
+- RedHat 7
+%>
+default linux
+label linux
+kernel <%= @kernel %>
+<% if @host.operatingsystem.name == 'Fedora' and @host.operatingsystem.major.to_i > 16 -%>
+append initrd=<%= @initrd %> ks=<%= foreman_url('provision')%> ks.device=bootif network ks.sendmac
+<% elsif @host.operatingsystem.name != 'Fedora' and @host.operatingsystem.major.to_i >= 7 -%>
+append initrd=<%= @initrd %> ks=<%= foreman_url('provision')%> network ks.sendmac biosdevname=0
+<% else -%>
+append initrd=<%= @initrd %> ks=<%= foreman_url('provision')%> ksdevice=bootif network kssendmac
+<% end -%>
+IPAPPEND 2
+EOS
+  end
 end
