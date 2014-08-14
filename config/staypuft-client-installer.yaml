@@ -1,0 +1,38 @@
+## Installer configuration
+# Path to answer file
+:answer_file: /etc/foreman/staypuft-client-installer.answers.yaml
+# Uncomment if you want to load puppet modules from a specific path, $pwd/modules is used by default
+:modules_dir: /usr/share/foreman-installer/modules
+:provisioning_wizard: 'non-interactive'
+:staypuft_client_installer: true
+:installer_dir: /usr/share/foreman-installer
+
+
+## Useful for development, e.g. when you want to move log files to local directory
+:log_dir: '/var/log/foreman-installer'
+:log_name: 'foreman-installer.log'
+:log_level: :debug
+
+# Change if you want to debug default answers for you modules, this directory holds default answers
+# :default_values_dir: /tmp
+
+## Advanced configuration - if not set it's ignored
+# :log_owner: root
+# :log_group: root
+# :config_header_file:
+# :dont_save_answers:
+
+# If using the Debian ruby-kafo package, uncomment this
+# :kafo_modules_dir: /usr/lib/ruby/vendor_ruby/kafo/modules
+
+## Kafo tuning, customization of core functionality
+:name: Staypuft client
+# :no_prefix: false
+:order:
+  - puppet
+
+# The mapping hash provides Kafo with the information to find plugin classes
+:mapping:
+  :foreman::plugin::staypuft_client:
+    :dir_name: foreman
+    :manifest_name: plugin/staypuft_client
