@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.1.7
+Version:    0.1.10
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -107,6 +107,33 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-client-installer
 
 %changelog
+* Wed Aug 13 2014 Marek Hulan <mhulan@redhat.com> 0.1.10-1
+- Fix BZ#1127202 - toggle password visibility (mhulan@redhat.com)
+- adding a new default ptable so we do not use autopart (dradez@redhat.com)
+- Ref BZ#1127752 - disable IP updating (mhulan@redhat.com)
+- Fix BZ#1128679 - do not create empty parameters (mhulan@redhat.com)
+
+* Fri Aug 08 2014 Marek Hulan <mhulan@redhat.com> 0.1.9-1
+- Add proxy options for subscription_manager (mburns@redhat.com)
+- Fix BZ#1127806 - set ntp-server parameter (mhulan@redhat.com)
+
+* Thu Aug 07 2014 Marek Hulan <mhulan@redhat.com> 0.1.8-1
+- Fix BZ#1124850 - accept UDP port 68 (mhulan@redhat.com)
+- Fix BZ#1102394 - do not enable RHEL6 (mhulan@redhat.com)
+- Fix BZ#1124806 - remove Foreman from provisioning question
+  (mhulan@redhat.com)
+- Fix BZ#1124810 - sort interfaces by name (mhulan@redhat.com)
+- BZ#1124545 - Write the values for skipping repo and subman (brad@redhat.com)
+- BZ#1125075 - Ensure firewalld is removed during kickstart
+  (jeckersb@redhat.com)
+- use correct default gateway on controller (lars@redhat.com)
+- BZ#1124598 - provisioning+external network default gateway conflict
+  (jeckersb@redhat.com)
+- add dhcp port to the default firewall (mburns@redhat.com)
+- ensure we only get one interface name for PROVISION_IFACE (lars@redhat.com)
+- set PEERDNS=no on all but provision iface (lars@redhat.com)
+- disable NetworkManager and enable network by default (mburns@redhat.com)
+
 * Fri Jul 25 2014 Marek Hulan <mhulan@redhat.com> 0.1.7-1
 - don't require 100GB for root filesystem (lars@redhat.com)
 

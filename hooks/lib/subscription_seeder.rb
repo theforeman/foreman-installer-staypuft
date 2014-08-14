@@ -20,6 +20,10 @@ class SubscriptionSeeder < BaseSeeder
     @sm_username = @config.get_custom(:sm_username) || ''
     @sm_password = @config.get_custom(:sm_password) || ''
     @repositories = @config.get_custom(:repositories) || 'rhel-7-server-openstack-5.0-rpms'
+    @sm_proxy_user = @config.get_custom(:sm_proxy_user) || ''
+    @sm_proxy_password = @config.get_custom(:sm_proxy_password) || ''
+    @sm_proxy_host = @config.get_custom(:sm_proxy_host) || ''
+    @sm_proxy_port = @config.get_custom(:sm_proxy_port) || ''
     @repo_path = @config.get_custom(:repo_path) || 'http://'
     @sm_pool = @config.get_custom(:sm_pool) ||''
     @skip = @config.get_custom(:skip_subscription_seeding) || false
@@ -51,6 +55,10 @@ class SubscriptionSeeder < BaseSeeder
       @config.set_custom(:sm_username, @sm_username)
       @config.set_custom(:sm_password, @sm_password)
       @config.set_custom(:repositories, @repositories)
+      @config.set_custom(:sm_proxy_user, @sm_proxy_user)
+      @config.set_custom(:sm_proxy_password, @sm_proxy_password)
+      @config.set_custom(:sm_proxy_host, @sm_proxy_host)
+      @config.set_custom(:sm_proxy_port, @sm_proxy_port)
       @config.set_custom(:sm_pool, @sm_pool)
       @config.set_custom(:skip_repo_path, @skip_repo_path)
       @config.set_custom(:skip_subscription_seeding, @skip)
@@ -98,6 +106,34 @@ class SubscriptionSeeder < BaseSeeder
                                             {
                                                 'name' => 'subscription_manager_pool',
                                                 'value' => @sm_pool,
+                                            })
+        end
+        if !@sm_proxy_host.empty? && !@sm_proxy_host.nil?
+          @foreman.parameter.show_or_ensure({'id' => 'http-proxy', 'operatingsystem_id' => os['id']},
+                                            {
+                                                'name' => 'http-proxy',
+                                                'value' => @sm_proxy_host,
+                                            })
+        end
+        if !@sm_proxy_port.empty? && !@sm_proxy_port.nil?
+          @foreman.parameter.show_or_ensure({'id' => 'http-proxy-port', 'operatingsystem_id' => os['id']},
+                                            {
+                                                'name' => 'http-proxy-port',
+                                                'value' => @sm_proxy_port,
+                                            })
+        end
+        if !@sm_proxy_user.empty? && !@sm_proxy_user.nil?
+          @foreman.parameter.show_or_ensure({'id' => 'http-proxy-user', 'operatingsystem_id' => os['id']},
+                                            {
+                                                'name' => 'http-proxy-user',
+                                                'value' => @sm_proxy_user,
+                                            })
+        end
+        if !@sm_proxy_password.empty? && !@sm_proxy_password.nil?
+          @foreman.parameter.show_or_ensure({'id' => 'http-proxy-password', 'operatingsystem_id' => os['id']},
+                                            {
+                                                'name' => 'http-proxy-password',
+                                                'value' => @sm_proxy_password,
                                             })
         end
       end
@@ -163,6 +199,10 @@ class SubscriptionSeeder < BaseSeeder
       menu.choice('Comma separated repositories: '.ljust(wideness) + HighLine.color(@repositories, :info)) { @repositories = ask("Repositories: ") }
       menu.choice('RHEL repo path (http(s) or nfs URL): '.ljust(wideness) + HighLine.color(@repo_path, :info)) { @repo_path = ask("Path: ") }
       menu.choice('Subscription manager pool (optional): '.ljust(wideness) + HighLine.color(@sm_pool, :info)) { @sm_pool = ask("Pool: ") }
+      menu.choice('Subscription manager proxy hostname: '.ljust(wideness) + HighLine.color(@sm_proxy_host, :info)) { @sm_proxy_host = ask("Proxy Host: ") }
+      menu.choice('Subscription manager proxy port: '.ljust(wideness) + HighLine.color(@sm_proxy_port, :info)) { @sm_proxy_port = ask("Proxy Port: ") }
+      menu.choice('Subscription manager proxy username: '.ljust(wideness) + HighLine.color(@sm_proxy_user, :info)) { @sm_proxy_user = ask("Proxy User: ") }
+      menu.choice('Subscription manager proxy password: '.ljust(wideness) + HighLine.color(@sm_proxy_password, :info)) { @sm_proxy_password = ask("Proxy Password: ") }
       menu.choice(HighLine.color('Proceed with configuration', :run)) {
         @skip = false; false
       }

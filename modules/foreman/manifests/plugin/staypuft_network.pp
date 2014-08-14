@@ -83,6 +83,12 @@ class foreman::plugin::staypuft_network(
       proto  => 'udp',
       action => 'accept',
     } ->
+    # The Foreman server needs to accept BOOTP requests on this port when provisioning systems.
+    firewall { '68 accept - bootp':
+      port   => '68',
+      proto  => 'udp',
+      action => 'accept',
+    } ->
     # The Foreman server needs to accept TFTP requests on this port when provisioning systems.
     firewall { '69 accept - tftp':
       port   => '69',

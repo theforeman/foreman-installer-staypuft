@@ -20,6 +20,7 @@ class ProvisioningSeeder < BaseSeeder
     @default_root_pass = 'spengler'
     @default_root_pass = kafo.param('foreman_plugin_staypuft', 'root_password').instance_variable_get('@value')
     @default_ssh_public_key = kafo.param('foreman_plugin_staypuft', 'ssh_public_key').value
+    @ntp_host = kafo.param('foreman_plugin_staypuft', 'ntp_host').value
 
     begin
       pub_key_path = kafo.param('sshkeypair', 'foreman_proxy_home').value + '/.ssh/id_rsa.pub'
@@ -66,11 +67,18 @@ class ProvisioningSeeder < BaseSeeder
                                             {'template' => kickstart_rhel_default})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart default'},
                                             {'template' => kickstart_default})
+    @foreman.config_template.show_or_ensure({'id' => 'Kickstart default PXELinux'},
+                                            {'template' => kickstart_default_pxelinux})
     @foreman.config_template.show_or_ensure({'id' => 'ssh_public_key'},
                                             {'template' => ssh_public_key_snippet, 'snippet' => '1', 'name' => 'ssh_public_key'})
     @foreman.partition_table.show_or_ensure({'id' => 'LVM with cinder-volumes',
                                              'name' => 'LVM with cinder-volumes',
                                              'layout' => lvm_w_cinder_volumes,
+                                             'os_family' => 'Redhat'}, {})
+
+    @foreman.partition_table.show_or_ensure({'id' => 'OpenStack Default',
+                                             'name' => 'OpenStack Default',
+                                             'layout' => openstack_lvm,
                                              'os_family' => 'Redhat'}, {})
 
     name = 'PXELinux global default'
@@ -95,8 +103,9 @@ class ProvisioningSeeder < BaseSeeder
     @hostgroups = []
     oses = find_default_oses(foreman_host)
     oses.each do |os|
-      group_id = "base_#{os['name']}_#{os['major']}"
+      next if os['name'] == 'RedHat' && os['major'] == '6' # we don's support RHEL6 anymore
 
+      group_id = "base_#{os['name']}_#{os['major']}"
       medium = @foreman.medium.index('search' => "name ~ #{os['name']}").first
 
       if os['architectures'].nil? || os['architectures'].empty?
@@ -137,6 +146,11 @@ class ProvisioningSeeder < BaseSeeder
                                               'value' => @default_ssh_public_key,
                                           })
       end
+      @foreman.parameter.show_or_ensure({'id' => 'ntp-server', 'operatingsystem_id' => os['id']},
+                                        {
+                                            'name' => 'ntp-server',
+                                            'value' => @ntp_host,
+                                        })
       @hostgroups.push hostgroup
     end
 
@@ -145,6 +159,7 @@ class ProvisioningSeeder < BaseSeeder
     setup_idle_timeout
     setup_default_root_pass
     setup_puppetrun
+    setup_ignore_puppet_facts_for_provisioning
     create_discovery_env(pxe_template)
 
     say HighLine.color("Use '#{default_hostgroup['name']}' hostgroup for provisioning", :good)
@@ -170,6 +185,15 @@ class ProvisioningSeeder < BaseSeeder
     adjust_setting('idle_timeout', 180)
   end
 
+  def setup_ignore_puppet_facts_for_provisioning
+    @foreman.setting.show_or_ensure({'id' => 'ignore_puppet_facts_for_provisioning'},
+                                    {'value' => true})
+  rescue NoMethodError => e
+    @logger.error "Setting with name 'ignore_puppet_facts_for_provisioning' not found, you must run 'foreman-rake db:seed' " +
+                      "and rerun installer to fix this issue."
+
+  end
+
   def setup_default_root_pass
     adjust_setting('root_pass', @default_root_pass)
   end
@@ -188,7 +212,7 @@ class ProvisioningSeeder < BaseSeeder
 
   def assign_partition_tables(os)
     if os['family'] == 'Redhat'
-      default_ptable_name = 'Kickstart default'
+      default_ptable_name = 'OpenStack Default'
       additional_ptables_names = ['LVM with cinder-volumes']
     elsif os['family'] == 'Debian'
       default_ptable_name = 'Preseed default'
@@ -673,6 +697,19 @@ logvol  /  --vgname=vg_root  --size=1 --grow --name=lv_root
 EOS
   end
 
+  def openstack_lvm
+    <<'EOS'
+#Dynamic
+zerombr
+clearpart --all --initlabel
+part /boot --fstype ext3 --size=500 --ondisk=sda
+part swap --size=1024 --ondisk=sda
+part pv.01 --size=1024 --grow --ondisk=sda
+volgroup vg_root pv.01
+logvol  /  --vgname=vg_root  --size=1 --grow --name=lv_root
+EOS
+  end
+
   def redhat_register_snippet
     <<'EOS'
 <%#
@@ -708,6 +745,15 @@ name: redhat_register
 #
 #   subscription_manager_pool = <pool> (specific pool to be used for
 #                                       registration)
+#
+#   http-proxy = <host> (proxy hostname to be used for registration)
+#
+#   http-proxy-port = <port> (proxy port to be used for registration)
+#
+#   http-proxy-user = <user> (proxy user to be used for registration)
+#
+#   http-proxy-password = <password> (proxy password to be
+#                                           used for registration)
 #
 # Set this parameter regardless of which registration method you're using:
 #
@@ -772,6 +818,18 @@ name: redhat_register
   <% end %>
 <% else %>
   echo "Starting the subscription-manager registration process"
+  <% if @host.params['http-proxy'] %>
+    subscription-manager config --server.proxy_hostname="<%= @host.params['http-proxy'] %>"
+    <% if @host.params['http-proxy-user'] %>
+      subscription-manager config --server.proxy_user="<%= @host.params['http-proxy-user'] %>"
+    <% end %>
+    <% if @host.params['http-proxy-password'] %>
+      subscription-manager config --server.proxy_password="<%= @host.params['http-proxy-password'] %>"
+    <% end %>
+    <% if @host.params['http-proxy-port'] %>
+      subscription-manager config --server.proxy_port="<%= @host.params['http-proxy-port'] %>"
+    <% end %>
+  <% end %>
   <% if @host.params['subscription_manager_username'] && @host.params['subscription_manager_password'] %>
     subscription-manager register --username="<%= @host.params['subscription_manager_username'] %>" --password="<%= @host.params['subscription_manager_password'] %>" --auto-attach
     <% if @host.params['subscription_manager_pool'] %>
@@ -796,4 +854,37 @@ name: redhat_register
 EOS
   end
 
+  def kickstart_default_pxelinux
+    <<'EOS'
+<%#
+kind: PXELinux
+name: Kickstart default PXELinux
+oses:
+- CentOS 4
+- CentOS 5
+- CentOS 6
+- CentOS 7
+- Fedora 16
+- Fedora 17
+- Fedora 18
+- Fedora 19
+- Fedora 20
+- RedHat 4
+- RedHat 5
+- RedHat 6
+- RedHat 7
+%>
+default linux
+label linux
+kernel <%= @kernel %>
+<% if @host.operatingsystem.name == 'Fedora' and @host.operatingsystem.major.to_i > 16 -%>
+append initrd=<%= @initrd %> ks=<%= foreman_url('provision')%> ks.device=bootif network ks.sendmac
+<% elsif @host.operatingsystem.name != 'Fedora' and @host.operatingsystem.major.to_i >= 7 -%>
+append initrd=<%= @initrd %> ks=<%= foreman_url('provision')%> network ks.sendmac biosdevname=0
+<% else -%>
+append initrd=<%= @initrd %> ks=<%= foreman_url('provision')%> ksdevice=bootif network kssendmac
+<% end -%>
+IPAPPEND 2
+EOS
+  end
 end

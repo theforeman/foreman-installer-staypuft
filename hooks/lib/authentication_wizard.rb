@@ -2,8 +2,8 @@ class AuthenticationWizard < BaseWizard
   def self.attrs
     {
         :ssh_public_key => 'SSH public key',
-        :root_password => 'Root Password',
-        :show_password => 'Display root password'
+        :root_password => 'Root password',
+        :show_password => 'Toggle Root password visibility'
     }
   end
 
@@ -14,7 +14,7 @@ class AuthenticationWizard < BaseWizard
   def self.custom_labels
     {
         :configure_networking => 'Configure networking',
-        :show_password => 'Display root password'
+        :show_password => 'Toggle Root password visibility',
     }
   end
 
@@ -38,7 +38,7 @@ class AuthenticationWizard < BaseWizard
   end
 
   def get_show_password
-    say "Current root password: '#{HighLine.color(@root_password.to_s, :info)}'"
+    @hide_password = !@hide_password
   end
 
   def validate_ssh_public_key
@@ -52,7 +52,7 @@ class AuthenticationWizard < BaseWizard
   end
 
   def print_pair(name, value)
-    return true if name == 'Display root password'
+    return true if name == 'Toggle Root password visibility'
     super
   end
 end
