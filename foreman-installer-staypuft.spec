@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.2.0
+Version:    0.3.0
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,10 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Wed Aug 20 2014 Marek Hulan <mhulan@redhat.com> 0.3.0-1
+- Print correct admin password on Foreman 1.6+ (mhulan@redhat.com)
+- Fix settings values to be strings (mhulan@redhat.com)
+
 * Mon Aug 18 2014 Marek Hulan <mhulan@redhat.com> 0.2.0-1
 - bz 1126982, adding biosdevname=0 to kernel params to make sure nics are named
   consistently (dradez@redhat.com)
