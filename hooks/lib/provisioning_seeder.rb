@@ -157,7 +157,7 @@ class ProvisioningSeeder < BaseSeeder
 
   def setup_idle_timeout
     @foreman.setting.show_or_ensure({'id' => 'idle_timeout'},
-                                    {'value' => 180})
+                                    {'value' => @foreman.version.start_with?('1.6') ? 180 : '180'})
   rescue NoMethodError => e
     @logger.error "Setting with name 'idle_timeout' not found, you must run 'foreman-rake db:seed' " +
                       "and rerun installer to fix this issue."
@@ -165,7 +165,7 @@ class ProvisioningSeeder < BaseSeeder
 
   def setup_ignore_puppet_facts_for_provisioning
     @foreman.setting.show_or_ensure({'id' => 'ignore_puppet_facts_for_provisioning'},
-                                    {'value' => true})
+                                    {'value' => @foreman.version.start_with?('1.6') ? true : 'true'})
   rescue NoMethodError => e
     @logger.error "Setting with name 'ignore_puppet_facts_for_provisioning' not found, you must run 'foreman-rake db:seed' " +
                       "and rerun installer to fix this issue."
