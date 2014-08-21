@@ -22,6 +22,7 @@ class AuthenticationWizard < BaseWizard
     super
     self.header = 'Configure client authentication'
     self.help = "Please set a default root password for newly provisioned machines. If you choose not to set a password, it will be generated randomly. The password must be a minimum of 8 characters. You can also set a public ssh key which will be deployed to newly provisioned machines."
+    self.ssh_public_key ||= ''
   end
 
   attr_accessor *attrs.keys
