@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.3.0
+Version:    0.3.1
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,10 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Thu Aug 21 2014 Marek Hulan <mhulan@redhat.com> 0.3.1-1
+- Default ssh key value is empty string, nil causes problems
+  (mhulan@redhat.com)
+
 * Wed Aug 20 2014 Marek Hulan <mhulan@redhat.com> 0.3.0-1
 - Print correct admin password on Foreman 1.6+ (mhulan@redhat.com)
 - Fix settings values to be strings (mhulan@redhat.com)
