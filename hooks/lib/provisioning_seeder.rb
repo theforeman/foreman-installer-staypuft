@@ -76,7 +76,8 @@ class ProvisioningSeeder < BaseSeeder
     @hostgroups = []
     oses = find_default_oses(foreman_host)
     oses.each do |os|
-      next if os['name'] == 'RedHat' && os['major'] == '6' # we don's support RHEL6 anymore
+      next if os['name'] == 'RedHat' && os['major'] == '6' # we don's support RHEL6 for provisioning anymore
+      next if os['name'] == 'CentOS' && os['major'] == '6' # we don's support CentOS6 for provisioning anymore
 
       group_id = "base_#{os['name']}_#{os['major']}"
       medium = @foreman.medium.index('search' => "name ~ #{os['name']}").first
