@@ -46,14 +46,17 @@ class ProvisioningSeeder < BaseSeeder
                                                      'dhcp_id' => default_proxy['id'],
                                                      'tftp_id' => default_proxy['id']})
 
+    kinds = @foreman.template_kind.index
+    provisioning = kinds.detect { |k| k['name'] == 'provision' }
+    pxe_linux = kinds.detect { |k| k['name'] == 'PXELinux' }
     @foreman.config_template.show_or_ensure({'id' => 'redhat_register'},
-                                            {'template' => redhat_register_snippet})
+                                            {'template' => redhat_register_snippet, 'snippet' => '1', 'name' => 'redhat_register'})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart RHEL default'},
-                                            {'template' => kickstart_rhel_default})
+                                            {'template' => kickstart_rhel_default, 'template_kind_id' => provisioning['id'], 'name' => 'Kickstart RHEL defau
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart default'},
-                                            {'template' => kickstart_default})
+                                            {'template' => kickstart_default, 'template_kind_id' => provisioning['id'], 'name' => 'Kickstart default'})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart default PXELinux'},
-                                            {'template' => kickstart_default_pxelinux})
+                                            {'template' => kickstart_default_pxelinux, 'template_kind_id' => pxe_linux['id'], 'name' => 'Kickstart default P
     @foreman.config_template.show_or_ensure({'id' => 'ssh_public_key'},
                                             {'template' => ssh_public_key_snippet, 'snippet' => '1', 'name' => 'ssh_public_key'})
 
