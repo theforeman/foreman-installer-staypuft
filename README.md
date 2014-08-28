@@ -22,4 +22,9 @@ you can trigger the build by running ```tito release koji```.
 
 ## What platforms are supported
 
-Currently we support only CentOS. RHEL using subscription-manager is being worked on.
+Currently it's supposed to run only on CentOS and RHEL (using subscription-manager). 
+For staypuft host you should use version 6. Other hosts that are provisioned by 
+staypuft CentOS or RHEL 7 will be used (based on what is your staypuft machine). 
+There is a workaround required for CentOS. You have to modify installation media 
+in foreman to http://mirror.centos.org/centos/$major/os/$arch otherwise provisioning will 
+not work. It's tracked in http://projects.theforeman.org/issues/6884
