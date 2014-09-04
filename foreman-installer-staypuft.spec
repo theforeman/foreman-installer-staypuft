@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.3.3
+Version:    0.3.4
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,14 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Thu Sep 04 2014 Marek Hulan <mhulan@redhat.com> 0.3.4-1
+- Primary network is has always DHCP boot mode (mhulan@redhat.com)
+- BZ#1134610 - multiple repos in subscription_manager_repos (jistr@redhat.com)
+- Install modules from git on CentOS (mhulan@redhat.com)
+- Modify kickstart templates to configure networking (mhulan@redhat.com)
+- BZ#1127196 - ask for password confirmation (jistr@redhat.com)
+- Update readme (mhulan@redhat.com)
+
 * Mon Aug 25 2014 Marek Hulan <mhulan@redhat.com> 0.3.3-1
 - fix syntax from last fix (mburns@redhat.com)
 
