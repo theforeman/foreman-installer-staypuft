@@ -779,15 +779,13 @@ name: redhat_register
     <% end %>
     # workaround for RHEL 6.4 bug https://bugzilla.redhat.com/show_bug.cgi?id=1008016
     subscription-manager repos --list > /dev/null
-    <% (enabled_repos = "subscription-manager repos --enable #{@host.params['subscription_manager_repos'].gsub(',', ' ')}") if @host.params['subscription_manager_repos'] %>
-    <%= enabled_repos if enabled_repos %>
+    <%= "subscription-manager repos #{@host.params['subscription_manager_repos'].split(',').map { |r| '--enable=' + r.strip }.join(' ')}" if @host.params['subscription_manager_repos'] %>
   <% elsif @host.params['activation_key'] %>
     rpm -Uvh <%= @host.params['subscription_manager_host'] %>/pub/candlepin-cert-consumer-latest.noarch.rpm
     subscription-manager register --org="<%= @host.params['subscription_manager_org'] %>" --activationkey="<%= @host.params['activation_key'] %>"
     # workaround for RHEL 6.4 bug https://bugzilla.redhat.com/show_bug.cgi?id=1008016
     subscription-manager repos --list > /dev/null
-    <% (enabled_repos = "subscription-manager repos --enable #{@host.params['subscription_manager_repos'].gsub(',', ' ')}") if @host.params['subscription_manager_repos'] %>
-    <%= enabled_repos if enabled_repos %>
+    <%= "subscription-manager repos #{@host.params['subscription_manager_repos'].split(',').map { |r| '--enable=' + r.strip }.join(' ')}" if @host.params['subscription_manager_repos'] %>
   <% else %>
     # Not registering host.params['activation_key'] not found.
   <% end %>
