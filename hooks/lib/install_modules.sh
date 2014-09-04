@@ -14,7 +14,6 @@ if [ -d $OFI_MODULES -a -d $OS_MODULES ]; then
     ln -nfs $mod $TARGET
   done
 else
-  exit 0
   # get stable modules for git repositories
   ASTAPOR_VERSION="origin/1_0_stable"
   OPENSTACK_MODULES_VERSION="origin/havana"
