@@ -44,7 +44,8 @@ class ProvisioningSeeder < BaseSeeder
                                                      'domain_ids' => [default_domain['id']],
                                                      'dns_id' => default_proxy['id'],
                                                      'dhcp_id' => default_proxy['id'],
-                                                     'tftp_id' => default_proxy['id']})
+                                                     'tftp_id' => default_proxy['id'],
+                                                     'boot_mode' => 'DHCP'})
 
     kinds = @foreman.template_kind.index
     provisioning = kinds.detect { |k| k['name'] == 'provision' }
