@@ -6,10 +6,21 @@ This is a plugin for foreman-installer to help with Staypuft installation.
 ## How do I use it?
 
 You just install RPM package named foreman-installer-staypuft and run 
-staypuft-installer. It will automatically run the wizard that asks few questions
+`staypuft-installer`. It will automatically run the wizard that asks few questions
 specific to your environment. The result is Foreman with provisioning correctly
 configured and Staypuft plugin enabled. Without any further effort you should 
 be able to create your OpenStack deployment.
+
+To provision on baremetals we use [foreman_discovery](https://github.com/theforeman/foreman_discovery) plugin which requires 
+you to download images used to discover all machines. If you want installer to dowload 
+images for you (recommended), you can run it like this
+
+```
+staypuft-installer --foreman-plugin-discovery-install-images=true
+```
+
+Note that downloading will take some time, images are ~200MB. You can download images manually
+from [here](http://downloads.theforeman.org/discovery/), but you have to copy and name them correctly yourself.
 
 ## Where can I download RPMs?
 
