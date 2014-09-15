@@ -38,6 +38,11 @@ class BaseSeeder
                                                              'name' => 'RedHat', 'major' => '7', 'minor' => '0',
                                                              'family' => 'Redhat'}, {})
     end
+    if os['name'] == 'CentOS' && os['major'] == '6'
+      additional << foreman.operating_system.show_or_ensure({'id' => 'CentOS 7.0',
+                                                             'name' => 'CentOS', 'major' => '7', 'minor' => '0',
+                                                             'family' => 'Redhat'}, {})
+    end
     additional
   end
 

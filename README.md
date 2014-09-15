@@ -6,16 +6,21 @@ This is a plugin for foreman-installer to help with Staypuft installation.
 ## How do I use it?
 
 You just install RPM package named foreman-installer-staypuft and run 
-staypuft-installer. It will automatically run the wizard that asks few questions
+`staypuft-installer`. It will automatically run the wizard that asks few questions
 specific to your environment. The result is Foreman with provisioning correctly
 configured and Staypuft plugin enabled. Without any further effort you should 
 be able to create your OpenStack deployment.
 
-There are two ways of adding client machines to staypuft (openstack will be
-installed onto those machines). You can either let staypuft provision them
-using TFTP (you must have control over DHCP, so isolated network would be
-good option) or you can register already running machines by running 
-staypuft-client installer on them.
+To provision on baremetals we use [foreman_discovery](https://github.com/theforeman/foreman_discovery) plugin which requires 
+you to download images used to discover all machines. If you want installer to dowload 
+images for you (recommended), you can run it like this
+
+```
+staypuft-installer --foreman-plugin-discovery-install-images=true
+```
+
+Note that downloading will take some time, images are ~200MB. You can download images manually
+from [here](http://downloads.theforeman.org/discovery/), but you have to copy and name them correctly yourself.
 
 ## Where can I download RPMs?
 
@@ -31,10 +36,9 @@ you can trigger the build by running ```tito release koji```.
 
 ## What platforms are supported
 
-Currently we support only CentOS and RHEL using subscription-manager. On CentOS
-you may want to run staypuft-installer with discovery image installation enabled,
-otherwise provisioning won't work. You can run it like this
-
-    staypuft-installer --foreman-plugin-discovery-install-images=true
-
-Note that downloading discovery images can take long time (depending on your connectivity)
+Currently it's supposed to run only on CentOS and RHEL (using subscription-manager). 
+For staypuft host you should use version 6. Other hosts that are provisioned by 
+staypuft CentOS or RHEL 7 will be used (based on what is your staypuft machine). 
+There is a workaround required for CentOS. You have to modify installation media 
+in foreman to http://mirror.centos.org/centos/$major/os/$arch otherwise provisioning will 
+not work. It's tracked in http://projects.theforeman.org/issues/6884

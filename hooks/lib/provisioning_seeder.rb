@@ -55,22 +55,29 @@ class ProvisioningSeeder < BaseSeeder
                                                      'domain_ids' => [default_domain['id']],
                                                      'dns_id' => default_proxy['id'],
                                                      'dhcp_id' => default_proxy['id'],
-                                                     'tftp_id' => default_proxy['id']})
+                                                     'tftp_id' => default_proxy['id'],
+                                                     'boot_mode' => 'DHCP'})
 
+    kinds = @foreman.template_kind.index
+    provisioning = kinds.detect { |k| k['name'] == 'provision' }
+    pxe_linux = kinds.detect { |k| k['name'] == 'PXELinux' }
     @foreman.config_template.show_or_ensure({'id' => 'redhat_register'},
-                                            {'template' => redhat_register_snippet, 'name' => 'redhat_register', 'snippet' => '1'})
+                                            {'template' => redhat_register_snippet, 'snippet' => '1', 'name' => 'redhat_register'})
     @foreman.config_template.show_or_ensure({'id' => 'staypuft-client-installer-answers-yaml'},
                                             {'template' => staypuft_staypuft_answers_snippet, 'name' => 'staypuft-client-installer-answers-yaml', 'snippet' => '1'})
     @foreman.config_template.show_or_ensure({'id' => 'staypuft_client_bootstrap'},
                                             {'template' => staypuft_bootstrap_snippet, 'name' => 'staypuft_client_bootstrap', 'snippet' => '1'})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart RHEL default'},
-                                            {'template' => kickstart_rhel_default})
+                                            {'template' => kickstart_rhel_default, 'template_kind_id' => provisioning['id'], 'name' => 'Kickstart RHEL default'})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart default'},
-                                            {'template' => kickstart_default})
+                                            {'template' => kickstart_default, 'template_kind_id' => provisioning['id'], 'name' => 'Kickstart default'})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart default PXELinux'},
-                                            {'template' => kickstart_default_pxelinux})
+                                            {'template' => kickstart_default_pxelinux, 'template_kind_id' => pxe_linux['id'], 'name' => 'Kickstart default PXELinux'})
     @foreman.config_template.show_or_ensure({'id' => 'ssh_public_key'},
                                             {'template' => ssh_public_key_snippet, 'snippet' => '1', 'name' => 'ssh_public_key'})
+    @foreman.config_template.show_or_ensure({'id' => 'kickstart_networking_setup'},
+                                            {'template' => kickstart_networking_setup_snippet, 'snippet' => '1', 'name' => 'kickstart_networking_setup'})
+
     @foreman.partition_table.show_or_ensure({'id' => 'LVM with cinder-volumes',
                                              'name' => 'LVM with cinder-volumes',
                                              'layout' => lvm_w_cinder_volumes,
@@ -103,7 +110,8 @@ class ProvisioningSeeder < BaseSeeder
     @hostgroups = []
     oses = find_default_oses(foreman_host)
     oses.each do |os|
-      next if os['name'] == 'RedHat' && os['major'] == '6' # we don's support RHEL6 anymore
+      next if os['name'] == 'RedHat' && os['major'] == '6' # we don's support RHEL6 for provisioning anymore
+      next if os['name'] == 'CentOS' && os['major'] == '6' # we don's support CentOS6 for provisioning anymore
 
       group_id = "base_#{os['name']}_#{os['major']}"
       medium = @foreman.medium.index('search' => "name ~ #{os['name']}").first
@@ -182,12 +190,12 @@ class ProvisioningSeeder < BaseSeeder
   end
 
   def setup_idle_timeout
-    adjust_setting('idle_timeout', 180)
+    adjust_setting('idle_timeout', @foreman.version.start_with?('1.6') ? 180 : '180'})
   end
 
   def setup_ignore_puppet_facts_for_provisioning
     @foreman.setting.show_or_ensure({'id' => 'ignore_puppet_facts_for_provisioning'},
-                                    {'value' => true})
+                                    {'value' => @foreman.version.start_with?('1.6') ? true : 'true'})
   rescue NoMethodError => e
     @logger.error "Setting with name 'ignore_puppet_facts_for_provisioning' not found, you must run 'foreman-rake db:seed' " +
                       "and rerun installer to fix this issue."
@@ -308,7 +316,11 @@ lang en_US.UTF-8
 selinux --enforcing
 keyboard us
 skipx
-network --bootproto <%= @static ? "static --ip=#{@host.ip} --netmask=#{@host.subnet.mask} --gateway=#{@host.subnet.gateway} --nameserver=#{[@host.subnet.dns_primary, @host.subnet.dns_secondary].reject { |n| n.blank? }.join(',')}" : 'dhcp' %> --hostname <%= @host %>
+
+<% subnet = @host.subnet -%>
+<% dhcp = subnet.dhcp_boot_mode? -%>
+network --bootproto <%= dhcp ? 'dhcp' : "static --ip=#{@host.ip} --netmask=#{subnet.mask} --gateway=#{subnet.gateway} --nameserver=#{[subnet.dns_primary, subnet.dns_secondary].select(&:present?).join(',')}" %> --device=<%= @host.mac -%> --hostname <%= @host %>
+
 rootpw --iscrypted <%= root_pass %>
 firewall --<%= os_major >= 6 ? 'service=' : '' %>ssh
 authconfig --useshadow --passalgo=sha256 --kickstart
@@ -379,34 +391,12 @@ exec < /dev/tty3 > /dev/tty3
 #changing to VT 3 so that we can see whats going on....
 /usr/bin/chvt 3
 (
-# set ONBOOT to yes for all nics
-# also set PEERDNS=no for all nics except provisioning interface
-# (resolves https://bugzilla.redhat.com/show_bug.cgi?id=1124027)
-# also set DEFROUTE=no for all nics except provisioning interface
-# (resolves https://bugzilla.redhat.com/show_bug.cgi?id=1124598)
+<%= snippet 'kickstart_networking_setup' %>
 
 # get name of provisioning interface
 PROVISION_IFACE=$(ip route  | awk '$1 == "default" {print $5}' | head -1)
 echo "found provisioning interface = $PROVISION_IFACE"
 
-IFACES=$(ls -d /sys/class/net/* | while read iface; do readlink $iface | grep -q virtual || echo ${iface##*/}; done)
-for i in $IFACES; do
-    sed -i 's/ONBOOT.*/ONBOOT=yes/' /etc/sysconfig/network-scripts/ifcfg-$i
-    if [ "$i" != "$PROVISION_IFACE" ]; then
-        echo "setting PEERDNS=no on $i"
-        sed -i '
-            /PEERDNS/ d
-            $ a\PEERDNS=no
-        ' /etc/sysconfig/network-scripts/ifcfg-$i
-<% unless @host.hostgroup.to_s.include?("Controller") %>
-        echo "setting DEFROUTE=no on $i"
-        sed -i '
-            /DEFROUTE/ d
-            $ a\DEFROUTE=no
-        ' /etc/sysconfig/network-scripts/ifcfg-$i
-<% end -%>
-    fi
-done
 <% if @host.hostgroup.to_s.include?("Controller") %>
 echo "setting DEFROUTE=no on $PROVISION_IFACE"
 sed -i '
@@ -414,8 +404,6 @@ sed -i '
     $ a\DEFROUTE=no
 ' /etc/sysconfig/network-scripts/ifcfg-$PROVISION_IFACE
 <% end -%>
-
-
 
 #update local time
 echo "updating system time"
@@ -504,7 +492,11 @@ lang en_US.UTF-8
 selinux --enforcing
 keyboard us
 skipx
-network --bootproto <%= @static ? "static --ip=#{@host.ip} --netmask=#{@host.subnet.mask} --gateway=#{@host.subnet.gateway} --nameserver=#{[@host.subnet.dns_primary, @host.subnet.dns_secondary].reject { |n| n.blank? }.join(',')}" : 'dhcp' %> --hostname <%= @host %>
+
+<% subnet = @host.subnet -%>
+<% dhcp = subnet.dhcp_boot_mode? -%>
+network --bootproto <%= dhcp ? 'dhcp' : "static --ip=#{@host.ip} --netmask=#{subnet.mask} --gateway=#{subnet.gateway} --nameserver=#{[subnet.dns_primary, subnet.dns_secondary].select(&:present?).join(',')}" %> --device=<%= @host.mac -%> --hostname <%= @host %>
+
 rootpw --iscrypted <%= root_pass %>
 firewall --<%= os_major >= 6 ? 'service=' : '' %>ssh
 authconfig --useshadow --passalgo=sha256 --kickstart
@@ -587,6 +579,20 @@ exec < /dev/tty3 > /dev/tty3
 #changing to VT 3 so that we can see whats going on....
 /usr/bin/chvt 3
 (
+<%= snippet 'kickstart_networking_setup' %>
+
+# get name of provisioning interface
+PROVISION_IFACE=$(ip route  | awk '$1 == "default" {print $5}' | head -1)
+echo "found provisioning interface = $PROVISION_IFACE"
+
+<% if @host.hostgroup.to_s.include?("Controller") %>
+echo "setting DEFROUTE=no on $PROVISION_IFACE"
+sed -i '
+    /DEFROUTE/ d
+    $ a\DEFROUTE=no
+' /etc/sysconfig/network-scripts/ifcfg-$PROVISION_IFACE
+<% end -%>
+
 #update local time
 echo "updating system time"
 /usr/sbin/ntpdate -sub <%= @host.params['ntp-server'] || '0.fedora.pool.ntp.org' %>
@@ -667,7 +673,7 @@ ONTIMEOUT discovery
 LABEL discovery
 MENU LABEL Foreman Discovery
 KERNEL boot/#{@kernel}
-APPEND rootflags=loop initrd=boot/#{@initrd} root=live:/foreman.iso rootfstype=auto ro rd.live.image rd.live.check rd.lvm=0 rootflags=ro crashkernel=128M elevator=deadline max_loop=256 rd.luks=0 rd.md=0 rd.dm=0 foreman.url=#{@foreman_url} nomodeset selinux=0 stateless
+APPEND rootflags=loop initrd=boot/#{@initrd} root=live:/foreman.iso rootfstype=auto ro rd.live.image rd.live.check rd.lvm=0 rootflags=ro crashkernel=128M elevator=deadline max_loop=256 rd.luks=0 rd.md=0 rd.dm=0 foreman.url=#{@foreman_url} nomodeset selinux=0 stateless biosdevname=0
 IPAPPEND 2
 EOS
   end
@@ -679,6 +685,72 @@ cat >> /root/.ssh/authorized_keys << PUBLIC_KEY
 <%= @host.params['ssh_public_key'] %>
 PUBLIC_KEY
 chmod 600 /root/.ssh/authorized_keys
+EOS
+  end
+
+  def kickstart_networking_setup_snippet
+    <<'EOS'
+<%#
+kind: snippet
+name: kickstart_networking_setup
+description: this will configure your host networking, it configures your primary interface as well
+    as other configures NICs. It supports physical, VLAN and Alias interfaces. It's intended to be
+    called from %post in your kickstart template
+%>
+<% subnet = @host.subnet -%>
+<% dhcp = subnet.dhcp_boot_mode? -%>
+
+real=`ip -o link | grep <%= @host.mac -%> | awk '{print $2;}' | sed s/://`
+<% if @host.has_primary_interface? %>
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
+BOOTPROTO="<%= dhcp ? 'dhcp' : 'none' -%>"
+<% unless dhcp -%>
+IPADDR="<%= @host.ip -%>"
+NETMASK="<%= subnet.mask -%>"
+<% end -%>
+DEVICE="$real"
+HWADDR="<%= @host.mac -%>"
+ONBOOT=yes
+EOF
+<% end -%>
+
+<% @host.interfaces.each do |interface| %>
+<% next if !interface.managed? || interface.subnet.nil? -%>
+
+<% subnet = interface.subnet -%>
+<% virtual = interface.virtual? -%>
+<% vlan = virtual && subnet.has_vlanid? -%>
+<% alias_type = virtual && !subnet.has_vlanid? && interface.identifier.include?(':') -%>
+<% dhcp = subnet.dhcp_boot_mode? -%>
+
+real=`ip -o link | grep <%= interface.mac -%> | awk '{print $2;}' | sed s/:$//`
+<% if virtual -%>
+real=`echo <%= interface.identifier -%> | sed s/<%= interface.physical_device -%>/$real/`
+<% end -%>
+
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
+BOOTPROTO="<%= dhcp ? 'dhcp' : 'none' -%>"
+<% unless dhcp -%>
+IPADDR="<%= interface.ip -%>"
+NETMASK="<%= subnet.mask -%>"
+<% end -%>
+DEVICE="$real"
+<% unless virtual -%>
+HWADDR="<%= interface.mac -%>"
+<% end -%>
+ONBOOT=yes
+PEERDNS=no
+PEERROUTES=no
+<% if vlan -%>
+VLAN=yes
+<% elsif alias_type -%>
+TYPE=Alias
+<% end -%>
+EOF
+
+<% end %>
+
+service network restart
 EOS
   end
 
@@ -831,21 +903,21 @@ name: redhat_register
     <% end %>
   <% end %>
   <% if @host.params['subscription_manager_username'] && @host.params['subscription_manager_password'] %>
-    subscription-manager register --username="<%= @host.params['subscription_manager_username'] %>" --password="<%= @host.params['subscription_manager_password'] %>" --auto-attach
     <% if @host.params['subscription_manager_pool'] %>
+      subscription-manager register --username="<%= @host.params['subscription_manager_username'] %>" --password="<%= @host.params['subscription_manager_password'] %>"
       subscription-manager attach --pool="<%= @host.params['subscription_manager_pool'] %>"
+    <% else %>
+      subscription-manager register --username="<%= @host.params['subscription_manager_username'] %>" --password="<%= @host.params['subscription_manager_password'] %>" --auto-attach
     <% end %>
     # workaround for RHEL 6.4 bug https://bugzilla.redhat.com/show_bug.cgi?id=1008016
     subscription-manager repos --list > /dev/null
-    <% (enabled_repos = "subscription-manager repos --enable #{@host.params['subscription_manager_repos'].gsub(',', ' ')}") if @host.params['subscription_manager_repos'] %>
-    <%= enabled_repos if enabled_repos %>
+    <%= "subscription-manager repos #{@host.params['subscription_manager_repos'].split(',').map { |r| '--enable=' + r.strip }.join(' ')}" if @host.params['subscription_manager_repos'] %>
   <% elsif @host.params['activation_key'] %>
     rpm -Uvh <%= @host.params['subscription_manager_host'] %>/pub/candlepin-cert-consumer-latest.noarch.rpm
     subscription-manager register --org="<%= @host.params['subscription_manager_org'] %>" --activationkey="<%= @host.params['activation_key'] %>"
     # workaround for RHEL 6.4 bug https://bugzilla.redhat.com/show_bug.cgi?id=1008016
     subscription-manager repos --list > /dev/null
-    <% (enabled_repos = "subscription-manager repos --enable #{@host.params['subscription_manager_repos'].gsub(',', ' ')}") if @host.params['subscription_manager_repos'] %>
-    <%= enabled_repos if enabled_repos %>
+    <%= "subscription-manager repos #{@host.params['subscription_manager_repos'].split(',').map { |r| '--enable=' + r.strip }.join(' ')}" if @host.params['subscription_manager_repos'] %>
   <% else %>
     # Not registering host.params['activation_key'] not found.
   <% end %>
