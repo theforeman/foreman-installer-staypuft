@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.3.4
+Version:    0.3.5
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,12 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Mon Sep 15 2014 Marek Hulan <mhulan@redhat.com> 0.3.5-1
+- disable biosdevname for discovery image (mburns@redhat.com)
+- rhbz#1140741 sub-man pool is recommended (mburns@redhat.com)
+- rhbz#1140057 don't run auto-attach if pool is specified (mburns@redhat.com)
+- Update docs regarding discovery images (mhulan@redhat.com)
+
 * Thu Sep 04 2014 Marek Hulan <mhulan@redhat.com> 0.3.4-1
 - Primary network is has always DHCP boot mode (mhulan@redhat.com)
 - BZ#1134610 - multiple repos in subscription_manager_repos (jistr@redhat.com)
