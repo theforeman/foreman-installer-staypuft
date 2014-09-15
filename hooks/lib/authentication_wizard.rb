@@ -22,12 +22,15 @@ class AuthenticationWizard < BaseWizard
     super
     self.header = 'Configure client authentication'
     self.help = "Please set a default root password for newly provisioned machines. If you choose not to set a password, it will be generated randomly. The password must be a minimum of 8 characters. You can also set a public ssh key which will be deployed to newly provisioned machines."
+    self.ssh_public_key ||= ''
   end
 
   attr_accessor *attrs.keys
 
   def get_root_password
+    @root_password_set_interactively = true
     @root_password = ask("new value for root password") { |q| q.echo = '*' }
+    @root_password_confirmation = ask("enter new root password again to confirm") { |q| q.echo = '*' }
   end
 
   def get_ssh_public_key
@@ -49,6 +52,12 @@ class AuthenticationWizard < BaseWizard
 
   def validate_root_password
     return "Password must be at least 8 characters long" if @root_password.nil? || @root_password.length < 8
+
+    # confirmation validation should not be done if running non-interactively,
+    # or interactively but with password loaded from answer file
+    if @root_password_set_interactively && @root_password != @root_password_confirmation
+      return "Password and confirmation do not match, please re-enter the password"
+    end
   end
 
   def print_pair(name, value)

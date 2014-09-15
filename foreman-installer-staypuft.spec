@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.1.10
+Version:    0.3.5
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -107,6 +107,39 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-client-installer
 
 %changelog
+* Mon Sep 15 2014 Marek Hulan <mhulan@redhat.com> 0.3.5-1
+- disable biosdevname for discovery image (mburns@redhat.com)
+- rhbz#1140741 sub-man pool is recommended (mburns@redhat.com)
+- rhbz#1140057 don't run auto-attach if pool is specified (mburns@redhat.com)
+- Update docs regarding discovery images (mhulan@redhat.com)
+
+* Thu Sep 04 2014 Marek Hulan <mhulan@redhat.com> 0.3.4-1
+- Primary network is has always DHCP boot mode (mhulan@redhat.com)
+- BZ#1134610 - multiple repos in subscription_manager_repos (jistr@redhat.com)
+- Install modules from git on CentOS (mhulan@redhat.com)
+- Modify kickstart templates to configure networking (mhulan@redhat.com)
+- BZ#1127196 - ask for password confirmation (jistr@redhat.com)
+- Update readme (mhulan@redhat.com)
+
+* Mon Aug 25 2014 Marek Hulan <mhulan@redhat.com> 0.3.3-1
+- fix syntax from last fix (mburns@redhat.com)
+
+* Fri Aug 22 2014 Marek Hulan <mhulan@redhat.com> 0.3.2-1
+- Create config templates even if they are missing (mhulan@redhat.com)
+- Adds support for CentOS 7 (mhulan@redhat.com)
+
+* Thu Aug 21 2014 Marek Hulan <mhulan@redhat.com> 0.3.1-1
+- Default ssh key value is empty string, nil causes problems
+  (mhulan@redhat.com)
+
+* Wed Aug 20 2014 Marek Hulan <mhulan@redhat.com> 0.3.0-1
+- Print correct admin password on Foreman 1.6+ (mhulan@redhat.com)
+- Fix settings values to be strings (mhulan@redhat.com)
+
+* Mon Aug 18 2014 Marek Hulan <mhulan@redhat.com> 0.2.0-1
+- bz 1126982, adding biosdevname=0 to kernel params to make sure nics are named
+  consistently (dradez@redhat.com)
+
 * Wed Aug 13 2014 Marek Hulan <mhulan@redhat.com> 0.1.10-1
 - Fix BZ#1127202 - toggle password visibility (mhulan@redhat.com)
 - adding a new default ptable so we do not use autopart (dradez@redhat.com)
