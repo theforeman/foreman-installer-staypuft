@@ -79,6 +79,10 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Fri Sep 19 2014 Marek Hulan <mhulan@redhat.com> 0.4.0-1
+- Add firewall as hard dependency (mhulan@redhat.com)
+- Fix BZ#1142211 - NM changed fqdn in %%post (mhulan@redhat.com)
+
 * Mon Sep 15 2014 Marek Hulan <mhulan@redhat.com> 0.3.5-1
 - disable biosdevname for discovery image (mburns@redhat.com)
 - rhbz#1140741 sub-man pool is recommended (mburns@redhat.com)
