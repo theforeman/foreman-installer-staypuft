@@ -680,6 +680,7 @@ EOF
 # get name of provisioning interface
 PROVISION_IFACE=$(ip route  | awk '$1 == "default" {print $5}' | head -1)
 echo "found provisioning interface = $PROVISION_IFACE"
+DEFROUTE_IFACE="<%= @host.network_query.gateway_interface %>"
 
 IFACES=$(ls -d /sys/class/net/* | while read iface; do readlink $iface | grep -q virtual || echo ${iface##*/}; done)
 for i in $IFACES; do
@@ -690,15 +691,21 @@ for i in $IFACES; do
             /PEERDNS/ d
             $ a\PEERDNS=no
         ' /etc/sysconfig/network-scripts/ifcfg-$i
-
-<% unless @host.hostgroup.to_s.include?("Controller") %>
-      echo "setting DEFROUTE=no on $i"
-      sed -i '
-          /DEFROUTE/ d
-          $ a\DEFROUTE=no
-      ' /etc/sysconfig/network-scripts/ifcfg-$i
-<% end -%>
     fi
+
+    if [ "$i" = "$DEFROUTE_IFACE"]; then
+        echo "setting DEFROUTE=yes on $i"
+        sed -i '
+            /DEFROUTE/ d
+            $ a\DEFROUTE=yes
+        ' /etc/sysconfig/network-scripts/ifcfg-$i
+    else
+        echo "setting DEFROUTE=no on $i"
+        sed -i '
+            /DEFROUTE/ d
+            $ a\DEFROUTE=no
+        ' /etc/sysconfig/network-scripts/ifcfg-$i
+    fi 
 done
 
 service network restart
