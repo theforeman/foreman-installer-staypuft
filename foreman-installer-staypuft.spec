@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.3.5
+Version:    0.4.0
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -69,6 +69,7 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_datadir}/foreman-installer/hooks/post/10-setup_provisioning.rb
 %{_datadir}/foreman-installer/hooks/pre_validations/10-gather_and_set_staypuft_values.rb
 %{_datadir}/foreman-installer/hooks/pre_values/10-register_staypuft_modules.rb
+%{_datadir}/foreman-installer/modules/firewall
 %{_datadir}/foreman-installer/modules/network
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft.pp
 %{_datadir}/foreman-installer/modules/foreman/manifests/plugin/staypuft_network.pp
