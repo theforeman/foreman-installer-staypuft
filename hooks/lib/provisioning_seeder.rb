@@ -359,18 +359,6 @@ exec < /dev/tty3 > /dev/tty3
 (
 <%= snippet 'kickstart_networking_setup' %>
 
-# get name of provisioning interface
-PROVISION_IFACE=$(ip route  | awk '$1 == "default" {print $5}' | head -1)
-echo "found provisioning interface = $PROVISION_IFACE"
-
-<% if @host.hostgroup.to_s.include?("Controller") %>
-echo "setting DEFROUTE=no on $PROVISION_IFACE"
-sed -i '
-    /DEFROUTE/ d
-    $ a\DEFROUTE=no
-' /etc/sysconfig/network-scripts/ifcfg-$PROVISION_IFACE
-<% end -%>
-
 #update local time
 echo "updating system time"
 /usr/sbin/ntpdate -sub <%= @host.params['ntp-server'] || '0.fedora.pool.ntp.org' %>
@@ -648,6 +636,7 @@ NETMASK="<%= subnet.mask -%>"
 DEVICE="$real"
 HWADDR="<%= @host.mac -%>"
 ONBOOT=yes
+NM_CONTROLLED=no
 EOF
 <% end -%>
 
@@ -683,9 +672,34 @@ VLAN=yes
 <% elsif alias_type -%>
 TYPE=Alias
 <% end -%>
+NM_CONTROLLED=no
 EOF
 
 <% end %>
+
+# get name of provisioning interface
+PROVISION_IFACE=$(ip route  | awk '$1 == "default" {print $5}' | head -1)
+echo "found provisioning interface = $PROVISION_IFACE"
+
+IFACES=$(ls -d /sys/class/net/* | while read iface; do readlink $iface | grep -q virtual || echo ${iface##*/}; done)
+for i in $IFACES; do
+    sed -i 's/ONBOOT.*/ONBOOT=yes/' /etc/sysconfig/network-scripts/ifcfg-$i
+    if [ "$i" != "$PROVISION_IFACE" ]; then
+        echo "setting PEERDNS=no on $i"
+        sed -i '
+            /PEERDNS/ d
+            $ a\PEERDNS=no
+        ' /etc/sysconfig/network-scripts/ifcfg-$i
+
+<% unless @host.hostgroup.to_s.include?("Controller") %>
+      echo "setting DEFROUTE=no on $i"
+      sed -i '
+          /DEFROUTE/ d
+          $ a\DEFROUTE=no
+      ' /etc/sysconfig/network-scripts/ifcfg-$i
+<% end -%>
+    fi
+done
 
 service network restart
 EOS
