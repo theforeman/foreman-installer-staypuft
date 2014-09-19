@@ -15,13 +15,14 @@ class ProvisioningWizard < BaseWizard
         :domain => 'Domain',
         :base_url => 'Foreman URL',
         :ntp_host => 'NTP sync host',
+        :timezone => 'Timezone',
         :configure_networking => 'Configure networking on this machine',
         :configure_firewall => 'Configure firewall on this machine'
     }
   end
 
   def self.order
-    %w(interface ip netmask network own_gateway from to gateway dns domain base_url ntp_host configure_networking configure_firewall)
+    %w(interface ip netmask network own_gateway from to gateway dns domain base_url ntp_host timezone configure_networking configure_firewall)
   end
 
   def self.custom_labels
@@ -51,6 +52,10 @@ class ProvisioningWizard < BaseWizard
 
   def get_configure_firewall
     self.configure_firewall = !configure_firewall
+  end
+
+  def get_timezone
+    @timezone = ask('Enter an IANA timezone identifier (e.g. America/New_York, Pacific/Auckland, UTC)')
   end
 
   def base_url
@@ -88,6 +93,10 @@ class ProvisioningWizard < BaseWizard
 
   def ntp_host
     @ntp_host ||= '1.centos.pool.ntp.org'
+  end
+
+  def timezone
+    @timezone ||= current_system_timezone
   end
 
   def validate_interface
@@ -136,6 +145,10 @@ class ProvisioningWizard < BaseWizard
 
   def validate_ntp_host
     'NTP sync host' if @ntp_host.nil? || @ntp_host.empty?
+  end
+
+  def validate_timezone
+    'Timezone is not a valid IANA timezone identifier' unless valid_timezone?(@timezone)
   end
 
   private
@@ -205,5 +218,34 @@ class ProvisioningWizard < BaseWizard
 
   def valid_ip?(ip)
     !!(ip =~ Resolv::IPv4::Regex)
+  end
+
+  # NOTE(jistr): currently we only have tzinfo for ruby193 scl and
+  # this needs to run on system ruby, so i implemented a custom
+  # timezone validation (not extremely strict - it's not filtering
+  # zoneinfo subdirectories etc., but it should catch typos well,
+  # which is what we care about)
+  def valid_timezone?(timezone)
+    zoneinfo_file_names = %x(/bin/find /usr/share/zoneinfo -type f).lines
+    zones = zoneinfo_file_names.map { |name| name.strip.sub('/usr/share/zoneinfo/', '') }
+    zones.include? timezone
+  end
+
+  def current_system_timezone
+    if File.exists?('/usr/bin/timedatectl')  # systems with systemd
+      # timezone_line will be like 'Timezone: Europe/Prague (CEST, +0200)'
+      timezone_line = %x(/usr/bin/timedatectl status | grep "Timezone: ").strip
+      return timezone_line.match(/Timezone: ([^ ]*) /)[1]
+    else  # systems without systemd
+      # timezone_line will be like 'ZONE="Europe/Prague"'
+      timezone_line = %x(/bin/cat /etc/sysconfig/clock | /bin/grep '^ZONE=').strip
+      # don't rely on single/double quotes being present
+      return timezone_line.gsub('ZONE=', '').gsub('"','').gsub("'",'')
+    end
+  rescue StandardError => e
+    # Don't allow this function to crash the installer.
+    # Worst case we'll just return UTC.
+    @logger.debug("Exception when getting system time zone: #{e.message}")
+    return 'UTC'
   end
 end

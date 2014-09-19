@@ -20,6 +20,7 @@ class ProvisioningSeeder < BaseSeeder
     @default_root_pass = kafo.param('foreman_plugin_staypuft', 'root_password').instance_variable_get('@value')
     @default_ssh_public_key = kafo.param('foreman_plugin_staypuft', 'ssh_public_key').value
     @ntp_host = kafo.param('foreman_plugin_staypuft', 'ntp_host').value
+    @timezone = kafo.param('foreman_plugin_staypuft', 'timezone').value
   end
 
   def seed
@@ -128,6 +129,11 @@ class ProvisioningSeeder < BaseSeeder
                                         {
                                             'name' => 'ntp-server',
                                             'value' => @ntp_host,
+                                        })
+      @foreman.parameter.show_or_ensure({'id' => 'time-zone', 'operatingsystem_id' => os['id']},
+                                        {
+                                            'name' => 'time-zone',
+                                            'value' => @timezone,
                                         })
       @hostgroups.push hostgroup
     end
