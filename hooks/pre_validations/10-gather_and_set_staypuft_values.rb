@@ -57,6 +57,7 @@ if app_value(:provisioning_wizard) != 'none'
   param('foreman_plugin_staypuft', 'domain').value = provisioning_wizard.domain
   param('foreman_plugin_staypuft', 'base_url').value = provisioning_wizard.base_url
   param('foreman_plugin_staypuft', 'ntp_host').value = provisioning_wizard.ntp_host
+  param('foreman_plugin_staypuft', 'timezone').value = provisioning_wizard.timezone
   param('foreman_plugin_staypuft', 'root_password').value = authentication_wizard.root_password
   param('foreman_plugin_staypuft', 'ssh_public_key').value = authentication_wizard.ssh_public_key
 
