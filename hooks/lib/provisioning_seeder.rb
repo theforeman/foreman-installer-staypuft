@@ -680,7 +680,8 @@ EOF
 # get name of provisioning interface
 PROVISION_IFACE=$(ip route  | awk '$1 == "default" {print $5}' | head -1)
 echo "found provisioning interface = $PROVISION_IFACE"
-DEFROUTE_IFACE="<%= @host.network_query.gateway_interface %>"
+DEFROUTE_IFACE=`ip -o link | grep <%= @host.network_query.gateway_interface_mac -%> | awk '{print $2;}' | sed s/:$//`
+echo "found interface with default gateway = $DEFROUTE_IFACE"
 
 IFACES=$(ls -d /sys/class/net/* | while read iface; do readlink $iface | grep -q virtual || echo ${iface##*/}; done)
 for i in $IFACES; do
