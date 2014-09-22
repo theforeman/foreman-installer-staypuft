@@ -212,7 +212,7 @@ class ProvisioningSeeder < BaseSeeder
   end
 
   def setup_puppetrun
-    adjust_setting('puppetrun', true)
+    adjust_setting('puppetrun', @foreman.version.start_with?('1.6') ? true : 'true')
   end
 
   def adjust_setting(id, value)
