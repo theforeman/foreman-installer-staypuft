@@ -195,7 +195,7 @@ class ProvisioningSeeder < BaseSeeder
   end
 
   def setup_idle_timeout
-    adjust_setting('idle_timeout', @foreman.version.start_with?('1.6') ? 180 : '180'})
+    adjust_setting('idle_timeout', @foreman.version.start_with?('1.6') ? 180 : '180')
   end
 
   def setup_ignore_puppet_facts_for_provisioning
