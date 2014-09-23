@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.4.0
+Version:    0.4.1
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -79,6 +79,13 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Tue Sep 23 2014 Marek Hulan <mhulan@redhat.com> 0.4.1-1
+- Fix whitespace in condition (mhulan@redhat.com)
+- BZ#1142182 - provisioned hosts have wrong timezone (jistr@redhat.com)
+- Fix possible renaming issue (mhulan@redhat.com)
+- Refs BZ#1142295 - Configure DEFROUTE according to subnet assignment
+  (mhulan@redhat.com)
+
 * Fri Sep 19 2014 Marek Hulan <mhulan@redhat.com> 0.4.0-1
 - Add firewall as hard dependency (mhulan@redhat.com)
 - Fix BZ#1142211 - NM changed fqdn in %%post (mhulan@redhat.com)
