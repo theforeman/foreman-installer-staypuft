@@ -694,7 +694,7 @@ for i in $IFACES; do
         ' /etc/sysconfig/network-scripts/ifcfg-$i
     fi
 
-    if [ "$i" = "$DEFROUTE_IFACE"]; then
+    if [ "$i" = "$DEFROUTE_IFACE" ]; then
         echo "setting DEFROUTE=yes on $i"
         sed -i '
             /DEFROUTE/ d
