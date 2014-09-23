@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.3.5
+Version:    0.3.6
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -78,6 +78,14 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Tue Sep 23 2014 Marek Hulan <mhulan@redhat.com> 0.3.6-1
+- BZ#1142182 - provisioned hosts have wrong timezone (jistr@redhat.com)
+- Fix whitespace in condition (mhulan@redhat.com)
+- Fix possible renaming issue (mhulan@redhat.com)
+- Refs BZ#1142295 - Configure DEFROUTE according to subnet assignment
+  (mhulan@redhat.com)
+- Fix BZ#1142211 - NM changed fqdn in %%post (mhulan@redhat.com)
+
 * Mon Sep 15 2014 Marek Hulan <mhulan@redhat.com> 0.3.5-1
 - disable biosdevname for discovery image (mburns@redhat.com)
 - rhbz#1140741 sub-man pool is recommended (mburns@redhat.com)
