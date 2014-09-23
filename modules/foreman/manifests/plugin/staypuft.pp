@@ -40,6 +40,8 @@
 #
 # $ntp_host::             NTP sync host
 #
+# $timezone::             Timezone (IANA identifier)
+#
 # $root_password::        Default root password for provisioned machines
 #                         type:password
 #
@@ -60,6 +62,7 @@ class foreman::plugin::staypuft(
     $domain,
     $base_url,
     $ntp_host,
+    $timezone,
     $root_password,
     $ssh_public_key
 ) {
@@ -91,5 +94,39 @@ class foreman::plugin::staypuft(
     name   => 'ntpd',
     ensure => 'running',
     enable => true,
+  }
+
+  if $timezone {
+    case $::osfamily {
+      'RedHat': {
+        if ($::operatingsystem == 'Fedora' or
+           ($::operatingsystem != 'Fedora' and $::operatingsystemmajrelease > 6)) {
+          # EL 7 variants and Fedora
+          exec { 'set timezone':
+            command => "/bin/timedatectl set-timezone $timezone",
+          }
+        } else {
+          # EL 6 variants
+          exec { 'ensure selected timezone exists':
+            command => "/usr/bin/test -e /usr/share/zoneinfo/$timezone",
+          }
+
+          file { '/etc/localtime':
+            ensure  => 'file',
+            source  => "/usr/share/zoneinfo/$timezone",
+            replace => true,
+            require => Exec['ensure selected timezone exists'],
+          }
+
+          exec { 'set timezone in /etc/sysconfig/clock':
+            command => "/bin/sed -ie 's|^ZONE=.*$|ZONE=\"$timezone\"|' /etc/sysconfig/clock",
+            require => Exec['ensure selected timezone exists'],
+          }
+        }
+      }
+      default: {
+        fail("${::hostname}: Setting timezone not supported on osfamily ${::osfamily}")
+      }
+    }
   }
 }
