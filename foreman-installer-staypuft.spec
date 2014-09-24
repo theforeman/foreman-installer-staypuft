@@ -25,7 +25,7 @@ Requires:   rubygem-kafo >= 0.6.4
 Requires:   rubygem-foreman_api >= 0.1.4
 Requires:   git
 
-%if 0%{?fedora} > 18
+%if 0%{?fedora} > 18 || 0%{?rhel} > 6
 Requires:   %{?scl_prefix}ruby(release)
 %else
 Requires:   %{?scl_prefix}ruby(abi)
@@ -40,7 +40,7 @@ Summary:    A staypuft client installer which registers a host in staypuft
 BuildArch:  noarch
 Requires:   foreman-installer >= 1.5.0
 Requires:   rubygem-kafo >= 0.6.0
-%if 0%{?fedora} > 18
+%if 0%{?fedora} > 18 || 0%{?rhel} > 6
 Requires:   %{?scl_prefix}ruby(release)
 %else
 Requires:   %{?scl_prefix}ruby(abi)
