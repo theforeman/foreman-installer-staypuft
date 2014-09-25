@@ -31,6 +31,9 @@ We publish this in official Foreman repositories. Visit [yum.theforeman.org](htt
 We use tito for building the package in our koji instance. Once you tag your changes
 you can trigger the build by running ```tito release koji```.
 
+You can also build the RPM locally by running ```tito build --test
+--rpm```. You'll find the built RPMs in ```/tmp/tito```.
+
 ## What platforms are supported
 
 Currently it's supposed to run only on CentOS and RHEL (using subscription-manager). 
