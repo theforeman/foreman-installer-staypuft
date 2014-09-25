@@ -147,6 +147,11 @@ class ProvisioningSeeder < BaseSeeder
 
       hostgroup = @foreman.hostgroup.show_or_ensure({'id' => group_id}, hostgroup_attrs)
 
+      @foreman.parameter.show_or_ensure({'id' => 'staypuft_ssh_public_key', 'operatingsystem_id' => os['id']},
+                                        {
+                                            'name' => 'staypuft_ssh_public_key',
+                                            'value' => @pub_key,
+                                        })
       if !@default_ssh_public_key.nil? && !@default_ssh_public_key.empty?
         @foreman.parameter.show_or_ensure({'id' => 'ssh_public_key', 'operatingsystem_id' => os['id']},
                                           {
@@ -652,7 +657,7 @@ EOS
     runmode: none
     puppetmaster: <%= @host.puppetmaster %>
   foreman::plugin::staypuft_client:
-    staypuft_ssh_public_key: <%= @host.info['classes'].fetch('foreman::plugin::staypuft_client', {}).fetch('staypuft_ssh_public_key', 'missing') %>
+    staypuft_ssh_public_key: <%= @host.params['staypuft_ssh_public_key'] || 'missing' %>
 EOS
   end
 
