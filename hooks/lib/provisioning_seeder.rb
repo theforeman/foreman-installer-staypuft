@@ -631,6 +631,7 @@ description: this will configure your host networking, it configures your primar
 <% subnet = @host.subnet -%>
 <% dhcp = subnet.dhcp_boot_mode? -%>
 
+# primary interface
 real=`ip -o link | grep <%= @host.mac -%> | awk '{print $2;}' | sed s/://`
 <% if @host.has_primary_interface? %>
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
@@ -642,12 +643,72 @@ NETMASK="<%= subnet.mask -%>"
 DEVICE="$real"
 HWADDR="<%= @host.mac -%>"
 ONBOOT=yes
-NM_CONTROLLED=no
 EOF
 <% end -%>
 
-<% @host.interfaces.each do |interface| %>
+<% bonded_interfaces = [] %>
+<% bonds = @host.bond_interfaces %>
+<% bonds.each do |bond| %>
+# <%= bond.identifier %> interface
+real="<%= bond.identifier -%>"
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
+BOOTPROTO="<%= dhcp ? 'dhcp' : 'none' -%>"
+<% unless dhcp -%>
+IPADDR="<%= bond.ip -%>"
+NETMASK="<%= subnet.mask -%>"
+<% end -%>
+DEVICE="$real"
+ONBOOT=yes
+PEERDNS=no
+PEERROUTES=no
+DEFROUTE=no
+TYPE=Bond
+BONDING_OPTS="<%= bond.bond_options -%> mode=<%= bond.mode -%>"
+BONDING_MASTER=yes
+NM_CONTROLLED=no
+EOF
+
+<% @host.interfaces_with_identifier(bond.attached_devices_identifiers).each do |interface| -%>
+<% next if !interface.managed? -%>
+
+<% subnet = interface.subnet -%>
+<% virtual = interface.virtual? -%>
+<% vlan = virtual && subnet.has_vlanid? -%>
+<% alias_type = virtual && !subnet.nil? && !subnet.has_vlanid? && interface.identifier.include?(':') -%>
+<% dhcp = !subnet.nil? && subnet.dhcp_boot_mode? -%>
+
+# <%= interface.identifier %> interface
+real=`ip -o link | grep <%= interface.mac -%> | awk '{print $2;}' | sed s/:$//`
+<% if virtual -%>
+real=`echo <%= interface.identifier -%> | sed s/<%= interface.attached_to -%>/$real/`
+<% end -%>
+
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
+BOOTPROTO="none"
+DEVICE="$real"
+<% unless virtual -%>
+HWADDR="<%= interface.mac -%>"
+<% end -%>
+ONBOOT=yes
+PEERDNS=no
+PEERROUTES=no
+<% if vlan -%>
+VLAN=yes
+<% elsif alias_type -%>
+TYPE=Alias
+<% end -%>
+NM_CONTROLLED=no
+MASTER=<%= bond.identifier %>
+SLAVE=yes
+EOF
+
+<% bonded_interfaces.push(interface.identifier) -%>
+<% end %>
+<% end %>
+
+<% @host.managed_interfaces.each do |interface| %>
 <% next if !interface.managed? || interface.subnet.nil? -%>
+<% next if bonded_interfaces.include?(interface.identifier) -%>
 
 <% subnet = interface.subnet -%>
 <% virtual = interface.virtual? -%>
@@ -655,9 +716,10 @@ EOF
 <% alias_type = virtual && !subnet.has_vlanid? && interface.identifier.include?(':') -%>
 <% dhcp = subnet.dhcp_boot_mode? -%>
 
+# <%= interface.identifier %> interface
 real=`ip -o link | grep <%= interface.mac -%> | awk '{print $2;}' | sed s/:$//`
 <% if virtual -%>
-real=`echo <%= interface.identifier -%> | sed s/<%= interface.physical_device -%>/$real/`
+real=`echo <%= interface.identifier -%> | sed s/<%= interface.attached_to -%>/$real/`
 <% end -%>
 
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
