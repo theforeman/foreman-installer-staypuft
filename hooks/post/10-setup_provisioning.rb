@@ -48,7 +48,7 @@ if app_value(:provisioning_wizard) != 'none'
             'puppetmaster' => pro_seeder.fqdn,
         },
         'foreman::plugin::staypuft_client' => {
-            'staypuft_public_ssh_key' => pub_key,
+            'staypuft_ssh_public_key' => pub_key,
         }
     }
     File.open(dump_file, 'w') { |file| file.write(YAML.dump(answers)) }

@@ -100,7 +100,7 @@ class ProvisioningSeeder < BaseSeeder
                                                   {'override' => true, 'default_value' => 'none'})
 
     staypuft_client_klass = @foreman.puppetclass.search('name = foreman::plugin::staypuft_client')['foreman'].first
-    smart_parameter = @foreman.smart_class_parameter.first('puppetclass = foreman::plugin::staypuft_client and key = staypuft_public_ssh_key')
+    smart_parameter = @foreman.smart_class_parameter.first('puppetclass = foreman::plugin::staypuft_client and key = staypuft_ssh_public_key')
     @foreman.smart_class_parameter.show_or_ensure({'id' => smart_parameter['id']},
                                                   {'override' => true, 'default_value' => @pub_key})
 
@@ -652,7 +652,7 @@ EOS
     runmode: none
     puppetmaster: <%= @host.puppetmaster %>
   foreman::plugin::staypuft_client:
-    staypuft_public_ssh_key: <%= @host.info['classes'].fetch('foreman::plugin::staypuft_client', {}).fetch('staypuft_public_ssh_key', 'missing') %>
+    staypuft_ssh_public_key: <%= @host.info['classes'].fetch('foreman::plugin::staypuft_client', {}).fetch('staypuft_ssh_public_key', 'missing') %>
 EOS
   end
 
