@@ -639,6 +639,7 @@ BOOTPROTO="<%= dhcp ? 'dhcp' : 'none' -%>"
 <% unless dhcp -%>
 IPADDR="<%= @host.ip -%>"
 NETMASK="<%= subnet.mask -%>"
+GATEWAY="<%= subnet.gateway -%>"
 <% end -%>
 DEVICE="$real"
 HWADDR="<%= @host.mac -%>"
@@ -656,6 +657,7 @@ BOOTPROTO="<%= dhcp ? 'dhcp' : 'none' -%>"
 <% unless dhcp -%>
 IPADDR="<%= bond.ip -%>"
 NETMASK="<%= subnet.mask -%>"
+GATEWAY="<%= subnet.gateway -%>"
 <% end -%>
 DEVICE="$real"
 ONBOOT=yes
@@ -727,6 +729,7 @@ BOOTPROTO="<%= dhcp ? 'dhcp' : 'none' -%>"
 <% unless dhcp -%>
 IPADDR="<%= interface.ip -%>"
 NETMASK="<%= subnet.mask -%>"
+GATEWAY="<%= subnet.gateway -%>"
 <% end -%>
 DEVICE="$real"
 <% unless virtual -%>
