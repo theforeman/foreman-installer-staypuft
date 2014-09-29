@@ -5,15 +5,25 @@ This is a plugin for foreman-installer to help with Staypuft installation.
 
 ## How do I use it?
 
-You just install RPM package named foreman-installer-staypuft and run 
-`staypuft-installer`. It will automatically run the wizard that asks few questions
-specific to your environment. The result is Foreman with provisioning correctly
-configured and Staypuft plugin enabled. Without any further effort you should 
-be able to create your OpenStack deployment.
+First you must install RPM package named foreman-installer-staypuft. It can be
+downloaded from [foreman plugin repositores](http://yum.theforeman.org/plugins/),
+currently only from nightlies. You should add the whole repository because of 
+other dependencies. You easily do this by installing repo rpm by running
+
+```
+yum install http://yum.theforeman.org/releases/latest/el6/x86_64/foreman-release.rpm
+yum install foreman-installer-staypuft
+```
+
+Now you can run `staypuft-installer`. It will automatically run the wizard 
+that asks few questions specific to your environment. The result is Foreman 
+with provisioning correctly configured and Staypuft plugin enabled. 
+Without any further effort you should be able to create your OpenStack 
+deployment.
 
 To provision on baremetals we use [foreman_discovery](https://github.com/theforeman/foreman_discovery) plugin which requires 
-you to download images used to discover all machines. If you want installer to dowload 
-images for you (recommended), you can run it like this
+you to download images used to discover all machines. If you want installer to 
+download images for you (recommended), you can run it like this
 
 ```
 staypuft-installer --foreman-plugin-discovery-install-images=true
@@ -33,6 +43,16 @@ you can trigger the build by running ```tito release koji```.
 
 You can also build the RPM locally by running ```tito build --test
 --rpm```. You'll find the built RPMs in ```/tmp/tito```.
+
+## Contributing
+
+If you found an issue, you can report it in [Bugzilla](https://bugzilla.redhat.com/buglist.cgi?component=rhel-osp-installer&list_id=2872876&product=Red%20Hat%20OpenStack).
+If you want to chat about the issue or staypuft in general, we are on freenode
+irc server on channel #staypuft. We also have mailing list to which you can
+subscribe [here](https://www.redhat.com/mailman/listinfo/rdo-list). For staypuft
+related questions please add [Installer] tag in subject.
+
+If you want to send a patch, fork the projects and send a Pull Request. Thanks!
 
 ## What platforms are supported
 
