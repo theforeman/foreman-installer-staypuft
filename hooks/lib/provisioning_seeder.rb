@@ -715,7 +715,6 @@ for i in $IFACES; do
     fi 
 done
 
-service network restart
 EOS
   end
 
