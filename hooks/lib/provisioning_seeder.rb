@@ -861,7 +861,7 @@ name: redhat_register
       subscription-manager config --server.proxy_user="<%= @host.params['http-proxy-user'] %>"
     <% end %>
     <% if @host.params['http-proxy-password'] %>
-      subscription-manager config --server.proxy_password="<%= @host.params['http-proxy-password'] %>"
+      subscription-manager config --server.proxy_password='<%= @host.params['http-proxy-password'] %>'
     <% end %>
     <% if @host.params['http-proxy-port'] %>
       subscription-manager config --server.proxy_port="<%= @host.params['http-proxy-port'] %>"
@@ -869,7 +869,7 @@ name: redhat_register
   <% end %>
   <% if @host.params['subscription_manager_username'] && @host.params['subscription_manager_password'] %>
     <% if @host.params['subscription_manager_pool'] %>
-      subscription-manager register --username="<%= @host.params['subscription_manager_username'] %>" --password="<%= @host.params['subscription_manager_password'] %>"
+      subscription-manager register --username='<%= @host.params['subscription_manager_username'] %>' --password='<%= @host.params['subscription_manager_password'] %>'
       subscription-manager attach --pool="<%= @host.params['subscription_manager_pool'] %>"
     <% else %>
       subscription-manager register --username="<%= @host.params['subscription_manager_username'] %>" --password="<%= @host.params['subscription_manager_password'] %>" --auto-attach
