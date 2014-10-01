@@ -714,8 +714,6 @@ for i in $IFACES; do
         ' /etc/sysconfig/network-scripts/ifcfg-$i
     fi 
 done
-
-service network restart
 EOS
   end
 
