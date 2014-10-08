@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.4.1
+Version:    0.4.2
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -79,6 +79,17 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-installer
 
 %changelog
+* Wed Oct 08 2014 Brad P. Crochet <brad@redhat.com> 0.4.2-1
+- Merge pull request #95 from ares/bonding (brad@redhat.com)
+- Merge pull request #99 from mburns72h/bz1148435 (ares@igloonet.cz)
+- rhbz#1148435 use single quotes for passwords (mburns@redhat.com)
+- Remove 'service network restart' from network config snippet
+  (brad@redhat.com)
+- Update readme (mhulan@redhat.com)
+- Configure gateway if bootmode is static (mhulan@redhat.com)
+- Install provisioning template that configures bonds (mhulan@redhat.com)
+- Add local RPM building instructions to readme (jistr@redhat.com)
+
 * Tue Sep 23 2014 Marek Hulan <mhulan@redhat.com> 0.4.1-1
 - Fix whitespace in condition (mhulan@redhat.com)
 - BZ#1142182 - provisioned hosts have wrong timezone (jistr@redhat.com)
