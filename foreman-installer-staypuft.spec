@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.4.2
+Version:    0.4.3
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -82,6 +82,11 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_bindir}/staypuft-register-host
 
 %changelog
+* Thu Oct 09 2014 Brad P. Crochet <brad@redhat.com> 0.4.3-1
+- Add staypuft-register-host command (jistr@redhat.com)
+- Add custom repositories snippet (mhulan@redhat.com)
+- BZ#1147577: Add biosboot partition in case GPT disk label (brad@redhat.com)
+
 * Wed Oct 08 2014 Brad P. Crochet <brad@redhat.com> 0.4.2-1
 - Merge pull request #95 from ares/bonding (brad@redhat.com)
 - Merge pull request #99 from mburns72h/bz1148435 (ares@igloonet.cz)
