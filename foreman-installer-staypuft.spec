@@ -49,6 +49,8 @@ install -d -m0755 %{buildroot}%{_datadir}/foreman-installer
 cp -R hooks modules %{buildroot}%{_datadir}/foreman-installer
 install -d -m0755 %{buildroot}%{_sbindir}
 cp bin/staypuft-installer %{buildroot}%{_sbindir}/staypuft-installer
+install -d -m0755 %{buildroot}%{_bindir}
+cp bin/staypuft-register-host %{buildroot}%{_bindir}/staypuft-register-host
 install -d -m0755 %{buildroot}%{_sysconfdir}/foreman/
 cp config/staypuft-installer.yaml %{buildroot}%{_sysconfdir}/foreman/staypuft-installer.yaml
 cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/staypuft-installer.answers.yaml
@@ -77,6 +79,7 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.yaml
 %config(noreplace) %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.answers.yaml
 %{_sbindir}/staypuft-installer
+%{_bindir}/staypuft-register-host
 
 %changelog
 * Wed Oct 08 2014 Brad P. Crochet <brad@redhat.com> 0.4.2-1
