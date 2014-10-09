@@ -788,6 +788,7 @@ EOS
 #Dynamic
 zerombr
 clearpart --all --initlabel
+part biosboot --fstype=biosboot --size=1 --ondisk=sda
 part /boot --fstype ext3 --size=500 --ondisk=sda
 part swap --size=1024 --ondisk=sda
 part pv.01 --size=1024 --grow --maxsize=102400 --ondisk=sda
@@ -803,6 +804,7 @@ EOS
 #Dynamic
 zerombr
 clearpart --all --initlabel
+part biosboot --fstype=biosboot --size=1 --ondisk=sda
 part /boot --fstype ext3 --size=500 --ondisk=sda
 part swap --size=1024 --ondisk=sda
 part pv.01 --size=1024 --grow --ondisk=sda
