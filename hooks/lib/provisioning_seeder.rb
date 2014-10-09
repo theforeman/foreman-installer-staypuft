@@ -53,6 +53,8 @@ class ProvisioningSeeder < BaseSeeder
     pxe_linux = kinds.detect { |k| k['name'] == 'PXELinux' }
     @foreman.config_template.show_or_ensure({'id' => 'redhat_register'},
                                             {'template' => redhat_register_snippet, 'snippet' => '1', 'name' => 'redhat_register'})
+    @foreman.config_template.show_or_ensure({'id' => 'custom_deployment_repositories'},
+                                            {'template' => custom_deployment_repositories_snippet, 'snippet' => '1', 'name' => 'custom_deployment_repositories'})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart RHEL default'},
                                             {'template' => kickstart_rhel_default, 'template_kind_id' => provisioning['id'], 'name' => 'Kickstart RHEL default'})
     @foreman.config_template.show_or_ensure({'id' => 'Kickstart default'},
@@ -378,6 +380,7 @@ chkconfig network on
 <%= snippet 'ssh_public_key' %>
 
 <%= snippet 'redhat_register' %>
+<%= snippet 'custom_deployment_repositories' %>
 
 <% if @host.info["parameters"]["realm"] && @host.otp && @host.realm && @host.realm.realm_type == "Red Hat Directory Server" && os_major <= 6 -%>
 <%= snippet "freeipa_register" %>
@@ -535,6 +538,7 @@ exec < /dev/tty3 > /dev/tty3
 /usr/bin/chvt 3
 (
 <%= snippet 'kickstart_networking_setup' %>
+<%= snippet 'custom_deployment_repositories' %>
 
 # get name of provisioning interface
 PROVISION_IFACE=$(ip route  | awk '$1 == "default" {print $5}' | head -1)
@@ -616,6 +620,27 @@ cat >> /root/.ssh/authorized_keys << PUBLIC_KEY
 <%= @host.params['ssh_public_key'] %>
 PUBLIC_KEY
 chmod 600 /root/.ssh/authorized_keys
+EOS
+  end
+
+  def custom_deployment_repositories_snippet
+    <<'EOS'
+# custom deployment repositories
+<% if @host.deployment.has_custom_repos? -%>
+yum -t -y -e 0 install yum-plugin-priorities
+<% i = 0 -%>
+<% @host.deployment.custom_repos_paths.each do |path| -%>
+<% i +=1 -%>
+cat > /etc/yum.repos.d/staypuft_custom_<%= i -%>.repo << EOF
+[staypuft_custom_<%= i -%>]
+name=Staypuft custom repository <%= i %>
+baseurl=<%= path %>
+gpgcheck=0
+priority=50
+enabled=1
+EOF
+<% end %>
+<% end %>
 EOS
   end
 
