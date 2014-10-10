@@ -3,7 +3,9 @@ if app_value(:staypuft_client_installer)
 
   # --usecacheonfailure because on registration the host will not be
   # able to fetch its yaml (Foreman doesn't know about the host yet).
-  command = 'puppet agent --onetime --no-daemonize -l console --usecacheonfailure --tags no_such_tag 2>&1'
+  command = 'puppet agent --onetime --no-daemonize -l console --usecacheonfailure --waitforcert 15 --tags no_such_tag 2>&1'
+  say "Registering with puppetmaster and waiting for certificate."
+  say "If you didn't enable autosign, please sign the certificate request manually."
   logger.debug "Starting registration process by #{command}"
   logger.debug `#{command}`
   unless [0,2].include? $?
