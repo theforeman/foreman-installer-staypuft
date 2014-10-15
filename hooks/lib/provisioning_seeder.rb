@@ -778,8 +778,21 @@ PROVISION_IFACE=$(ip route  | awk '$1 == "default" {print $5}' | head -1)
 echo "found provisioning interface = $PROVISION_IFACE"
 DEFROUTE_IFACE=`ip -o link | grep <%= @host.network_query.gateway_interface_mac -%> | awk '{print $2;}' | sed s/:$//`
 echo "found interface with default gateway = $DEFROUTE_IFACE"
+<% gateway_interface = @host.network_query.gateway_interface
+   gateway_is_vlan = @host.network_query.gateway_subnet.has_vlanid?
+   bond_gateway_map = @host.bond_interfaces.map { |bond| bond.identifier == gateway_interface }
+   gateway_is_bond = false
+   bond_gateway_map.each do |is_gateway|
+     next if gateway_is_bond
+     gateway_is_bond = is_gateway
+   end -%>
 
 IFACES=$(ls -d /sys/class/net/* | while read iface; do readlink $iface | grep -q virtual || echo ${iface##*/}; done)
+<% if gateway_is_vlan or gateway_is_bond -%>
+IFACES="$IFACES <%= gateway_interface %>"
+DEFROUTE_IFACE="<%= gateway_interface %>"
+echo "gateway interface is a vlan and/or bond = $DEFROUTE_IFACE"
+<% end -%>
 for i in $IFACES; do
     sed -i 's/ONBOOT.*/ONBOOT=yes/' /etc/sysconfig/network-scripts/ifcfg-$i
     if [ "$i" != "$PROVISION_IFACE" ]; then
