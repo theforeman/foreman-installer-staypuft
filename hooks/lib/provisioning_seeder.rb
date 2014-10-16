@@ -42,7 +42,7 @@ class ProvisioningSeeder < BaseSeeder
                                                      'fullname' => 'Default domain used for provisioning',
                                                      'dns_id' => default_proxy['id']})
 
-    default_subnet = @foreman.subnet.show_or_ensure({'id' => 'default'},
+    default_subnet = @foreman.subnet.find_or_ensure('name=default',
                                                     {'name' => 'default',
                                                      'mask' => @netmask,
                                                      'network' => @network,
