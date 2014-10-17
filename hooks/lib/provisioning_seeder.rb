@@ -608,7 +608,7 @@ ONTIMEOUT discovery
 LABEL discovery
 MENU LABEL Foreman Discovery
 KERNEL boot/#{@kernel}
-APPEND rootflags=loop initrd=boot/#{@initrd} root=live:/foreman.iso rootfstype=auto ro rd.live.image rd.live.check rd.lvm=0 rootflags=ro crashkernel=128M elevator=deadline max_loop=256 rd.luks=0 rd.md=0 rd.dm=0 foreman.url=#{@foreman_url} nomodeset selinux=0 stateless biosdevname=0
+APPEND rootflags=loop initrd=boot/#{@initrd} root=live:/foreman.iso rootfstype=auto ro rd.live.image rd.live.check rd.lvm=0 rootflags=ro crashkernel=128M elevator=deadline max_loop=256 rd.luks=0 rd.md=0 rd.dm=0 foreman.url=#{@foreman_url} nomodeset selinux=0 stateless biosdevname=0 rd.bootif=0 rd.neednet=0
 IPAPPEND 2
 EOS
   end
