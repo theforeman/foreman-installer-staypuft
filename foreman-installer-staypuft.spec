@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.4.4
+Version:    0.4.5
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -82,6 +82,9 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_bindir}/staypuft-register-host
 
 %changelog
+* Fri Oct 17 2014 Brad P. Crochet <brad@redhat.com> 0.4.5-1
+- bz#1152516 don't autostart networking in discovery image (mburns@redhat.com)
+
 * Wed Oct 15 2014 Brad P. Crochet <brad@redhat.com> 0.4.4-1
 - BZ #1148746: Assign DEFROUTE to vlan or bond (brad@redhat.com)
 
