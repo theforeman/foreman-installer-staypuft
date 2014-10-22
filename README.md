@@ -35,6 +35,9 @@ from [here](http://downloads.theforeman.org/discovery/), but you have to copy an
 ## Where can I download RPMs?
 
 We publish this in official Foreman repositories. Visit [yum.theforeman.org](http://yum.theforeman.org/) for more details.
+All staypuft packages are in plugin repo. For installing client you need
+foreman-installer-staypuft for client (optional, only if you can't use provisioning)
+you want foreman-installer-staypuft-client.
 
 ## How do I build RPM myself?
 
