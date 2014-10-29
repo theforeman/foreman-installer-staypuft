@@ -669,6 +669,7 @@ GATEWAY="<%= subnet.gateway -%>"
 DEVICE="$real"
 HWADDR="<%= @host.mac -%>"
 ONBOOT=yes
+DEFROUTE=no
 EOF
 <% end -%>
 
@@ -727,6 +728,7 @@ TYPE=Alias
 NM_CONTROLLED=no
 MASTER=<%= bond.identifier %>
 SLAVE=yes
+DEFROUTE=no
 EOF
 
 <% bonded_interfaces.push(interface.identifier) -%>
@@ -769,6 +771,7 @@ VLAN=yes
 TYPE=Alias
 <% end -%>
 NM_CONTROLLED=no
+DEFROUTE=no
 EOF
 
 <% end %>
@@ -809,13 +812,7 @@ for i in $IFACES; do
             /DEFROUTE/ d
             $ a\DEFROUTE=yes
         ' /etc/sysconfig/network-scripts/ifcfg-$i
-    else
-        echo "setting DEFROUTE=no on $i"
-        sed -i '
-            /DEFROUTE/ d
-            $ a\DEFROUTE=no
-        ' /etc/sysconfig/network-scripts/ifcfg-$i
-    fi 
+    fi
 done
 
 EOS
