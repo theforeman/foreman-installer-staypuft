@@ -676,11 +676,13 @@ EOF
 <% bonded_interfaces = [] %>
 <% bonds = @host.bond_interfaces %>
 <% bonds.each do |bond| %>
+<% subnet = bond.subnet -%>
+<% dhcp = subnet.nil? ? false : subnet.dhcp_boot_mode? -%>
 # <%= bond.identifier %> interface
 real="<%= bond.identifier -%>"
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
 BOOTPROTO="<%= dhcp ? 'dhcp' : 'none' -%>"
-<% unless dhcp -%>
+<% unless dhcp || subnet.nil? -%>
 IPADDR="<%= bond.ip -%>"
 NETMASK="<%= subnet.mask -%>"
 GATEWAY="<%= subnet.gateway -%>"
