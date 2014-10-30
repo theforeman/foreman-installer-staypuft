@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.4.6
+Version:    0.4.7
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -82,6 +82,9 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_bindir}/staypuft-register-host
 
 %changelog
+* Thu Oct 30 2014 Brad P. Crochet <brad@redhat.com> 0.4.7-1
+- BZ #1129521: Unconfigured interfaces should be ONBOOT=no (brad@redhat.com)
+
 * Wed Oct 29 2014 Brad P. Crochet <brad@redhat.com> 0.4.6-1
 - Correct the config when a bond and vlan are used together (brad@redhat.com)
 - BZ #1157819: Set DEFROUTE=no on all interfaces by default (brad@redhat.com)
