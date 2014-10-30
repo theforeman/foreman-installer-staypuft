@@ -738,14 +738,14 @@ EOF
 <% end %>
 
 <% @host.managed_interfaces.each do |interface| %>
-<% next if !interface.managed? || interface.subnet.nil? -%>
+<% next if !interface.managed? -%>
 <% next if bonded_interfaces.include?(interface.identifier) -%>
 
 <% subnet = interface.subnet -%>
 <% virtual = interface.virtual? -%>
-<% vlan = virtual && subnet.has_vlanid? -%>
-<% alias_type = virtual && !subnet.has_vlanid? && interface.identifier.include?(':') -%>
-<% dhcp = subnet.dhcp_boot_mode? -%>
+<% vlan = subnet.nil? ? false : virtual && subnet.has_vlanid? -%>
+<% alias_type = subnet.nil? ? false : virtual && !subnet.has_vlanid? && interface.identifier.include?(':') -%>
+<% dhcp = subnet.nil? ? false : subnet.dhcp_boot_mode? -%>
 
 # <%= interface.identifier %> interface
 real=`ip -o link | grep <%= interface.mac -%> | awk '{print $2;}' | sed s/:$//`
@@ -755,7 +755,7 @@ real=`echo <%= interface.identifier -%> | sed s/<%= interface.attached_to -%>/$r
 
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
 BOOTPROTO="<%= dhcp ? 'dhcp' : 'none' -%>"
-<% unless dhcp -%>
+<% unless dhcp || subnet.nil? -%>
 IPADDR="<%= interface.ip -%>"
 NETMASK="<%= subnet.mask -%>"
 GATEWAY="<%= subnet.gateway -%>"
@@ -764,7 +764,7 @@ DEVICE="$real"
 <% unless virtual -%>
 HWADDR="<%= interface.mac -%>"
 <% end -%>
-ONBOOT=yes
+ONBOOT=<%= subnet.nil? ? "no" : "yes" %>
 PEERDNS=no
 PEERROUTES=no
 <% if vlan -%>
@@ -799,7 +799,6 @@ DEFROUTE_IFACE="<%= gateway_interface %>"
 echo "gateway interface is a vlan and/or bond = $DEFROUTE_IFACE"
 <% end -%>
 for i in $IFACES; do
-    sed -i 's/ONBOOT.*/ONBOOT=yes/' /etc/sysconfig/network-scripts/ifcfg-$i
     if [ "$i" != "$PROVISION_IFACE" ]; then
         echo "setting PEERDNS=no on $i"
         sed -i '
