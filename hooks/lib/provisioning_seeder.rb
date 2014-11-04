@@ -655,26 +655,34 @@ description: this will configure your host networking, it configures your primar
 %>
 <% subnet = @host.subnet -%>
 <% dhcp = subnet.dhcp_boot_mode? -%>
+<% bonds = @host.bond_interfaces -%>
 
 # primary interface
 real=`ip -o link | grep <%= @host.mac -%> | awk '{print $2;}' | sed s/://`
 <% if @host.has_primary_interface? %>
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
-BOOTPROTO="<%= dhcp ? 'dhcp' : 'none' -%>"
-<% unless dhcp -%>
+<% unless dhcp || @host.primary_interface_is_bonded? -%>
 IPADDR="<%= @host.ip -%>"
 NETMASK="<%= subnet.mask -%>"
 GATEWAY="<%= subnet.gateway -%>"
 <% end -%>
 DEVICE="$real"
 HWADDR="<%= @host.mac -%>"
+BOOTPROTO="<%= (dhcp && !@host.primary_interface_is_bonded?) ? 'dhcp' : 'none' -%>"
 ONBOOT=yes
 DEFROUTE=no
+<% bonds.each do |bond| -%>
+<% next if !bond.attached_devices_identifiers.include? @host.primary_interface -%>
+MASTER=<%= bond.identifier %>
+SLAVE=yes
+NM_CONTROLLED=no
+PEERDNS=no
+PEERROUTES=no
+<% end -%>
 EOF
 <% end -%>
 
-<% bonded_interfaces = [] %>
-<% bonds = @host.bond_interfaces %>
+<% bonded_interfaces = [] -%>
 <% bonds.each do |bond| %>
 <% subnet = bond.subnet -%>
 <% dhcp = subnet.nil? ? false : subnet.dhcp_boot_mode? -%>
