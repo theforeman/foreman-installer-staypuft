@@ -748,9 +748,10 @@ EOF
 <% dhcp = subnet.nil? ? false : subnet.dhcp_boot_mode? -%>
 
 # <%= interface.identifier %> interface
+<% unless virtual -%>
 real=`ip -o link | grep <%= interface.mac -%> | awk '{print $2;}' | sed s/:$//`
-<% if virtual -%>
-real=`echo <%= interface.identifier -%> | sed s/<%= interface.attached_to -%>/$real/`
+<% else -%>
+real="<%= interface.identifier -%>"
 <% end -%>
 
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
