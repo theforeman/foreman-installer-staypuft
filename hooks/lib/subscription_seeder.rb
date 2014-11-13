@@ -19,7 +19,7 @@ class SubscriptionSeeder < BaseSeeder
 
     @sm_username = @config.get_custom(:sm_username) || ''
     @sm_password = @config.get_custom(:sm_password) || ''
-    @repositories = @config.get_custom(:repositories) || 'rhel-7-server-openstack-5.0-rpms'
+    @repositories = @config.get_custom(:repositories) || 'rhel-7-server-openstack-6.0-rpms'
     @sm_proxy_user = @config.get_custom(:sm_proxy_user) || ''
     @sm_proxy_password = @config.get_custom(:sm_proxy_password) || ''
     @sm_proxy_host = @config.get_custom(:sm_proxy_host) || ''
