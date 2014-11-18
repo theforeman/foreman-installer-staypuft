@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.4.4
+Version:    0.5.0
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -111,6 +111,31 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-client-installer
 
 %changelog
+* Tue Nov 18 2014 Brad P. Crochet <brad@redhat.com> 0.5.0-1
+- move to OSP 6 (mburns@redhat.com)
+- BZ #1162794: Properly configure bond interfaces with vlans (brad@redhat.com)
+- Remove EPEL repo from RHEL (jistr@redhat.com)
+- BZ #1158680: Let primary interface participate in bonds (brad@redhat.com)
+- BZ #1129521: Unconfigured interfaces should be ONBOOT=no (brad@redhat.com)
+- Correct the config when a bond and vlan are used together (brad@redhat.com)
+- BZ #1157819: Set DEFROUTE=no on all interfaces by default (brad@redhat.com)
+- Revert "bz#1152516 don't autostart networking in discovery image"
+  (mburns@redhat.com)
+- Workaround for http://projects.theforeman.org/issues/7975 (jistr@redhat.com)
+- Wait for certificate to allow manual signing (jistr@redhat.com)
+- Fail the installer if the registration puppet run fails (jistr@redhat.com)
+- Wait for client registration to finish (jistr@redhat.com)
+- Remove puppetmaster param from staypuft_client.pp (jistr@redhat.com)
+- Set staypuft_ssh_public_key as a host parameter (jistr@redhat.com)
+- Rename param to staypuft_ssh_public_key for consistency (jistr@redhat.com)
+- Make the RPM installable on RHEL 7 (jistr@redhat.com)
+- Pass settings as string when using Foreman > 1.6 (jistr@redhat.com)
+- Fix a syntax error (jistr@redhat.com)
+- Remove get_ready implementation from ProvisioningWizard (brad@redhat.com)
+- no-daemonize puppetssh commmand (mtaylor@redhat.com)
+- Add staypuft-client-installer (mhulan@redhat.com)
+- bz#1152516 don't autostart networking in discovery image (mburns@redhat.com)
+
 * Wed Oct 15 2014 Brad P. Crochet <brad@redhat.com> 0.4.4-1
 - BZ #1148746: Assign DEFROUTE to vlan or bond (brad@redhat.com)
 
