@@ -103,6 +103,19 @@ class ProvisioningWizard < BaseWizard
     'Interface must be present' if @interface.nil? || @interface.empty?
   end
 
+  def print_pair(name, value)
+    value = case
+              when value.is_a?(TrueClass)
+                HighLine.color(Kafo::Wizard::OK, :run)
+              when value.is_a?(FalseClass)
+                HighLine.color(Kafo::Wizard::NO, :cancel)
+              else
+                "'#{HighLine.color(value.to_s, :info)}'"
+            end
+
+    say "#{name}:".rjust(25) + " #{value}"
+  end
+
   def validate_ip
     'IP address is invalid' unless valid_ip?(@ip)
   end
