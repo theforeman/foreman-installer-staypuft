@@ -10,7 +10,7 @@
 Name:       foreman-installer-staypuft
 Epoch:      1
 Version:    0.5.0
-Release:    1%{?dotalphatag}%{?dist}
+Release:    2%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
 License:    GPLv3+ and ASL 2.0
@@ -112,6 +112,10 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-client-installer
 
 %changelog
+* Wed Nov 19 2014 Brad P. Crochet <brad@redhat.com> 0.5.0-2
+- Add epoch to client requires line (brad@redhat.com)
+- Update spec to have main package depend on client package (brad@redhat.com)
+
 * Tue Nov 18 2014 Brad P. Crochet <brad@redhat.com> 0.5.0-1
 - move to OSP 6 (mburns@redhat.com)
 - BZ #1162794: Properly configure bond interfaces with vlans (brad@redhat.com)
