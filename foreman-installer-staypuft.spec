@@ -24,6 +24,7 @@ Requires:   ntp
 Requires:   rubygem-kafo >= 0.6.4
 Requires:   rubygem-foreman_api >= 0.1.4
 Requires:   git
+Requires:   %{name}-client = %{version}-%{release}
 
 %if 0%{?fedora} > 18 || 0%{?rhel} > 6
 Requires:   %{?scl_prefix}ruby(release)
