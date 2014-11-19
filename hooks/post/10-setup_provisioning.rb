@@ -55,7 +55,7 @@ if app_value(:provisioning_wizard) != 'none'
 
 
     say "  To register existing machine to staypuft, perform following actions on that host"
-    say "    1. Install foreman-installer-staypuft"
+    say "    1. Install foreman-installer-staypuft-client"
     say "    2. Copy local <%= color('#{dump_file}', :info) %> file to /etc/foreman/staypuft-client-installer.answers.yaml on target host"
     say "    3. Run staypuft-client-installer"
   else
