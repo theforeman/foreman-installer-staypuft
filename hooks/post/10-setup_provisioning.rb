@@ -30,34 +30,6 @@ if app_value(:provisioning_wizard) != 'none'
     pro_seeder.seed
     `foreman-rake db:migrate`
     `foreman-rake db:seed`
-
-    say "Generating answer file for client installers..."
-    dump_file = Dir.tmpdir + '/staypuft-client-installer.answers.yaml'
-    begin
-      pub_key_path = param('sshkeypair', 'foreman_proxy_home').value + '/.ssh/id_rsa.pub'
-      pub_key = File.read(pub_key_path).split(' ')[1]
-    rescue => e
-      say "Could not read SSH public key from #{pub_key_path} - #{e.message}, answer file will be <%= color('broken', :bad) %>"
-      pub_key = 'broken'
-    end
-
-    answers = {
-        'puppet' => {
-            'server' => false,
-            'runmode' => 'none',
-            'puppetmaster' => pro_seeder.fqdn,
-        },
-        'foreman::plugin::staypuft_client' => {
-            'staypuft_ssh_public_key' => pub_key,
-        }
-    }
-    File.open(dump_file, 'w') { |file| file.write(YAML.dump(answers)) }
-
-
-    say "  To register existing machine to staypuft, perform following actions on that host"
-    say "    1. Install foreman-installer-staypuft-client"
-    say "    2. Copy local <%= color('#{dump_file}', :info) %> file to /etc/foreman/staypuft-client-installer.answers.yaml on target host"
-    say "    3. Run staypuft-client-installer"
   else
     say "Not running provisioning configuration since installation encountered errors, exit code was <%= color('#{kafo.exit_code}', :bad) %>"
     false
