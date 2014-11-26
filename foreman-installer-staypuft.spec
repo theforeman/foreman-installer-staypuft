@@ -9,8 +9,8 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.5.0
-Release:    2%{?dotalphatag}%{?dist}
+Version:    0.5.1
+Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
 License:    GPLv3+ and ASL 2.0
@@ -67,7 +67,6 @@ install -d -m0755 %{buildroot}%{_sbindir}
 cp bin/staypuft-installer %{buildroot}%{_sbindir}/staypuft-installer
 cp bin/staypuft-client-installer %{buildroot}%{_sbindir}/staypuft-client-installer
 install -d -m0755 %{buildroot}%{_bindir}
-cp bin/staypuft-register-host %{buildroot}%{_bindir}/staypuft-register-host
 install -d -m0755 %{buildroot}%{_sysconfdir}/foreman/
 cp config/staypuft-client-installer.yaml %{buildroot}%{_sysconfdir}/foreman/staypuft-client-installer.yaml
 cp config/staypuft-installer.yaml %{buildroot}%{_sysconfdir}/foreman/staypuft-installer.yaml
@@ -101,7 +100,6 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %config %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.yaml
 %config(noreplace) %attr(600, root, root) %{_sysconfdir}/foreman/staypuft-installer.answers.yaml
 %{_sbindir}/staypuft-installer
-%{_bindir}/staypuft-register-host
 
 %files client
 %doc LICENSE
@@ -112,6 +110,13 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-client-installer
 
 %changelog
+* Wed Nov 26 2014 Brad P. Crochet <brad@redhat.com> 0.5.1-1
+- BZ #1151274: Add support for setting MTU on tenant network (brad@redhat.com)
+- BZ#1167880 puppet error "Could not find class quickstack::openstack_common"
+  (jistr@redhat.com)
+- Remove manual host registration (jistr@redhat.com)
+- should say to install client on the remote host (mburns@redhat.com)
+
 * Wed Nov 19 2014 Brad P. Crochet <brad@redhat.com> 0.5.0-2
 - Add epoch to client requires line (brad@redhat.com)
 - Update spec to have main package depend on client package (brad@redhat.com)
