@@ -750,6 +750,8 @@ EOF
 <% bonds.each do |bond| %>
 <% subnet = bond.subnet -%>
 <% dhcp = subnet.nil? ? false : subnet.dhcp_boot_mode? -%>
+<% tenant_subnet = @host.deployment.network_query.tenant_subnet?(tenant, @host) -%>
+<% mtu = @host.deployment.network_query.mtu_for_tenant_subnet -%>
 # <%= bond.identifier %> interface
 real="<%= bond.identifier -%>"
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
@@ -768,6 +770,9 @@ TYPE=Bond
 BONDING_OPTS="<%= bond.bond_options -%> mode=<%= bond.mode -%>"
 BONDING_MASTER=yes
 NM_CONTROLLED=no
+<% if tenant_subnet && mtu -%>
+MTU=<%= mtu %>
+<% end -%>
 EOF
 
 <% @host.interfaces_with_identifier(bond.attached_devices_identifiers).each do |interface| -%>
@@ -818,6 +823,8 @@ EOF
 <% vlan = subnet.nil? ? false : virtual && subnet.has_vlanid? -%>
 <% alias_type = subnet.nil? ? false : virtual && !subnet.has_vlanid? && interface.identifier.include?(':') -%>
 <% dhcp = subnet.nil? ? false : subnet.dhcp_boot_mode? -%>
+<% tenant_subnet = @host.deployment.network_query.tenant_subnet?(subnet, @host) -%>
+<% mtu = @host.deployment.network_query.mtu_for_tenant_subnet -%>
 
 # <%= interface.identifier %> interface
 <% unless virtual -%>
@@ -847,6 +854,9 @@ TYPE=Alias
 <% end -%>
 NM_CONTROLLED=no
 DEFROUTE=no
+<% if tenant_subnet && mtu -%>
+MTU=<%= mtu %>
+<% end -%>
 EOF
 
 <% end %>
