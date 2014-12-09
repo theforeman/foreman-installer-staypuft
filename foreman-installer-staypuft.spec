@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.5.1
+Version:    0.5.2
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -110,6 +110,11 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-client-installer
 
 %changelog
+* Tue Dec 09 2014 Brad P. Crochet <brad@redhat.com> 0.5.2-1
+- Add rhel 7 and fix section label (brad@redhat.com)
+- the installer repo is required for client installation (mburns@redhat.com)
+- BZ #1169980: Disable firewalld before setting up iptables (brad@redhat.com)
+
 * Wed Nov 26 2014 Brad P. Crochet <brad@redhat.com> 0.5.1-1
 - BZ #1151274: Add support for setting MTU on tenant network (brad@redhat.com)
 - BZ#1167880 puppet error "Could not find class quickstack::openstack_common"
