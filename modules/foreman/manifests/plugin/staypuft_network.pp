@@ -56,6 +56,19 @@ class foreman::plugin::staypuft_network(
   }
 
   if ($configure_firewall) {
+    class { 'firewall': }
+
+    # RHEL 7 and later and Fedora 15 and later require the iptables-services
+    # package, which provides the /usr/libexec/iptables/iptables.init used by
+    # lib/puppet/util/firewall.rb.
+    if   ($::operatingsystem != 'Fedora' and versioncmp($::operatingsystemrelease, '7.0') >= 0)
+      or ($::operatingsystem == 'Fedora' and versioncmp($::operatingsystemrelease, '15') >= 0) {
+      package { 'firewalld':
+        ensure  => absent,
+        before  => Package['iptables-services'],
+      }
+    }
+
     # We don't want to purge rules other than we specify below (could disable ssh etc)
     resources { "firewall":
       purge => false
@@ -112,5 +125,7 @@ class foreman::plugin::staypuft_network(
       proto  => 'tcp',
       action => 'accept',
     }
+
+    Service['iptables'] -> Firewall<||>
   }
 }
