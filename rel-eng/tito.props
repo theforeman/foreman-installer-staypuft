@@ -1,4 +1,4 @@
-[globalconfig]
+[buildconfig]
 builder = tito.builder.Builder
 tagger = tito.tagger.VersionTagger
 changelog_do_not_remove_cherrypick = 0
@@ -11,3 +11,8 @@ blacklist =
 [foreman-plugins-nightly-fedora19]
 disttag = .fc19
 blacklist =
+
+[foreman-plugins-nightly-rhel7]
+disttag = .el7
+blacklist =
+
