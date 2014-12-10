@@ -1,3 +1,4 @@
+require 'facter'
 require 'foreman_api'
 require 'uri'
 
@@ -12,7 +13,7 @@ class BaseSeeder
 
     @logger = kafo.logger
 
-    @fqdn = URI.parse(@foreman_url).host # TODO rescue error
+    @fqdn = Facter.value(:fqdn)
   end
 
   def foreman

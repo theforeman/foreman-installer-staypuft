@@ -41,7 +41,6 @@ if app_value(:provisioning_wizard) != 'none'
   param('foreman_proxy', 'dns_zone').value = provisioning_wizard.domain
   param('foreman_proxy', 'dns_reverse').value = provisioning_wizard.ip.split('.')[0..2].reverse.join('.') + '.in-addr.arpa'
   param('foreman_proxy', 'dns_forwarders').value = provisioning_wizard.dns
-  param('foreman_proxy', 'foreman_base_url').value = provisioning_wizard.base_url
 
   param('foreman_plugin_staypuft', 'configure_networking').value = provisioning_wizard.configure_networking
   param('foreman_plugin_staypuft', 'configure_firewall').value = provisioning_wizard.configure_firewall
@@ -55,7 +54,6 @@ if app_value(:provisioning_wizard) != 'none'
   param('foreman_plugin_staypuft', 'from').value = provisioning_wizard.from
   param('foreman_plugin_staypuft', 'to').value = provisioning_wizard.to
   param('foreman_plugin_staypuft', 'domain').value = provisioning_wizard.domain
-  param('foreman_plugin_staypuft', 'base_url').value = provisioning_wizard.base_url
   param('foreman_plugin_staypuft', 'ntp_host').value = provisioning_wizard.ntp_host
   param('foreman_plugin_staypuft', 'timezone').value = provisioning_wizard.timezone
   param('foreman_plugin_staypuft', 'root_password').value = authentication_wizard.root_password

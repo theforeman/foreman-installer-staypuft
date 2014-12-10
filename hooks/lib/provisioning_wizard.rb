@@ -13,7 +13,6 @@ class ProvisioningWizard < BaseWizard
         :gateway => 'DHCP Gateway',
         :dns => 'DNS forwarder',
         :domain => 'Domain',
-        :base_url => 'Foreman URL',
         :ntp_host => 'NTP sync host',
         :timezone => 'Timezone',
         :configure_networking => 'Configure networking on this machine',
@@ -22,7 +21,7 @@ class ProvisioningWizard < BaseWizard
   end
 
   def self.order
-    %w(interface ip netmask network own_gateway from to gateway dns domain base_url ntp_host timezone configure_networking configure_firewall)
+    %w(interface ip netmask network own_gateway from to gateway dns domain ntp_host timezone configure_networking configure_firewall)
   end
 
   def self.custom_labels
@@ -56,10 +55,6 @@ class ProvisioningWizard < BaseWizard
 
   def get_timezone
     @timezone = ask('Enter an IANA timezone identifier (e.g. America/New_York, Pacific/Auckland, UTC)')
-  end
-
-  def base_url
-    @base_url ||= "https://#{Facter.value :fqdn}"
   end
 
   def domain
@@ -150,10 +145,6 @@ class ProvisioningWizard < BaseWizard
 
   def validate_domain
     'Domain must be present' if @domain.nil? || @domain.empty?
-  end
-
-  def validate_base_url
-    'Foreman URL must be present' if @base_url.nil? || @base_url.empty?
   end
 
   def validate_ntp_host

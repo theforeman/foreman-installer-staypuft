@@ -34,8 +34,6 @@
 # $domain::               DNZ zone, used for DNS server configuration and during Foreman
 #                         Domain seeding
 #
-# $base_url::             URL of Foreman instance used for smart proxy configuration
-#
 # $gateway::              What is the gateway for machines using managed DHCP
 #
 # $ntp_host::             NTP sync host
@@ -60,7 +58,6 @@ class foreman::plugin::staypuft(
     $from,
     $to,
     $domain,
-    $base_url,
     $ntp_host,
     $timezone,
     $root_password,
