@@ -28,6 +28,7 @@ Requires:   %{name}-client = %{epoch}:%{version}-%{release}
 
 %if 0%{?fedora} > 18 || 0%{?rhel} > 6
 Requires:   %{?scl_prefix}ruby(release)
+Requires:   iptables-services
 %else
 Requires:   %{?scl_prefix}ruby(abi)
 %endif
