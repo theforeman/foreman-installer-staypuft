@@ -17,7 +17,7 @@ foreman_proxy:
   custom_repo: true
   puppetrun_provider: 'puppetssh'
   puppetssh_keyfile: "/usr/share/foreman-proxy/.ssh/id_rsa"
-  puppetssh_command: "/usr/bin/puppet agent --onetime --no-usecacheonfailure --no-daemonize"
+  puppetssh_command: "/usr/bin/sleep 30; /usr/bin/pkill puppet; /usr/bin/sleep 5; /usr/bin/puppet agent --onetime --no-usecacheonfailure --no-daemonize"
 sshkeypair:
   home: '/etc/foreman-proxy/'
   user: 'foreman-proxy'
