@@ -11,7 +11,11 @@ class SubscriptionSeeder < BaseSeeder
     rescue => e
       @logger.debug "Host was not found, retrying in 5 seconds (#{current}/#{max_tries})"
       sleep 5
-      retry if current < max_tries
+      if current < max_tries
+        retry
+      else
+        raise
+      end
     end
 
     @os = find_default_os(foreman_host)

@@ -88,10 +88,10 @@ class Foreman
       object
     end
 
-    def show!(*args)
-      error_message = args.delete(:error_message) || 'unknown error'
+    def show!(options={})
+      error_message = options.delete(:error_message) || 'unknown error'
       begin
-        object, _ = @api_resource.show(*args)
+        object, _ = @api_resource.show(options)
       rescue RestClient::ResourceNotFound
         raise StandardError, error_message
       end
