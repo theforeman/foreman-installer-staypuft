@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.5.2
+Version:    0.5.3
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -111,6 +111,16 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-client-installer
 
 %changelog
+* Fri Dec 12 2014 Brad P. Crochet <brad@redhat.com> 0.5.3-1
+- require iptables-services on EL7 (mburns@redhat.com)
+- BZ #1173634: deployment runs without completing/failing (jistr@redhat.com)
+- BZ #1148947: Make kickstart template consistent with disk layout
+  (brad@redhat.com)
+- BZ #1152543: 2 of 2 - use only autodetection for 'Foreman URL'
+  (jistr@redhat.com)
+- BZ #1152543: 1 of 2 - fix error message printing (jistr@redhat.com)
+- BZ #1172851: include rh common channel by default (mburns@redhat.com)
+
 * Tue Dec 09 2014 Brad P. Crochet <brad@redhat.com> 0.5.2-1
 - Add rhel 7 and fix section label (brad@redhat.com)
 - the installer repo is required for client installation (mburns@redhat.com)
