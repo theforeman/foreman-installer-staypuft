@@ -365,7 +365,6 @@ dhclient
 ntp
 wget
 @Core
-epel-release
 <% if puppet_enabled %>
 puppet
 <% if @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
