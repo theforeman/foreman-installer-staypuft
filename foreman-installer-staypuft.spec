@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.5.3
+Version:    0.5.4
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -111,6 +111,9 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-client-installer
 
 %changelog
+* Tue Dec 16 2014 Brad P. Crochet <brad@redhat.com> 0.5.4-1
+- BZ #1174837: Fix tenant subnet check (brad@redhat.com)
+
 * Fri Dec 12 2014 Brad P. Crochet <brad@redhat.com> 0.5.3-1
 - require iptables-services on EL7 (mburns@redhat.com)
 - BZ #1173634: deployment runs without completing/failing (jistr@redhat.com)
