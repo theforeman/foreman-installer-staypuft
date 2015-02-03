@@ -436,16 +436,6 @@ yum -t -y -e 0 install mariadb
 # and add the puppet package
 yum -t -y -e 0 install puppet
 
-echo "Configuring puppet"
-#cat > /etc/puppet/puppet.conf << EOF
-#<%= snippet 'puppet.conf' %>
-#EOF
-
-# Setup puppet to run on system reboot
-#/sbin/chkconfig --level 345 puppet on#
-#
-#/usr/bin/puppet agent --config /etc/puppet/puppet.conf -o --tags no_such_tag <%= @host.puppetmaster.blank? ? '' : "--server #{@host.puppetmaster}" %> --no-daemonize
-
 # we reuse our machine registerer instead
 <%= snippet 'staypuft_client_bootstrap' %>
 
