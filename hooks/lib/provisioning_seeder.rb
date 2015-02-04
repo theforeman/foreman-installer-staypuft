@@ -654,6 +654,9 @@ yum install -t -e 0 -y foreman-installer-staypuft-client
 cat > /etc/foreman/staypuft-client-installer.answers.yaml << EOF
 <%= snippet 'staypuft-client-installer-answers-yaml' %>
 EOF
+# Run the installer twice to mitigate potential pluginsync timeouts
+# https://github.com/theforeman/staypuft/pull/414#issuecomment-71828263
+staypuft-client-installer
 staypuft-client-installer
 EOS
   end
