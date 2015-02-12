@@ -79,8 +79,9 @@ class foreman::plugin::staypuft(
     require => Exec['NTP sync'],
   }
 
+  $ntpdate_host = split($ntp_host, ',')
   exec { 'NTP sync':
-    command => "/sbin/service ntpd stop; /usr/sbin/ntpdate $ntp_host",
+    command => "/sbin/service ntpd stop; /usr/sbin/ntpdate ${ntpdate_host[0]}",
     notify  => Service['ntpd'],
     require => [Package['ntp'], Package['ntpdate']],
   }

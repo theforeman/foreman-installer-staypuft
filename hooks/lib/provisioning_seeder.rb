@@ -162,6 +162,11 @@ class ProvisioningSeeder < BaseSeeder
       @foreman.parameter.show_or_ensure({'id' => 'ntp-server', 'operatingsystem_id' => os['id']},
                                         {
                                             'name' => 'ntp-server',
+                                            'value' => @ntp_host.split(',').first,
+                                        })
+      @foreman.parameter.show_or_ensure({'id' => 'ntp-servers', 'operatingsystem_id' => os['id']},
+                                        {
+                                            'name' => 'ntp-servers',
                                             'value' => @ntp_host,
                                         })
       @foreman.parameter.show_or_ensure({'id' => 'time-zone', 'operatingsystem_id' => os['id']},

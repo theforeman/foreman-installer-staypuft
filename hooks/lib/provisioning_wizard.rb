@@ -57,6 +57,10 @@ class ProvisioningWizard < BaseWizard
     @timezone = ask('Enter an IANA timezone identifier (e.g. America/New_York, Pacific/Auckland, UTC)')
   end
 
+  def get_ntp_host
+    @ntp_host = ask('Enter a list of NTP hosts, separated by commas. First in the list will be the default.')
+  end
+
   def domain
     @domain ||= Facter.value :domain
   end
