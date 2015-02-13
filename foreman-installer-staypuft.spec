@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.5.5
+Version:    0.5.6
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -111,6 +111,12 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-client-installer
 
 %changelog
+* Thu Feb 12 2015 Brad P. Crochet <brad@redhat.com> 0.5.6-1
+- BZ #1191732: Add ntp-servers to OS parameters (brad@redhat.com)
+- BZ#1180322 - errors on registration puppet run (jistr@redhat.com)
+- BZ #1180322: Install mariadb on controllers before puppet (brad@redhat.com)
+- rhbz#1182881 allow spaces in sub-man repos (mburns@redhat.com)
+
 * Thu Jan 08 2015 Brad P. Crochet <brad@redhat.com> 0.5.5-1
 - BZ #1173634 - deployment runs without completing/failing (jistr@redhat.com)
 
