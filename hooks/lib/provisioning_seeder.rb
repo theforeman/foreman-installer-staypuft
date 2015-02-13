@@ -432,11 +432,6 @@ yum -t -y -e 0 update
 # ensure firewalld is absent (BZ#1125075)
 yum -t -y -e 0 remove firewalld
 
-# Ensure mariadb is installed on controllers before puppet run
-<% if @host.hostgroup.to_s.include?("Controller") -%>
-yum -t -y -e 0 install mariadb
-<% end -%>
-
 <% if puppet_enabled %>
 # and add the puppet package
 yum -t -y -e 0 install puppet
@@ -609,11 +604,6 @@ yum -t -y -e 0 update
 
 # ensure firewalld is absent (BZ#1125075)
 yum -t -y -e 0 remove firewalld
-
-# Ensure mariadb is installed on controllers before puppet run
-<% if @host.hostgroup.to_s.include?("Controller") -%>
-yum -t -y -e 0 install mariadb
-<% end -%>
 
 <% if puppet_enabled %>
 echo "Configuring puppet"
