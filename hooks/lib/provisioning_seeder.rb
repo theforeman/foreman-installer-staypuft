@@ -385,7 +385,7 @@ EOF
 
 # ensures a valid disk is addressed in the partition table layout
 # sda is assumed and replaced if it is not correct
-sed -i "s/sda/$(cat /proc/partitions | awk '{ print $4 }' | grep -e "^.d.$" | sort | head -1)/" /tmp/diskpart.cfg
+sed -i "s/sda/$(cat /proc/partitions | awk '{ print $4 }' | grep -e "^.d.$" | grep -vw fd0 | sort | head -1)/" /tmp/diskpart.cfg
 %end
 
 %post --nochroot
