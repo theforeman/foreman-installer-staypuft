@@ -9,7 +9,7 @@
 
 Name:       foreman-installer-staypuft
 Epoch:      1
-Version:    0.5.6
+Version:    0.5.7
 Release:    1%{?dotalphatag}%{?dist}
 Summary:    Foreman-installer plugin that allows you to install staypuft
 Group:      Applications/System
@@ -111,6 +111,16 @@ cp config/staypuft-installer.answers.yaml %{buildroot}%{_sysconfdir}/foreman/sta
 %{_sbindir}/staypuft-client-installer
 
 %changelog
+* Wed Mar 11 2015 Brad P. Crochet <brad@redhat.com> 0.5.7-1
+- BZ#1196310 and BZ#1199827 (alessandro@ams0.org)
+- BZ #1131584 Ensure fd0 is not in /proc/partitions (alessandro@ams0.org)
+- BZ#1199827 Disable all repos before enabling (alessandro@ams0.org)
+- rhbz#1196310 - include rhel-ha repo by default (alessandro@ams0.org)
+- Revert "BZ #1180322: Install mariadb on controllers before puppet"
+  (mburns@redhat.com)
+- rhbz#1188492 remove commented snippet (mburns@redhat.com)
+- disable epel on RHEL default kickstart (mburns@redhat.com)
+
 * Thu Feb 12 2015 Brad P. Crochet <brad@redhat.com> 0.5.6-1
 - BZ #1191732: Add ntp-servers to OS parameters (brad@redhat.com)
 - BZ#1180322 - errors on registration puppet run (jistr@redhat.com)
