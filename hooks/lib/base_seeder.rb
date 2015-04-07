@@ -34,8 +34,8 @@ class BaseSeeder
   def additional_oses(os)
     additional = []
     if os['name'] == 'RedHat' && os['major'] == '6'
-      additional << foreman.operating_system.show_or_ensure({'id' => 'RedHat 7.0',
-                                                             'name' => 'RedHat', 'major' => '7', 'minor' => '0',
+      additional << foreman.operating_system.show_or_ensure({'id' => 'RedHat 7.1',
+                                                             'name' => 'RedHat', 'major' => '7', 'minor' => '1',
                                                              'family' => 'Redhat'}, {})
     end
     if os['name'] == 'CentOS' && os['major'] == '6'
