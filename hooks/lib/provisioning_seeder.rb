@@ -337,7 +337,6 @@ skipx
 network --bootproto <%= dhcp ? 'dhcp' : "static --ip=#{@host.ip} --netmask=#{subnet.mask} --gateway=#{subnet.gateway} --nameserver=#{[subnet.dns_primary, subnet.dns_secondary].select(&:present?).join(',')}" %> --device=<%= @host.mac -%> --hostname <%= @host %>
 
 rootpw --iscrypted <%= root_pass %>
-firewall --<%= os_major >= 6 ? 'service=' : '' %>ssh
 authconfig --useshadow --passalgo=sha256 --kickstart
 timezone --utc <%= @host.params['time-zone'] || 'UTC' %>
 
@@ -346,7 +345,7 @@ realm join --one-time-password=<%= @host.otp %> <%= @host.realm %>
 <% end -%>
 
 <% if os_major > 4 -%>
-services --disabled autofs,gpm,sendmail,cups,iptables,ip6tables,auditd,arptables_jf,xfs,pcmcia,isdn,rawdevices,hpoj,bluetooth,openibd,avahi-daemon,avahi-dnsconfd,hidd,hplip,pcscd,restorecond,mcstrans,rhnsd,yum-updatesd
+services --enabled iptables --disabled autofs,gpm,sendmail,cups,iptables,ip6tables,auditd,arptables_jf,xfs,pcmcia,isdn,rawdevices,hpoj,bluetooth,openibd,avahi-daemon,avahi-dnsconfd,hidd,hplip,pcscd,restorecond,mcstrans,rhnsd,yum-updatesd
 
 <% if puppet_enabled && @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
 repo --name=puppetlabs-products --baseurl=http://yum.puppetlabs.com/el/<%= @host.operatingsystem.major %>/products/<%= @host.architecture %>
@@ -370,6 +369,8 @@ dhclient
 ntp
 wget
 @Core
+iptables-services
+-firewalld
 <% if puppet_enabled %>
 puppet
 <% if @host.params['enable-puppetlabs-repo'] && @host.params['enable-puppetlabs-repo'] == 'true' -%>
@@ -427,9 +428,6 @@ chkconfig network on
 
 # update all the base packages from the updates repository
 yum -t -y -e 0 update
-
-# ensure firewalld is absent (BZ#1125075)
-yum -t -y -e 0 remove firewalld
 
 <% if puppet_enabled %>
 # and add the puppet package
