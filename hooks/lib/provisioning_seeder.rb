@@ -715,6 +715,9 @@ description: this will configure your host networking, it configures your primar
 <% subnet = @host.subnet -%>
 <% dhcp = subnet.dhcp_boot_mode? -%>
 <% bonds = @host.bond_interfaces -%>
+<% mtu = @host.network_query.mtu_for_tenant_subnet -%>
+<% tenant_subnet = @host.network_query.tenant_subnet?(subnet, @host) -%>
+<% tenant_interface = @host.network_query.tenant_interface?(@host.primary_interface) -%>
 
 # primary interface
 real=`ip -o link | grep <%= @host.mac -%> | awk '{print $2;}' | sed s/://`
@@ -730,6 +733,9 @@ HWADDR="<%= @host.mac -%>"
 BOOTPROTO="<%= (dhcp && !@host.primary_interface_is_bonded?) ? 'dhcp' : 'none' -%>"
 ONBOOT=yes
 DEFROUTE=no
+<% if (tenant_subnet || tenant_interface) && mtu -%>
+MTU=<%= mtu %>
+<% end -%>
 <% bonds.each do |bond| -%>
 <% next if !bond.attached_devices_identifiers.include? @host.primary_interface -%>
 MASTER=<%= bond.identifier %>
@@ -746,7 +752,7 @@ EOF
 <% subnet = bond.subnet -%>
 <% dhcp = subnet.nil? ? false : subnet.dhcp_boot_mode? -%>
 <% tenant_subnet = @host.network_query.tenant_subnet?(subnet, @host) -%>
-<% mtu = @host.network_query.mtu_for_tenant_subnet -%>
+<% tenant_interface = @host.network_query.tenant_interface?(bond.identifier) -%>
 # <%= bond.identifier %> interface
 real="<%= bond.identifier -%>"
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$real
@@ -765,7 +771,7 @@ TYPE=Bond
 BONDING_OPTS="<%= bond.bond_options -%> mode=<%= bond.mode -%>"
 BONDING_MASTER=yes
 NM_CONTROLLED=no
-<% if tenant_subnet && mtu -%>
+<% if (tenant_subnet || tenant_interface) && mtu -%>
 MTU=<%= mtu %>
 <% end -%>
 EOF
@@ -778,6 +784,8 @@ EOF
 <% vlan = virtual && subnet.has_vlanid? -%>
 <% alias_type = virtual && !subnet.nil? && !subnet.has_vlanid? && interface.identifier.include?(':') -%>
 <% dhcp = !subnet.nil? && subnet.dhcp_boot_mode? -%>
+<% tenant_subnet = @host.network_query.tenant_subnet?(subnet, @host) -%>
+<% tenant_interface = @host.network_query.tenant_interface?(interface.identifier) -%>
 
 # <%= interface.identifier %> interface
 real=`ip -o link | grep <%= interface.mac -%> | awk '{print $2;}' | sed s/:$//`
@@ -803,6 +811,9 @@ NM_CONTROLLED=no
 MASTER=<%= bond.identifier %>
 SLAVE=yes
 DEFROUTE=no
+<% if (tenant_subnet || tenant_interface) && mtu -%>
+MTU=<%= mtu %>
+<% end -%>
 EOF
 
 <% bonded_interfaces.push(interface.identifier) -%>
@@ -819,7 +830,7 @@ EOF
 <% alias_type = subnet.nil? ? false : virtual && !subnet.has_vlanid? && interface.identifier.include?(':') -%>
 <% dhcp = subnet.nil? ? false : subnet.dhcp_boot_mode? -%>
 <% tenant_subnet = @host.network_query.tenant_subnet?(subnet, @host) -%>
-<% mtu = @host.network_query.mtu_for_tenant_subnet -%>
+<% tenant_interface = @host.network_query.tenant_interface?(interface.identifier) -%>
 
 # <%= interface.identifier %> interface
 <% unless virtual -%>
@@ -849,7 +860,7 @@ TYPE=Alias
 <% end -%>
 NM_CONTROLLED=no
 DEFROUTE=no
-<% if tenant_subnet && mtu -%>
+<% if (tenant_subnet || tenant_interface) && mtu -%>
 MTU=<%= mtu %>
 <% end -%>
 EOF
