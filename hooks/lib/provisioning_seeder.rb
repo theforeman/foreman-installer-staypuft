@@ -1070,7 +1070,7 @@ name: redhat_register
     subscription-manager repos --disable=*
     <%= "subscription-manager repos #{@host.params['subscription_manager_repos'].split(/[\s,]/).reject { |r| r.empty? }.map { |r| '--enable=' + r }.join(' ')}" if @host.params['subscription_manager_repos'] %>
   <% elsif @host.params['activation_key'] %>
-    rpm -Uvh <%= @host.params['subscription_manager_host'] %>/pub/candlepin-cert-consumer-latest.noarch.rpm
+    rpm -Uvh <%= @host.params['subscription_manager_host'] %>/pub/katello-ca-consumer-latest.noarch.rpm
     subscription-manager register --org="<%= @host.params['subscription_manager_org'] %>" --activationkey="<%= @host.params['activation_key'] %>"
     # workaround for RHEL 6.4 bug https://bugzilla.redhat.com/show_bug.cgi?id=1008016
     subscription-manager repos --list > /dev/null
