@@ -409,7 +409,7 @@ exec < /dev/tty3 > /dev/tty3
 
 #update local time
 echo "updating system time"
-/usr/sbin/ntpdate -sub <%= @host.params['ntp-server'] || '0.fedora.pool.ntp.org' %>
+/usr/sbin/ntpdate -ub <%= @host.params['ntp-server'] || '0.fedora.pool.ntp.org' %>
 /usr/sbin/hwclock --systohc
 
 #disable NetworkManager and enable network
