@@ -14,6 +14,7 @@ class AuthenticationWizard < BaseWizard
   def self.custom_labels
     {
         :configure_networking => 'Configure networking',
+        :root_password => 'Change root password',
         :show_password => 'Toggle Root password visibility',
     }
   end
