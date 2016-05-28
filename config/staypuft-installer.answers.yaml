@@ -13,6 +13,7 @@ foreman:
   authentication: true
   custom_repo: true
   configure_epel_repo: false
+  idle_timeout: 180
 foreman_proxy:
   custom_repo: true
   puppetrun_provider: 'puppetssh'
