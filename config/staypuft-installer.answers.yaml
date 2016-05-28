@@ -24,6 +24,7 @@ sshkeypair:
   group: 'foreman-proxy'
 puppet:
   server: true
+  server_noderb_timeout: 60
 "foreman::plugin::discovery":
   install_images: false
 "foreman::plugin::tasks": true
