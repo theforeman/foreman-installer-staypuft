@@ -42,8 +42,7 @@ class sshkeypair($foreman_proxy_user='foreman-proxy',
     mode   => '0600',
     require => Package['foreman-proxy'],
   } ->
-  # TODO Remove this once we have the ability to add clients to the known hosts as and when they are registed via
-  # Override global StrictHostChecking for foreman-proxy user. 
+ 
   file { "${foreman_proxy_home}/.ssh/config":
     ensure  => file,
     owner  => $foreman_proxy_user,
